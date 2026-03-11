@@ -131,14 +131,22 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       )
       .join("");
 
-    const nomineeRows = renderDefinitionList([
-      ["Nominee name", payload.nominee.name],
-      ["Relationship", payload.nominee.relationship],
-      ["ID", payload.nominee.idNumber],
-      ["Contact", payload.nominee.contact],
-      ["Share", `${payload.nominee.share}%`],
-      ["Notes", payload.notes || "-"]
-    ]);
+    const nomineeRows = (payload.nominees || [])
+      .map(
+        (nominee: Record<string, string | number>, index: number) => `
+          <tr>
+            <td colspan="2" style="padding-top:14px;font-weight:700;color:#0f6da8">Nominee ${index + 1}</td>
+          </tr>
+          ${renderDefinitionList([
+            ["Name", String(nominee.name || "-")],
+            ["Relationship", String(nominee.relationship || "-")],
+            ["ID", String(nominee.idNumber || "-")],
+            ["Contact", String(nominee.contact || "-")],
+            ["Share", `${Number(nominee.share || 0)}%`]
+          ])}
+        `
+      )
+      .join("");
 
     const html = `
       <div style="font-family:Arial,sans-serif;background:#f7f4ef;padding:24px;color:#132941">
@@ -161,7 +169,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           <table style="width:100%;border-collapse:collapse">${travellerRows}</table>
 
           <h2 style="margin:24px 0 10px;font-size:18px">Nominee</h2>
-          <table style="width:100%;border-collapse:collapse">${nomineeRows}</table>
+          <table style="width:100%;border-collapse:collapse">${nomineeRows || renderDefinitionList([["Nominees", "None provided"]])}</table>
         </div>
       </div>
     `;

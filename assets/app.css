@@ -653,6 +653,15 @@ textarea {
   background: #f6f1e8;
 }
 
+.payment-detail-box img {
+  display: block;
+  width: min(220px, 100%);
+  margin: 0.9rem auto 0;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: white;
+}
+
 .payment-detail-box strong {
   display: block;
   margin-bottom: 0.35rem;

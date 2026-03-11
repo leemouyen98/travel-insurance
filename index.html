@@ -29,15 +29,17 @@
     <section class="hero shell" id="hero">
       <div class="hero-copy">
         <p class="eyebrow">Explorer Intro</p>
-        <h1>Simple travel cover application for your clients.</h1>
+        <h1>Travel insurance that feels clear, polished, and ready to buy.</h1>
         <p class="hero-text">
-          Tokio Marine Explorer with Basic, Essential and Deluxe options, area-based pricing,
-          single trip or annual cover, family and group logic, nominee collection, and payment proof upload.
+          Tokio Marine Explorer gives your clients a fast buying experience with area-based pricing,
+          Essential pre-selected for the best balance of value and protection, and a final payment step
+          that sends you everything you need in one submission.
         </p>
         <div class="hero-pills">
-          <span>Essential is pre-selected</span>
+          <span>Buy in 3 clear steps</span>
+          <span>Popular Essential plan pre-selected</span>
           <span>Family and group rules built in</span>
-          <span>Payment proof sent to Henry</span>
+          <span>Payment proof sent straight to Henry</span>
         </div>
         <div class="hero-actions">
           <a href="#application" class="button button-primary">Buy Now</a>
@@ -45,12 +47,21 @@
       </div>
       <aside class="hero-panel">
         <div class="hero-panel-card">
-          <p class="mini-label">Explorer highlights</p>
+          <p class="mini-label">Why clients like this flow</p>
           <ul class="feature-list">
-            <li>Area 1, Area 2, Area 3 and Domestic pricing</li>
-            <li>Popular Essential and Best Deluxe labels</li>
-            <li>Nominee and insured details in one submission</li>
-            <li>DuitNow, TNG, bank transfer or Billplz request</li>
+            <li>Quick quote with live premium breakdown</li>
+            <li>Clean plan comparison with Popular and Best labels</li>
+            <li>Nominee split support for multiple beneficiaries</li>
+            <li>DuitNow QR, TNG, bank transfer or card request</li>
+          </ul>
+        </div>
+        <div class="hero-panel-card tone-dark">
+          <p class="mini-label">What gets submitted</p>
+          <ul class="feature-list compact">
+            <li>Travel dates and coverage area</li>
+            <li>Insured details and proposer details if needed</li>
+            <li>Bank details, nominees and allocation</li>
+            <li>Payment slip and final premium total</li>
           </ul>
         </div>
       </aside>
@@ -95,7 +106,7 @@
           <h2>Explorer premium starting points.</h2>
           <p class="section-copy">
             Single trip pricing follows brochure brackets up to 180 days. Group policies apply a 5% discount.
-            Domestic pricing includes 8% service tax in this site logic. All policies include RM10 stamp duty.
+            Domestic pricing includes 8% service tax in this site logic. Stamp duty is only charged when premium is RM150 or above.
           </p>
         </div>
         <div class="pricing-grid">
@@ -324,7 +335,7 @@
               </div>
 
               <div class="subsection">
-                <h4>Claim bank details</h4>
+                <h4>Bank Details</h4>
                 <div class="field-grid three">
                   <label class="field">
                     <span>Bank name (for claim purpose)</span>
@@ -339,8 +350,7 @@
                   <label class="field">
                     <span>Account type</span>
                     <select name="bankAccountType" id="bankAccountType" required>
-                      <option value="">Select type</option>
-                      <option value="Savings">Savings</option>
+                      <option value="Savings" selected>Savings</option>
                       <option value="Current">Current</option>
                     </select>
                     <small class="error-text" data-error-for="bankAccountType"></small>
@@ -349,43 +359,15 @@
               </div>
 
               <div class="subsection">
-                <h4>Nominee details</h4>
-                <div class="field-grid two">
-                  <label class="field">
-                    <span>Nominee full name</span>
-                    <input type="text" name="nomineeName" id="nomineeName" required>
-                    <small class="error-text" data-error-for="nomineeName"></small>
-                  </label>
-                  <label class="field">
-                    <span>Relationship</span>
-                    <select name="nomineeRelationship" id="nomineeRelationship" required>
-                      <option value="">Select relationship</option>
-                      <option value="Child">Child</option>
-                      <option value="Other">Other</option>
-                      <option value="Parent">Parent</option>
-                      <option value="Sibling">Sibling</option>
-                      <option value="Spouse">Spouse</option>
-                    </select>
-                    <small class="error-text" data-error-for="nomineeRelationship"></small>
-                  </label>
+                <div class="subsection-head">
+                  <div>
+                    <h4>Nominee details</h4>
+                    <p>Add one or more nominees. Total allocation must be 100%.</p>
+                  </div>
+                  <button type="button" class="button button-secondary" id="addNomineeButton">Add nominee</button>
                 </div>
-                <div class="field-grid three">
-                  <label class="field">
-                    <span>NRIC/Passport (Same as IC/Passport)</span>
-                    <input type="text" name="nomineeId" id="nomineeId" required>
-                    <small class="error-text" data-error-for="nomineeId"></small>
-                  </label>
-                  <label class="field">
-                    <span>Contact number</span>
-                    <input type="tel" name="nomineeContact" id="nomineeContact" required>
-                    <small class="error-text" data-error-for="nomineeContact"></small>
-                  </label>
-                  <label class="field">
-                    <span>Allocation (%)</span>
-                    <input type="number" name="nomineeShare" id="nomineeShare" min="1" max="100" value="100" required>
-                    <small class="error-text" data-error-for="nomineeShare"></small>
-                  </label>
-                </div>
+                <div id="nomineeList" class="stack"></div>
+                <small class="error-text" data-error-for="nominees"></small>
               </div>
 
               <div class="button-row">

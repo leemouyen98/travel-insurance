@@ -31,10 +31,10 @@ const AREA_LABELS = {
 };
 
 const PAYMENT_CONTENT = {
-  duitnow: "<strong>DuitNow QR</strong><p>Scan Henry's QR and upload the payment screenshot before submit.</p>",
+  duitnow: '<strong>DuitNow QR</strong><p>Scan Henry\'s QR and upload the payment screenshot before submit.</p><img src="/duitnow-qr.png" alt="DuitNow QR">',
   tng: "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>.</p>",
   bank: "<strong>RHB Bank Transfer</strong><p>Account name <b>LEE MOU YEN</b><br>Account number <b>1040 2700 307120</b></p>",
-  billplz: "<strong>Billplz card request</strong><p>Henry will send the payment link after submission.</p>"
+  billplz: "<strong>Billplz card request</strong><p>Henry will send the payment link after submission. RM1 convenience fee applies.</p>"
 };
 
 const MALAYSIAN_BANKS = [
@@ -73,6 +73,7 @@ const state = {
 
 const form = document.querySelector("#applicationForm");
 const insuredList = document.querySelector("#insuredList");
+const nomineeList = document.querySelector("#nomineeList");
 const summaryList = document.querySelector("#summaryList");
 const paymentDetailBox = document.querySelector("#paymentDetailBox");
 
@@ -235,8 +236,24 @@ function calculateQuote() {
     }
     const premium = base - discount;
     const serviceTax = premium * 0.08;
-    const stampDuty = 10;
-    return { area, days, total: premium + serviceTax + stampDuty, items: [...items, { label: "Service tax (8%)", value: serviceTax }, { label: "Stamp duty", value: stampDuty }] };
+    const taxableTotal = premium + serviceTax;
+    const stampDuty = taxableTotal >= 150 ? 10 : 0;
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || "duitnow";
+    const cardFee = paymentMethod === "billplz" ? 1 : 0;
+    return {
+      area,
+      days,
+      total: taxableTotal + stampDuty + cardFee,
+      premiumSubtotal: taxableTotal,
+      stampDuty,
+      cardFee,
+      items: [
+        ...items,
+        { label: "Service tax (8%)", value: serviceTax },
+        ...(stampDuty ? [{ label: "Stamp duty", value: stampDuty }] : []),
+        ...(cardFee ? [{ label: "Card convenience fee", value: cardFee }] : [])
+      ]
+    };
   }
 
   const areaTable = PREMIUMS.international[area];
@@ -254,7 +271,23 @@ function calculateQuote() {
     base = getBracketValue(areaTable[bucket][state.selectedPlan], days, annual);
     items.push({ label: `${state.selectedPlan} ${bucket === "senior" ? "senior" : "individual"} premium`, value: base });
   }
-  return { area, days, total: base - discount + 10, items: [...items, { label: "Stamp duty", value: 10 }] };
+  const premiumSubtotal = base - discount;
+  const stampDuty = premiumSubtotal >= 150 ? 10 : 0;
+  const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || "duitnow";
+  const cardFee = paymentMethod === "billplz" ? 1 : 0;
+  return {
+    area,
+    days,
+    total: premiumSubtotal + stampDuty + cardFee,
+    premiumSubtotal,
+    stampDuty,
+    cardFee,
+    items: [
+      ...items,
+      ...(stampDuty ? [{ label: "Stamp duty", value: stampDuty }] : []),
+      ...(cardFee ? [{ label: "Card convenience fee", value: cardFee }] : [])
+    ]
+  };
 }
 
 function buildTravellerCard(index, category) {
@@ -386,6 +419,96 @@ function collectTravellers() {
   }));
 }
 
+function buildNomineeCard(index) {
+  return `
+    <article class="traveller-card" data-nominee-card="${index}">
+      <div class="card-header">
+        <h5>Nominee ${index + 1}</h5>
+        ${index === 0 ? "" : `<button type="button" class="button button-secondary" data-remove-nominee="${index}">Remove</button>`}
+      </div>
+      <div class="field-grid two">
+        <label class="field">
+          <span>Nominee full name</span>
+          <input type="text" name="nomineeName_${index}" required>
+        </label>
+        <label class="field">
+          <span>Relationship</span>
+          <select name="nomineeRelationship_${index}" required>
+            <option value="">Select relationship</option>
+            <option value="Child">Child</option>
+            <option value="Parent">Parent</option>
+            <option value="Sibling">Sibling</option>
+            <option value="Spouse">Spouse</option>
+          </select>
+        </label>
+      </div>
+      <div class="field-grid three">
+        <label class="field">
+          <span>NRIC/Passport (Same as IC/Passport)</span>
+          <input type="text" name="nomineeId_${index}" required>
+        </label>
+        <label class="field">
+          <span>Contact number</span>
+          <input type="tel" name="nomineeContact_${index}" required>
+        </label>
+        <label class="field">
+          <span>Allocation (%)</span>
+          <input type="number" name="nomineeShare_${index}" min="1" max="100" value="${index === 0 ? 100 : ""}" required>
+        </label>
+      </div>
+    </article>
+  `;
+}
+
+function collectNominees() {
+  return Array.from(nomineeList.querySelectorAll("[data-nominee-card]")).map((_, index) => ({
+    name: form.elements[`nomineeName_${index}`]?.value.trim() || "",
+    relationship: form.elements[`nomineeRelationship_${index}`]?.value || "",
+    idNumber: form.elements[`nomineeId_${index}`]?.value.trim() || "",
+    contact: form.elements[`nomineeContact_${index}`]?.value.trim() || "",
+    share: Number(form.elements[`nomineeShare_${index}`]?.value || 0)
+  }));
+}
+
+function getNomineeDrafts() {
+  return Array.from(nomineeList.querySelectorAll("[data-nominee-card]")).map((_, index) => ({
+    name: form.elements[`nomineeName_${index}`]?.value || "",
+    relationship: form.elements[`nomineeRelationship_${index}`]?.value || "",
+    idNumber: form.elements[`nomineeId_${index}`]?.value || "",
+    contact: form.elements[`nomineeContact_${index}`]?.value || "",
+    share: form.elements[`nomineeShare_${index}`]?.value || ""
+  }));
+}
+
+function bindNomineeActions() {
+  nomineeList.querySelectorAll("[data-remove-nominee]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const drafts = getNomineeDrafts();
+      if (drafts.length <= 1) return;
+      drafts.splice(Number(button.dataset.removeNominee), 1);
+      renderNominees(drafts);
+    });
+  });
+  nomineeList.querySelectorAll("input, select").forEach((field) => {
+    field.addEventListener("input", populateSummary);
+    field.addEventListener("change", populateSummary);
+  });
+}
+
+function renderNominees(drafts = [{ name: "", relationship: "", idNumber: "", contact: "", share: 100 }]) {
+  nomineeList.innerHTML = drafts.map((_, index) => buildNomineeCard(index)).join("");
+  drafts.forEach((draft, index) => {
+    if (form.elements[`nomineeName_${index}`]) {
+      form.elements[`nomineeName_${index}`].value = draft.name;
+      form.elements[`nomineeRelationship_${index}`].value = draft.relationship;
+      form.elements[`nomineeId_${index}`].value = draft.idNumber;
+      form.elements[`nomineeContact_${index}`].value = draft.contact;
+      form.elements[`nomineeShare_${index}`].value = draft.share;
+    }
+  });
+  bindNomineeActions();
+}
+
 function getProposerData(travellers) {
   if (!getField("buyingForSomeoneElse").checked) {
     const first = travellers[0] || {};
@@ -441,6 +564,7 @@ function populateSummary() {
     <div><dt>Travel dates</dt><dd>${getField("departureDate").value} to ${returnDate}</dd></div>
     <div><dt>Destination</dt><dd>${getField("coverageScope").value === "domestic" ? "Malaysia" : getField("destination").value.trim() || "-"}</dd></div>
     <div><dt>Proposer</dt><dd>${proposer.name || "-"}</dd></div>
+    <div><dt>Nomination total</dt><dd>${collectNominees().reduce((sum, nominee) => sum + nominee.share, 0)}%</dd></div>
     <div><dt>Payment method</dt><dd>${(document.querySelector('input[name="paymentMethod"]:checked')?.value || "").toUpperCase()}</dd></div>
   `;
   getField("summaryTotal").textContent = formatMoney(state.quote.total);
@@ -528,7 +652,7 @@ function validateStep(step) {
   }
 
   if (step === 2) {
-    ["proposerName", "proposerMobile", "proposerEmail", "proposerOccupation", "proposerAddress", "bankName", "bankAccountNumber", "bankAccountType", "nomineeName", "nomineeRelationship", "nomineeId", "nomineeContact", "nomineeShare"].forEach(clearError);
+    ["proposerName", "proposerMobile", "proposerEmail", "proposerOccupation", "proposerAddress", "bankName", "bankAccountNumber", "bankAccountType", "nominees", "selectedPlan"].forEach(clearError);
     const travellers = collectTravellers();
     travellers.forEach((traveller) => {
       if (!traveller.fullName || !traveller.nationality || !traveller.idNumber || !traveller.dateOfBirth || !traveller.gender || !traveller.mobile || !traveller.email || !traveller.occupation || !traveller.address) valid = false;
@@ -546,12 +670,21 @@ function validateStep(step) {
         }
       });
     }
-    ["bankName", "bankAccountNumber", "bankAccountType", "nomineeName", "nomineeRelationship", "nomineeId", "nomineeContact", "nomineeShare"].forEach((id) => {
+    ["bankName", "bankAccountNumber", "bankAccountType"].forEach((id) => {
       if (!String(getField(id).value).trim()) {
         showError(id, "This field is required.");
         valid = false;
       }
     });
+    const nominees = collectNominees();
+    const shareTotal = nominees.reduce((sum, nominee) => sum + nominee.share, 0);
+    nominees.forEach((nominee) => {
+      if (!nominee.name || !nominee.relationship || !nominee.idNumber || !nominee.contact || !nominee.share) valid = false;
+    });
+    if (!nominees.length || shareTotal !== 100) {
+      showError("nominees", "Nominee allocation must total exactly 100%.");
+      valid = false;
+    }
   }
 
   if (step === 3) {
@@ -618,13 +751,7 @@ async function submitForm(event) {
       bankAccountType: getField("bankAccountType").value
     },
     insuredTravellers: travellers,
-    nominee: {
-      name: getField("nomineeName").value.trim(),
-      relationship: getField("nomineeRelationship").value,
-      idNumber: getField("nomineeId").value.trim(),
-      contact: getField("nomineeContact").value.trim(),
-      share: Number(getField("nomineeShare").value)
-    },
+    nominees: collectNominees(),
     paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value
   };
 
@@ -671,6 +798,7 @@ function resetForm() {
   getField("successCard").hidden = true;
   form.hidden = false;
   renderBankOptions();
+  renderNominees();
   refreshVisibility();
   setPaymentContent();
   goToStep(1);
@@ -713,10 +841,16 @@ document.querySelectorAll("[data-counter]").forEach((button) => {
 
 document.querySelectorAll('input[name="coverageArea"]').forEach((input) => input.addEventListener("change", refreshQuote));
 document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => input.addEventListener("change", setPaymentContent));
+document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => input.addEventListener("change", refreshQuote));
 getField("destination").addEventListener("input", populateSummary);
 getField("buyingForSomeoneElse").addEventListener("change", () => {
   state.travellerSignature = "";
   refreshVisibility();
+});
+getField("addNomineeButton").addEventListener("click", () => {
+  const drafts = getNomineeDrafts();
+  drafts.push({ name: "", relationship: "", idNumber: "", contact: "", share: "" });
+  renderNominees(drafts);
 });
 
 document.querySelectorAll("[data-next-step]").forEach((button) => {
@@ -738,4 +872,5 @@ form.addEventListener("submit", submitForm);
 renderBankOptions();
 initMinDates();
 refreshVisibility();
+renderNominees();
 setPaymentContent();
