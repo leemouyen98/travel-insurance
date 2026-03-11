@@ -104,7 +104,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       ["Departure", payload.product.departureDate],
       ["Return", payload.product.returnDate],
       ["Destination", payload.product.destination || "Malaysia"],
-      ["Purpose", payload.product.travelPurpose],
       ["Payment method", payload.paymentMethod],
       ["Total quote", `RM ${Number(payload.quote.total).toFixed(2)}`]
     ]);
@@ -116,31 +115,17 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             <td colspan="2" style="padding-top:14px;font-weight:700;color:#0f6da8">Traveller ${index + 1}</td>
           </tr>
           ${renderDefinitionList([
-            ["Age bucket", traveller.category],
+            ["Age bucket", traveller.ageBand],
+            ["Family role", traveller.category || "-"],
             ["Name", traveller.fullName],
+            ["Nationality", traveller.nationality],
             ["ID", traveller.idNumber],
             ["DOB", traveller.dateOfBirth],
             ["Gender", traveller.gender],
-            ["Nationality", traveller.nationality],
-            ["Relationship", traveller.relationship],
-            ["Passport expiry", traveller.passportExpiry || "-"]
-          ])}
-        `
-      )
-      .join("");
-
-    const segmentRows = (payload.segments || [])
-      .map(
-        (segment: Record<string, string>, index: number) => `
-          <tr>
-            <td colspan="2" style="padding-top:14px;font-weight:700;color:#0f6da8">Segment ${index + 1}</td>
-          </tr>
-          ${renderDefinitionList([
-            ["Carrier", segment.carrier || "-"],
-            ["Number", segment.number || "-"],
-            ["From", segment.from || "-"],
-            ["To", segment.to || "-"],
-            ["Date", segment.date || "-"]
+            ["Mobile", traveller.mobile],
+            ["Email", traveller.email],
+            ["Occupation", traveller.occupation],
+            ["Address", traveller.address]
           ])}
         `
       )
@@ -174,9 +159,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
           <h2 style="margin:24px 0 10px;font-size:18px">Insured travellers</h2>
           <table style="width:100%;border-collapse:collapse">${travellerRows}</table>
-
-          <h2 style="margin:24px 0 10px;font-size:18px">Flight or itinerary segments</h2>
-          <table style="width:100%;border-collapse:collapse">${segmentRows || renderDefinitionList([["Segments", "None provided"]])}</table>
 
           <h2 style="margin:24px 0 10px;font-size:18px">Nominee</h2>
           <table style="width:100%;border-collapse:collapse">${nomineeRows}</table>
