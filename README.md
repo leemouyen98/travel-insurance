@@ -8,6 +8,9 @@ Static travel insurance application site for Henry Lee's Tokio Marine Explorer c
 - `assets/app.css`: styles
 - `assets/app.js`: quote logic, multi-step form flow, traveller generation, submit handling
 - `functions/api/submit.ts`: Cloudflare Pages Function that forwards submissions to Resend
+- `wrangler.toml`: Cloudflare Pages local/dev configuration
+- `package.json`: local dev and typecheck scripts
+- `.dev.vars.example`: local environment variable template
 
 ## What is implemented
 
@@ -47,9 +50,31 @@ Example:
 5. Add the environment variables above.
 6. Redeploy.
 
+If you deploy from CLI instead:
+
+```bash
+npm install
+npx wrangler pages deploy .
+```
+
 ## Local preview
 
-Any static server works for the frontend. For example:
+Install dependencies first:
+
+```bash
+npm install
+```
+
+For full local Pages emulation:
+
+```bash
+cp .dev.vars.example .dev.vars
+npm run dev
+```
+
+Wrangler will serve the static site and the `functions/` endpoint together.
+
+If you only want the frontend, any static server also works:
 
 ```bash
 python3 -m http.server 8788
@@ -57,10 +82,15 @@ python3 -m http.server 8788
 
 Then open [http://localhost:8788](http://localhost:8788).
 
-To test the Pages Function locally, use Wrangler Pages dev if you want Cloudflare function emulation.
+For function typechecking:
+
+```bash
+npm run check
+```
 
 ## Notes
 
 - The site expects clients to upload a payment slip for DuitNow QR, Touch 'n Go, and bank transfer.
 - The UI references Henry's payment details directly in the page.
 - If you want to show the actual DuitNow QR image in the UI, add an image asset and place it into the payment content block in `index.html` or `assets/app.js`.
+- Copy `.dev.vars.example` to `.dev.vars` for local development, but do not commit `.dev.vars`.
