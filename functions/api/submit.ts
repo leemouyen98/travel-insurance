@@ -164,6 +164,22 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       )
       .join("");
 
+    const bankRows = (payload.bankDetails || [])
+      .map(
+        (bank: Record<string, string>, index: number) => `
+          <tr>
+            <td colspan="2" style="padding-top:14px;font-weight:700;color:#0f6da8">${escapeHtml(
+              bank.travellerName ? `Bank ${index + 1} for ${bank.travellerName}` : `Bank ${index + 1}`
+            )}</td>
+          </tr>
+          ${renderDefinitionList([
+            ["Bank", String(bank.bankName ? `${bank.bankName}${bank.bankAccountType ? ` (${bank.bankAccountType})` : ""}` : "-")],
+            ["Account number", String(bank.bankAccountNumber || "-")]
+          ])}
+        `
+      )
+      .join("");
+
     const html = `
       <div style="font-family:Arial,sans-serif;background:#f7f4ef;padding:24px;color:#132941">
         <div style="max-width:760px;margin:0 auto;background:#fff;border-radius:20px;padding:28px">
@@ -180,6 +196,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
           <h2 style="margin:24px 0 10px;font-size:18px">Proposer</h2>
           <table style="width:100%;border-collapse:collapse">${proposerRows}</table>
+
+          <h2 style="margin:24px 0 10px;font-size:18px">Bank details</h2>
+          <table style="width:100%;border-collapse:collapse">${bankRows || renderDefinitionList([["Bank details", "None provided"]])}</table>
 
           <h2 style="margin:24px 0 10px;font-size:18px">Insured travellers</h2>
           <table style="width:100%;border-collapse:collapse">${travellerRows}</table>

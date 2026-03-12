@@ -397,27 +397,8 @@
                   <em>Add</em>
                 </button>
                 <div class="optional-body" id="bankSectionBody" hidden>
-                <div class="linked-travellers" id="bankTravellerList" hidden></div>
-                <div class="field-grid three">
-                  <label class="field">
-                    <span>Bank name (for claim purpose)</span>
-                    <select name="bankName" id="bankName"></select>
-                    <small class="error-text" data-error-for="bankName"></small>
-                  </label>
-                  <label class="field">
-                    <span>Account number</span>
-                    <input type="text" name="bankAccountNumber" id="bankAccountNumber">
-                    <small class="error-text" data-error-for="bankAccountNumber"></small>
-                  </label>
-                  <label class="field">
-                    <span>Account type</span>
-                    <select name="bankAccountType" id="bankAccountType">
-                      <option value="Savings" selected>Savings</option>
-                      <option value="Current">Current</option>
-                    </select>
-                    <small class="error-text" data-error-for="bankAccountType"></small>
-                  </label>
-                </div>
+                  <div id="bankList" class="stack"></div>
+                  <small class="error-text" data-error-for="bankDetails"></small>
                 </div>
               </div>
 

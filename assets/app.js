@@ -300,9 +300,8 @@ function getTripDays() {
   return Math.round((end - start) / 86400000);
 }
 
-function renderBankOptions() {
-  const bank = getField("bankName");
-  bank.innerHTML = `<option value="">Select bank</option>${MALAYSIAN_BANKS.map((name) => `<option value="${name}">${name}</option>`).join("")}`;
+function bankOptionsMarkup(selected = "") {
+  return `<option value="">Select bank</option>${MALAYSIAN_BANKS.map((name) => `<option value="${name}" ${name === selected ? "selected" : ""}>${name}</option>`).join("")}`;
 }
 
 function getTravellerDisplayNames() {
@@ -312,20 +311,88 @@ function getTravellerDisplayNames() {
   });
 }
 
-function renderBankTravellerList() {
-  const node = getField("bankTravellerList");
-  if (!node) return;
-  const names = getTravellerDisplayNames();
-  if (names.length <= 1) {
-    node.hidden = true;
-    node.innerHTML = "";
-    return;
-  }
-  node.hidden = false;
-  node.innerHTML = `
-    <strong>Bank details linked to travellers</strong>
-    ${names.map((name, index) => `<p>#${index + 1} Name: ${name}</p>`).join("")}
+function getBankTargetCount(currentCount = 0) {
+  const travellerTotal = getTotalTravellers();
+  if (travellerTotal > 1) return Math.max(travellerTotal, currentCount, 1);
+  return Math.max(currentCount, 1);
+}
+
+function buildBankDraftList(existingDrafts = []) {
+  const targetCount = getBankTargetCount(existingDrafts.length);
+  return Array.from({ length: targetCount }, (_, index) => existingDrafts[index] || {
+    bankName: "",
+    bankAccountNumber: "",
+    bankAccountType: "Savings"
+  });
+}
+
+function buildBankCard(index) {
+  const travellerNames = getTravellerDisplayNames();
+  const multipleTravellers = travellerNames.length > 1;
+  const cardTitle = multipleTravellers
+    ? `#${index + 1} ${travellerNames[index] || `Traveller ${index + 1}`}'s Bank`
+    : "Bank Details";
+  return `
+    <article class="traveller-card" data-bank-card="${index}">
+      <div class="card-header">
+        <h5>${cardTitle}</h5>
+      </div>
+      <div class="field-grid three">
+        <label class="field">
+          <span>Bank Name (For Claim Purpose)</span>
+          <select name="bankName_${index}">${bankOptionsMarkup()}</select>
+        </label>
+        <label class="field">
+          <span>Account Number</span>
+          <input type="text" name="bankAccountNumber_${index}">
+        </label>
+        <label class="field">
+          <span>Account Type</span>
+          <select name="bankAccountType_${index}">
+            <option value="Savings">Savings</option>
+            <option value="Current">Current</option>
+          </select>
+        </label>
+      </div>
+    </article>
   `;
+}
+
+function collectBankDetails() {
+  return Array.from(getField("bankList").querySelectorAll("[data-bank-card]")).map((_, index) => ({
+    travellerName: getTravellerDisplayNames()[index] || `Traveller ${index + 1}`,
+    bankName: form.elements[`bankName_${index}`]?.value || "",
+    bankAccountNumber: form.elements[`bankAccountNumber_${index}`]?.value.trim() || "",
+    bankAccountType: form.elements[`bankAccountType_${index}`]?.value || "Savings"
+  }));
+}
+
+function getBankDrafts() {
+  return Array.from(getField("bankList").querySelectorAll("[data-bank-card]")).map((_, index) => ({
+    bankName: form.elements[`bankName_${index}`]?.value || "",
+    bankAccountNumber: form.elements[`bankAccountNumber_${index}`]?.value || "",
+    bankAccountType: form.elements[`bankAccountType_${index}`]?.value || "Savings"
+  }));
+}
+
+function bindBankActions() {
+  getField("bankList").querySelectorAll("input, select").forEach((field) => {
+    field.addEventListener("input", populateSummary);
+    field.addEventListener("change", populateSummary);
+  });
+}
+
+function renderBankDetails(drafts = [{ bankName: "", bankAccountNumber: "", bankAccountType: "Savings" }]) {
+  const nextDrafts = buildBankDraftList(drafts);
+  getField("bankList").innerHTML = nextDrafts.map((_, index) => buildBankCard(index)).join("");
+  nextDrafts.forEach((draft, index) => {
+    if (form.elements[`bankName_${index}`]) {
+      form.elements[`bankName_${index}`].value = draft.bankName || "";
+      form.elements[`bankAccountNumber_${index}`].value = draft.bankAccountNumber || "";
+      form.elements[`bankAccountType_${index}`].value = draft.bankAccountType || "Savings";
+    }
+  });
+  bindBankActions();
 }
 
 function getNomineeTargetCount(currentCount = 0) {
@@ -726,15 +793,15 @@ function syncTravellerCards() {
     field.addEventListener("input", populateSummary);
     field.addEventListener("change", populateSummary);
     field.addEventListener("input", () => {
-      renderBankTravellerList();
+      renderBankDetails(getBankDrafts());
       renderNominees(getNomineeDrafts());
     });
     field.addEventListener("change", () => {
-      renderBankTravellerList();
+      renderBankDetails(getBankDrafts());
       renderNominees(getNomineeDrafts());
     });
   });
-  renderBankTravellerList();
+  renderBankDetails(getBankDrafts());
   renderNominees(getNomineeDrafts());
 }
 
@@ -1091,7 +1158,7 @@ function validateStep(step) {
   }
 
   if (step === 2) {
-    ["proposerName", "proposerMobile", "proposerEmail", "proposerOccupation", "proposerAddress", "bankName", "bankAccountNumber", "bankAccountType", "flights", "nominees", "selectedPlan", "insuredList"].forEach(clearError);
+    ["proposerName", "proposerMobile", "proposerEmail", "proposerOccupation", "proposerAddress", "bankDetails", "flights", "nominees", "selectedPlan", "insuredList"].forEach(clearError);
     const travellers = collectTravellers();
     let travellerIncomplete = false;
     travellers.forEach((traveller) => {
@@ -1226,10 +1293,11 @@ async function submitForm(event) {
     ),
     proposer: {
       ...proposer,
-      bankName: getField("bankName").value,
-      bankAccountNumber: getField("bankAccountNumber").value.trim(),
-      bankAccountType: getField("bankAccountType").value
+      bankName: collectBankDetails()[0]?.bankName || "",
+      bankAccountNumber: collectBankDetails()[0]?.bankAccountNumber || "",
+      bankAccountType: collectBankDetails()[0]?.bankAccountType || ""
     },
+    bankDetails: collectBankDetails().filter((bank) => bank.bankName || bank.bankAccountNumber),
     insuredTravellers: travellers,
     nominees: collectNominees().filter((nominee) =>
       nominee.name || nominee.relationship || nominee.idNumber || nominee.contact || nominee.share
@@ -1284,10 +1352,9 @@ function resetForm() {
   getField("seniorCount").value = 0;
   getField("successCard").hidden = true;
   form.hidden = false;
-  renderBankOptions();
   renderFlights();
   renderNominees();
-  renderBankTravellerList();
+  renderBankDetails();
   setLogicAlert("");
   refreshVisibility();
   setPaymentContent();
@@ -1424,9 +1491,9 @@ getField("topBackButton").addEventListener("click", () => {
 getField("startNewButton").addEventListener("click", resetForm);
 form.addEventListener("submit", submitForm);
 
-renderBankOptions();
 refreshVisibility();
 renderFlights();
+renderBankDetails();
 renderNominees();
 setPaymentContent();
 bindOptionalSections();
