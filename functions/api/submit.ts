@@ -131,6 +131,22 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       )
       .join("");
 
+    const flightRows = (payload.flights || [])
+      .map(
+        (flight: Record<string, string>, index: number) => `
+          <tr>
+            <td colspan="2" style="padding-top:14px;font-weight:700;color:#0f6da8">Flight ${index + 1}</td>
+          </tr>
+          ${renderDefinitionList([
+            ["Departure flight", String(flight.departureFlightNumber || "-")],
+            ["Departure date", String(flight.departureDate || "-")],
+            ["Arrival flight", String(flight.arrivalFlightNumber || "-")],
+            ["Arrival date", String(flight.arrivalDate || "-")]
+          ])}
+        `
+      )
+      .join("");
+
     const nomineeRows = (payload.nominees || [])
       .map(
         (nominee: Record<string, string | number>, index: number) => `
@@ -167,6 +183,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
           <h2 style="margin:24px 0 10px;font-size:18px">Insured travellers</h2>
           <table style="width:100%;border-collapse:collapse">${travellerRows}</table>
+
+          <h2 style="margin:24px 0 10px;font-size:18px">Flight details</h2>
+          <table style="width:100%;border-collapse:collapse">${flightRows || renderDefinitionList([["Flights", "None provided"]])}</table>
 
           <h2 style="margin:24px 0 10px;font-size:18px">Nominee</h2>
           <table style="width:100%;border-collapse:collapse">${nomineeRows || renderDefinitionList([["Nominees", "None provided"]])}</table>

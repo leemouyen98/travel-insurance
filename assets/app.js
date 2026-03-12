@@ -76,6 +76,69 @@ const PLAN_GUIDANCE = {
   }
 };
 
+const PLAN_COMPARE = {
+  basic: {
+    title: "Basic",
+    price: "From RM47",
+    suffix: "/ trip",
+    tag: "",
+    rows: [
+      ["Accidental Death", "RM350k"],
+      ["Medical Expenses", "RM750k"],
+      ["Emergency Evacuation", "RM1M"],
+      ["Travel Inconvenience", "RM5k"],
+      ["Personal Liability", "RM1M"],
+      ["Lounge Access", "x"],
+      ["CFAR", "x"]
+    ]
+  },
+  essential: {
+    title: "Essential",
+    price: "From RM58",
+    suffix: "/ trip",
+    tag: "Popular",
+    rows: [
+      ["Accidental Death", "RM550k"],
+      ["Medical Expenses", "RM1M"],
+      ["Emergency Evacuation", "Unlimited"],
+      ["Travel Inconvenience", "RM10k"],
+      ["Personal Liability", "RM1.5M"],
+      ["Lounge Access", "Yes"],
+      ["CFAR", "x"]
+    ]
+  },
+  deluxe: {
+    title: "Deluxe",
+    price: "From RM86",
+    suffix: "/ trip",
+    tag: "",
+    rows: [
+      ["Accidental Death", "RM550k"],
+      ["Medical Expenses", "RM1M"],
+      ["Emergency Evacuation", "Unlimited"],
+      ["Travel Inconvenience", "RM10k"],
+      ["Personal Liability", "RM1.5M"],
+      ["Lounge Access", "Yes"],
+      ["CFAR (up to RM5k)", "Yes"]
+    ]
+  },
+  domestic: {
+    title: "Domestic",
+    price: "Malaysia Only",
+    suffix: "",
+    tag: "",
+    rows: [
+      ["Coverage Scope", "Domestic Travel"],
+      ["Accident Cover", "Included"],
+      ["Medical Illness Cover", "Not Included"],
+      ["Travel Inconvenience", "Included"],
+      ["Personal Liability", "Included"],
+      ["Lounge Access", "x"],
+      ["CFAR", "x"]
+    ]
+  }
+};
+
 const PAYMENT_CONTENT = {
   duitnow: '<strong>DuitNow QR</strong><p>Scan Henry\'s QR and upload the payment screenshot before submit. Henry can verify and follow up faster when the slip is included.</p><img src="/duitnow-qr.png" alt="DuitNow QR">',
   tng: "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>. Upload the payment screenshot once done.</p>",
@@ -119,9 +182,11 @@ const state = {
 
 const form = document.querySelector("#applicationForm");
 const insuredList = document.querySelector("#insuredList");
+const flightList = document.querySelector("#flightList");
 const nomineeList = document.querySelector("#nomineeList");
 const summaryList = document.querySelector("#summaryList");
 const paymentDetailBox = document.querySelector("#paymentDetailBox");
+const marketingPlanCards = document.querySelector("#marketingPlanCards");
 
 function getField(id) {
   return document.getElementById(id);
@@ -288,6 +353,7 @@ function renderPlanChoices() {
     input.addEventListener("change", () => {
       state.selectedPlan = input.value;
       renderPlanGuidance();
+      renderMarketingPlanCards();
       refreshQuote();
     });
   });
@@ -305,6 +371,15 @@ function renderPlanGuidance() {
       ${data.bullets.map((item) => `<li>${item}</li>`).join("")}
     </ul>
   `;
+}
+
+function renderMarketingPlanCards() {
+  if (!marketingPlanCards) return;
+  marketingPlanCards.querySelectorAll("[data-marketing-plan]").forEach((card) => {
+    const selected = card.dataset.marketingPlan === state.selectedPlan;
+    card.classList.toggle("is-selected", selected);
+    card.setAttribute("aria-selected", selected ? "true" : "false");
+  });
 }
 
 function getBracketValue(table, days, annual) {
@@ -441,7 +516,7 @@ function updatePaymentMethodTotals() {
 function buildTravellerCard(index, category) {
   const extraRole = state.policyType === "family" ? `
     <label class="field">
-      <span>Family role</span>
+      <span>Family role *</span>
       <select name="insuredRole_${index}" required>
         <option value="">Select role</option>
         <option value="Husband">Husband</option>
@@ -463,28 +538,28 @@ function buildTravellerCard(index, category) {
       <div class="traveller-card-body">
       <div class="field-grid two">
         <label class="field">
-          <span>Full name</span>
+          <span>Full name *</span>
           <input type="text" name="insuredName_${index}" required>
         </label>
         <label class="field">
-          <span>Nationality</span>
+          <span>Nationality *</span>
           <select name="insuredNationality_${index}" required>${nationalityOptions()}</select>
         </label>
       </div>
       <div class="field-grid two">
         <label class="field">
-          <span>NRIC/Passport (Same as IC/Passport)</span>
+          <span>NRIC/Passport (Same as IC/Passport) *</span>
           <input type="text" name="insuredId_${index}" data-nric-input="${index}" required>
           <small class="hint">For Malaysian NRIC, DOB and gender are filled automatically.</small>
         </label>
         <label class="field">
-          <span>Date of birth</span>
+          <span>Date of birth *</span>
           <input type="text" name="insuredDob_${index}" placeholder="YY/MM/DD" inputmode="numeric" required>
         </label>
       </div>
       <div class="field-grid three">
         <label class="field">
-          <span>Gender</span>
+          <span>Gender *</span>
           <select name="insuredGender_${index}" required>
             <option value="">Select gender</option>
             <option value="Male">Male</option>
@@ -492,21 +567,21 @@ function buildTravellerCard(index, category) {
           </select>
         </label>
         <label class="field">
-          <span>Mobile number</span>
+          <span>Mobile number *</span>
           <input type="tel" name="insuredMobile_${index}" required>
         </label>
         <label class="field">
-          <span>Email address</span>
+          <span>Email address *</span>
           <input type="email" name="insuredEmail_${index}" required>
         </label>
       </div>
       <div class="field-grid ${state.policyType === "family" ? "three" : "two"}">
         <label class="field">
-          <span>Occupation</span>
+          <span>Occupation *</span>
           <input type="text" name="insuredOccupation_${index}" required>
         </label>
         <label class="field">
-          <span>Home address</span>
+          <span>Home address *</span>
           <input type="text" name="insuredAddress_${index}" required>
         </label>
         ${extraRole}
@@ -604,11 +679,11 @@ function buildNomineeCard(index) {
       </div>
       <div class="field-grid two">
         <label class="field">
-          <span>Nominee full name</span>
+          <span>Nominee full name *</span>
           <input type="text" name="nomineeName_${index}" required>
         </label>
         <label class="field">
-          <span>Relationship</span>
+          <span>Relationship *</span>
           <select name="nomineeRelationship_${index}" required>
             <option value="">Select relationship</option>
             <option value="Child">Child</option>
@@ -620,11 +695,11 @@ function buildNomineeCard(index) {
       </div>
       <div class="field-grid three">
         <label class="field">
-          <span>NRIC/Passport (Same as IC/Passport)</span>
+          <span>NRIC/Passport (Same as IC/Passport) *</span>
           <input type="text" name="nomineeId_${index}" required>
         </label>
         <label class="field">
-          <span>Contact number</span>
+          <span>Contact number *</span>
           <input type="tel" name="nomineeContact_${index}" required>
         </label>
         <label class="field">
@@ -634,6 +709,86 @@ function buildNomineeCard(index) {
       </div>
     </article>
   `;
+}
+
+function buildFlightCard(index) {
+  return `
+    <article class="traveller-card" data-flight-card="${index}">
+      <div class="card-header">
+        <h5>Flight ${index + 1}</h5>
+        ${index === 0 ? "" : `<button type="button" class="button button-secondary" data-remove-flight="${index}">Remove</button>`}
+      </div>
+      <div class="field-grid two">
+        <label class="field">
+          <span>Departure flight number</span>
+          <input type="text" name="departureFlightNumber_${index}">
+        </label>
+        <label class="field">
+          <span>Departure date</span>
+          <input type="text" name="departureFlightDate_${index}" placeholder="DD/MM/YYYY" inputmode="numeric">
+        </label>
+      </div>
+      <div class="field-grid two">
+        <label class="field">
+          <span>Arrival flight number</span>
+          <input type="text" name="arrivalFlightNumber_${index}">
+        </label>
+        <label class="field">
+          <span>Arrival date</span>
+          <input type="text" name="arrivalFlightDate_${index}" placeholder="DD/MM/YYYY" inputmode="numeric">
+        </label>
+      </div>
+    </article>
+  `;
+}
+
+function collectFlights() {
+  return Array.from(flightList.querySelectorAll("[data-flight-card]")).map((_, index) => ({
+    departureFlightNumber: form.elements[`departureFlightNumber_${index}`]?.value.trim() || "",
+    departureDate: form.elements[`departureFlightDate_${index}`]?.value || "",
+    arrivalFlightNumber: form.elements[`arrivalFlightNumber_${index}`]?.value.trim() || "",
+    arrivalDate: form.elements[`arrivalFlightDate_${index}`]?.value || ""
+  }));
+}
+
+function getFlightDrafts() {
+  return Array.from(flightList.querySelectorAll("[data-flight-card]")).map((_, index) => ({
+    departureFlightNumber: form.elements[`departureFlightNumber_${index}`]?.value || "",
+    departureDate: form.elements[`departureFlightDate_${index}`]?.value || "",
+    arrivalFlightNumber: form.elements[`arrivalFlightNumber_${index}`]?.value || "",
+    arrivalDate: form.elements[`arrivalFlightDate_${index}`]?.value || ""
+  }));
+}
+
+function bindFlightActions() {
+  flightList.querySelectorAll("[data-remove-flight]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const drafts = getFlightDrafts();
+      if (drafts.length <= 1) return;
+      drafts.splice(Number(button.dataset.removeFlight), 1);
+      renderFlights(drafts);
+    });
+  });
+  flightList.querySelectorAll('input[name^="departureFlightDate_"], input[name^="arrivalFlightDate_"]').forEach((input) => {
+    attachDatePicker(input);
+  });
+  flightList.querySelectorAll("input").forEach((field) => {
+    field.addEventListener("input", populateSummary);
+    field.addEventListener("change", populateSummary);
+  });
+}
+
+function renderFlights(drafts = [{ departureFlightNumber: "", departureDate: "", arrivalFlightNumber: "", arrivalDate: "" }]) {
+  flightList.innerHTML = drafts.map((_, index) => buildFlightCard(index)).join("");
+  drafts.forEach((draft, index) => {
+    if (form.elements[`departureFlightNumber_${index}`]) {
+      form.elements[`departureFlightNumber_${index}`].value = draft.departureFlightNumber;
+      form.elements[`departureFlightDate_${index}`].value = draft.departureDate;
+      form.elements[`arrivalFlightNumber_${index}`].value = draft.arrivalFlightNumber;
+      form.elements[`arrivalFlightDate_${index}`].value = draft.arrivalDate;
+    }
+  });
+  bindFlightActions();
 }
 
 function collectNominees() {
@@ -733,23 +888,17 @@ function refreshQuote() {
 
 function populateSummary() {
   if (!state.quote) return;
-  const travellers = collectTravellers();
-  const proposer = getProposerData(travellers);
   const returnDate = getField("insuranceType").value === "annual"
     ? formatDate(addDays(parseDate(getField("departureDate").value), 365))
     : getField("returnDate").value;
 
   summaryList.innerHTML = `
-    <div><dt>Insurance type</dt><dd>${getField("insuranceType").value === "annual" ? "Annual" : "Single trip"}</dd></div>
-    <div><dt>Travel area</dt><dd>${AREA_LABELS[state.quote.area]}</dd></div>
-    <div><dt>Policy type</dt><dd>${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}</dd></div>
+    <div><dt>Insurance Type</dt><dd>${getField("insuranceType").value === "annual" ? "Annual" : "Single Trip"}</dd></div>
+    <div><dt>Travel Area</dt><dd>${AREA_LABELS[state.quote.area]}</dd></div>
+    <div><dt>Policy Type</dt><dd>${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}</dd></div>
     <div><dt>Plan</dt><dd>${state.selectedPlan[0].toUpperCase()}${state.selectedPlan.slice(1)}</dd></div>
     <div><dt>Travellers</dt><dd>${getTotalTravellers()}</dd></div>
-    <div><dt>Travel dates</dt><dd>${getField("departureDate").value} to ${returnDate}</dd></div>
-    <div><dt>Destination</dt><dd>${state.quote.area === "domestic" ? "Malaysia" : getField("destination").value.trim() || "-"}</dd></div>
-    <div><dt>Proposer</dt><dd>${proposer.name || "-"}</dd></div>
-    <div><dt>Nomination total</dt><dd>${collectNominees().reduce((sum, nominee) => sum + nominee.share, 0)}%</dd></div>
-    <div><dt>Payment method</dt><dd>${getPaymentMethodLabel(document.querySelector('input[name="paymentMethod"]:checked')?.value || "")}</dd></div>
+    <div><dt>Travel Period</dt><dd>${getField("departureDate").value} to ${returnDate}</dd></div>
   `;
   getField("summaryTotal").textContent = formatMoney(state.quote.total);
   updateStickyQuoteBar();
@@ -833,7 +982,7 @@ function validateStep(step) {
   }
 
   if (step === 2) {
-    ["proposerName", "proposerMobile", "proposerEmail", "proposerOccupation", "proposerAddress", "bankName", "bankAccountNumber", "bankAccountType", "nominees", "selectedPlan"].forEach(clearError);
+    ["proposerName", "proposerMobile", "proposerEmail", "proposerOccupation", "proposerAddress", "bankName", "bankAccountNumber", "bankAccountType", "flights", "nominees", "selectedPlan"].forEach(clearError);
     const travellers = collectTravellers();
     travellers.forEach((traveller) => {
       if (!traveller.fullName || !traveller.nationality || !traveller.idNumber || !traveller.dateOfBirth || !traveller.gender || !traveller.mobile || !traveller.email || !traveller.occupation || !traveller.address) valid = false;
@@ -851,6 +1000,22 @@ function validateStep(step) {
         }
       });
     }
+    const flights = collectFlights().filter((flight) =>
+      flight.departureFlightNumber || flight.departureDate || flight.arrivalFlightNumber || flight.arrivalDate
+    );
+    flights.forEach((flight) => {
+      if (!flight.departureFlightNumber || !flight.departureDate || !flight.arrivalFlightNumber || !flight.arrivalDate) {
+        openOptionalSection("flightSectionBody");
+        showError("flights", "Complete all flight fields for each added flight.");
+        valid = false;
+        return;
+      }
+      if (!parseDate(flight.departureDate) || !parseDate(flight.arrivalDate)) {
+        openOptionalSection("flightSectionBody");
+        showError("flights", "Use valid flight dates in DD/MM/YYYY format.");
+        valid = false;
+      }
+    });
     const nominees = collectNominees().filter((nominee) =>
       nominee.name || nominee.relationship || nominee.idNumber || nominee.contact || nominee.share
     );
@@ -929,6 +1094,9 @@ async function submitForm(event) {
       destination: getField("destination").value.trim()
     },
     counts: getTravellerCounts(),
+    flights: collectFlights().filter((flight) =>
+      flight.departureFlightNumber || flight.departureDate || flight.arrivalFlightNumber || flight.arrivalDate
+    ),
     proposer: {
       ...proposer,
       bankName: getField("bankName").value,
@@ -964,7 +1132,7 @@ async function submitForm(event) {
 function refreshVisibility() {
   const isAnnual = getField("insuranceType").value === "annual";
   getField("returnField").hidden = isAnnual;
-  getField("departureLabel").textContent = isAnnual ? "Policy start date" : "Departure date";
+  getField("departureLabel").textContent = isAnnual ? "Policy start date *" : "Departure date *";
   getField("proposerSection").hidden = !getField("buyingForSomeoneElse").checked;
   renderAreaGuidance();
   renderPlanChoices();
@@ -986,6 +1154,7 @@ function resetForm() {
   getField("successCard").hidden = true;
   form.hidden = false;
   renderBankOptions();
+  renderFlights();
   renderNominees();
   refreshVisibility();
   setPaymentContent();
@@ -1056,6 +1225,14 @@ document.querySelectorAll('input[name="travelArea"]').forEach((input) => input.a
 document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => input.addEventListener("change", setPaymentContent));
 document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => input.addEventListener("change", refreshQuote));
 getField("destination").addEventListener("input", populateSummary);
+marketingPlanCards?.querySelectorAll("[data-marketing-plan]").forEach((card) => {
+  card.addEventListener("click", () => {
+    state.selectedPlan = card.dataset.marketingPlan;
+    renderMarketingPlanCards();
+    renderPlanChoices();
+    card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  });
+});
 getField("buyingForSomeoneElse").addEventListener("change", () => {
   state.travellerSignature = "";
   refreshVisibility();
@@ -1065,6 +1242,12 @@ getField("addNomineeButton").addEventListener("click", () => {
   const drafts = getNomineeDrafts();
   drafts.push({ name: "", relationship: "", idNumber: "", contact: "", share: drafts.length === 0 ? 100 : "" });
   renderNominees(drafts);
+});
+getField("addFlightButton").addEventListener("click", () => {
+  openOptionalSection("flightSectionBody");
+  const drafts = getFlightDrafts();
+  drafts.push({ departureFlightNumber: "", departureDate: "", arrivalFlightNumber: "", arrivalDate: "" });
+  renderFlights(drafts);
 });
 
 document.querySelectorAll("[data-next-step]").forEach((button) => {
@@ -1100,6 +1283,8 @@ form.addEventListener("submit", submitForm);
 renderBankOptions();
 initMinDates();
 refreshVisibility();
+renderFlights();
 renderNominees();
 setPaymentContent();
 bindOptionalSections();
+renderMarketingPlanCards();
