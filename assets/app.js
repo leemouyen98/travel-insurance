@@ -249,6 +249,32 @@ function addDays(date, days) {
   return next;
 }
 
+function syncTravelDateInput() {
+  const input = getField("travelDates");
+  if (!input) return;
+  const departureDate = getField("departureDate").value;
+  const returnDate = getField("returnDate").value;
+  if (getField("insuranceType").value === "annual") {
+    input.value = departureDate;
+    return;
+  }
+  if (departureDate && returnDate) {
+    input.value = `${departureDate} to ${returnDate}`;
+    return;
+  }
+  if (departureDate) {
+    input.value = `${departureDate} to `;
+    return;
+  }
+  input.value = "";
+}
+
+function setTravelDates(departureDate = "", returnDate = "") {
+  getField("departureDate").value = departureDate;
+  getField("returnDate").value = returnDate;
+  syncTravelDateInput();
+}
+
 function getTravellerCounts() {
   return {
     under70: Number(getField("under70Count").value || 0),
@@ -1016,27 +1042,27 @@ function validateStep(step) {
   const total = getTotalTravellers();
 
   if (step === 1) {
-    ["departureDate", "returnDate", "policyType", "selectedPlan"].forEach(clearError);
+    ["travelDates", "policyType", "selectedPlan"].forEach(clearError);
     if (!departureDate) {
-      showError("departureDate", "Select a departure or policy start date.");
+      showError("travelDates", "Select your travel dates or policy start date.");
       valid = false;
     }
     if (departureDate && departureDate < today) {
-      showError("departureDate", "Backdating is not allowed.");
+      showError("travelDates", "Backdating is not allowed.");
       valid = false;
     }
     if (departureDate) {
       const twentyFourMonths = new Date(today);
       twentyFourMonths.setMonth(twentyFourMonths.getMonth() + 24);
       if (departureDate > twentyFourMonths) {
-        showError("departureDate", "Inception date cannot be more than 24 months from today.");
+        showError("travelDates", "Inception date cannot be more than 24 months from today.");
         valid = false;
       }
       if (getField("insuranceType").value === "annual") {
         const sixMonths = new Date(today);
         sixMonths.setMonth(sixMonths.getMonth() + 6);
         if (departureDate > sixMonths) {
-          showError("departureDate", "Annual plan cannot be issued more than 6 months in advance.");
+          showError("travelDates", "Annual plan cannot be issued more than 6 months in advance.");
           valid = false;
         }
       }
@@ -1044,10 +1070,10 @@ function validateStep(step) {
     if (getField("insuranceType").value === "single") {
       const days = getTripDays();
       if (!returnDate || !departureDate || returnDate <= departureDate) {
-        showError("returnDate", "Return date must be after departure date.");
+        showError("travelDates", "Select both departure and return dates in the same calendar.");
         valid = false;
       } else if (days > 180) {
-        showError("returnDate", "Single trip maximum cover is 180 days.");
+        showError("travelDates", "Single trip maximum cover is 180 days.");
         valid = false;
       }
     }
@@ -1232,9 +1258,13 @@ async function submitForm(event) {
 
 function refreshVisibility() {
   const isAnnual = getField("insuranceType").value === "annual";
-  getField("returnField").hidden = isAnnual;
-  getField("departureLabel").textContent = isAnnual ? "Policy start date *" : "Departure date *";
+  getField("travelDatesLabel").textContent = isAnnual ? "Policy Start Date *" : "Travel Dates *";
+  getField("travelDates").placeholder = isAnnual ? "DD/MM/YYYY" : "DD/MM/YYYY to DD/MM/YYYY";
   getField("proposerSection").hidden = !getField("buyingForSomeoneElse").checked;
+  if (isAnnual) {
+    getField("returnDate").value = "";
+  }
+  initTravelDatePicker();
   renderAreaGuidance();
   renderPlanChoices();
   renderPolicyChoices();
@@ -1277,30 +1307,35 @@ function bindOptionalSections() {
   });
 }
 
-function initMinDates() {
+function initTravelDatePicker() {
   const today = new Date();
+  const isAnnual = getField("insuranceType").value === "annual";
+  const departureDate = parseDate(getField("departureDate").value);
+  const returnDate = parseDate(getField("returnDate").value);
+  const defaultDate = isAnnual
+    ? (departureDate || null)
+    : [departureDate, returnDate].filter(Boolean);
 
-  attachDatePicker(getField("departureDate"), {
+  attachDatePicker(getField("travelDates"), {
     minDate: today,
-    onChange: ([selectedDate]) => {
-      const returnField = getField("returnDate");
-      if (returnField?._flatpickr) {
-        returnField._flatpickr.set("minDate", selectedDate || today);
-      }
-      if (getField("insuranceType").value === "annual" && selectedDate) {
-        returnField.value = formatDate(addDays(selectedDate, 365));
+    mode: isAnnual ? "single" : "range",
+    defaultDate,
+    onChange: (selectedDates) => {
+      if (isAnnual) {
+        const [selectedDate] = selectedDates;
+        setTravelDates(selectedDate ? formatDate(selectedDate) : "", "");
+      } else {
+        const [startDate, endDate] = selectedDates;
+        setTravelDates(
+          startDate ? formatDate(startDate) : "",
+          endDate ? formatDate(endDate) : ""
+        );
       }
       refreshQuote();
     }
   });
 
-  attachDatePicker(getField("returnDate"), {
-    minDate: today,
-    onChange: () => refreshQuote()
-  });
-
-  getField("departureDate").addEventListener("input", refreshQuote);
-  getField("returnDate").addEventListener("input", refreshQuote);
+  syncTravelDateInput();
 }
 
 document.querySelectorAll("[data-counter]").forEach((button) => {
@@ -1390,7 +1425,6 @@ getField("startNewButton").addEventListener("click", resetForm);
 form.addEventListener("submit", submitForm);
 
 renderBankOptions();
-initMinDates();
 refreshVisibility();
 renderFlights();
 renderNominees();

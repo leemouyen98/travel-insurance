@@ -226,18 +226,13 @@
                 <div class="area-guidance" id="areaGuidance"></div>
               </div>
 
-              <div class="field-grid two">
-                <label class="field">
-                  <span id="departureLabel">Departure date *</span>
-                  <input type="text" name="departureDate" id="departureDate" placeholder="DD/MM/YYYY" inputmode="numeric" required>
-                  <small class="error-text" data-error-for="departureDate"></small>
-                </label>
-                <label class="field" id="returnField">
-                  <span>Return date *</span>
-                  <input type="text" name="returnDate" id="returnDate" placeholder="DD/MM/YYYY" inputmode="numeric" required>
-                  <small class="error-text" data-error-for="returnDate"></small>
-                </label>
-              </div>
+              <label class="field">
+                <span id="travelDatesLabel">Travel Dates *</span>
+                <input type="text" name="travelDates" id="travelDates" placeholder="DD/MM/YYYY to DD/MM/YYYY" autocomplete="off" required>
+                <input type="hidden" name="departureDate" id="departureDate">
+                <input type="hidden" name="returnDate" id="returnDate">
+                <small class="error-text" data-error-for="travelDates"></small>
+              </label>
 
               <label class="field" id="destinationField">
                 <span>Destination Country / City</span>

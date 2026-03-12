@@ -852,6 +852,13 @@ textarea {
   border-color: var(--brand);
 }
 
+.flatpickr-day.inRange {
+  background: rgba(50, 104, 225, 0.18);
+  border-color: rgba(50, 104, 225, 0.18);
+  box-shadow: -6px 0 0 rgba(50, 104, 225, 0.18), 6px 0 0 rgba(50, 104, 225, 0.18);
+  color: var(--ink);
+}
+
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
