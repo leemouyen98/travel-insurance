@@ -185,6 +185,7 @@
           </div>
 
           <form id="applicationForm" class="application-card" novalidate>
+            <div class="logic-alert" id="logicAlert" hidden role="alert" aria-live="assertive"></div>
             <section class="form-step is-active" data-step-panel="1">
               <div class="form-section-head">
                 <h3>Travel Details</h3>
@@ -373,6 +374,7 @@
                 </div>
                 <p class="hint subsection-hint">NRIC auto-fills date of birth and gender when the IC number is entered.</p>
                 <div id="insuredList" class="stack"></div>
+                <small class="error-text" data-error-for="insuredList"></small>
               </div>
 
               <div class="subsection optional-subsection">
@@ -403,6 +405,7 @@
                   <em>Add</em>
                 </button>
                 <div class="optional-body" id="bankSectionBody" hidden>
+                <div class="linked-travellers" id="bankTravellerList" hidden></div>
                 <div class="field-grid three">
                   <label class="field">
                     <span>Bank name (for claim purpose)</span>
@@ -430,7 +433,6 @@
                 <button type="button" class="subsection-toggle" data-toggle-optional="nomineeSectionBody" aria-expanded="false">
                   <span>
                     <strong>Nominee details</strong>
-                    <small>Allocation must total 100% when filled.</small>
                   </span>
                   <em>Add</em>
                 </button>
@@ -438,7 +440,6 @@
                   <div class="subsection-head">
                     <div>
                       <h4>Nominee details</h4>
-                      <p>Total allocation must be 100% when nominee details are filled.</p>
                     </div>
                     <button type="button" class="button button-secondary" id="addNomineeButton">Add nominee</button>
                   </div>

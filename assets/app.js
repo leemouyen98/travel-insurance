@@ -189,6 +189,7 @@ const paymentDetailBox = document.querySelector("#paymentDetailBox");
 const marketingPlanCards = document.querySelector("#marketingPlanCards");
 const coverageSelectedTitle = document.querySelector("#coverageSelectedTitle");
 const coverageSelectedText = document.querySelector("#coverageSelectedText");
+const logicAlert = document.querySelector("#logicAlert");
 
 function getField(id) {
   return document.getElementById(id);
@@ -276,6 +277,46 @@ function getTripDays() {
 function renderBankOptions() {
   const bank = getField("bankName");
   bank.innerHTML = `<option value="">Select bank</option>${MALAYSIAN_BANKS.map((name) => `<option value="${name}">${name}</option>`).join("")}`;
+}
+
+function getTravellerDisplayNames() {
+  return Array.from(insuredList.querySelectorAll("[data-traveller-card]")).map((_, index) => {
+    const name = form.elements[`insuredName_${index}`]?.value.trim();
+    return name || `Traveller ${index + 1}`;
+  });
+}
+
+function renderBankTravellerList() {
+  const node = getField("bankTravellerList");
+  if (!node) return;
+  const names = getTravellerDisplayNames();
+  if (names.length <= 1) {
+    node.hidden = true;
+    node.innerHTML = "";
+    return;
+  }
+  node.hidden = false;
+  node.innerHTML = `
+    <strong>Bank details linked to travellers</strong>
+    ${names.map((name, index) => `<p>#${index + 1} Name: ${name}</p>`).join("")}
+  `;
+}
+
+function getNomineeTargetCount(currentCount = 0) {
+  const travellerTotal = getTotalTravellers();
+  if (travellerTotal > 1) return Math.max(travellerTotal, currentCount, 1);
+  return Math.max(currentCount, 1);
+}
+
+function buildNomineeDraftList(existingDrafts = []) {
+  const targetCount = getNomineeTargetCount(existingDrafts.length);
+  return Array.from({ length: targetCount }, (_, index) => existingDrafts[index] || {
+    name: "",
+    relationship: "",
+    idNumber: "",
+    contact: "",
+    share: ""
+  });
 }
 
 function renderAreaGuidance() {
@@ -658,7 +699,17 @@ function syncTravellerCards() {
   insuredList.querySelectorAll("input, select").forEach((field) => {
     field.addEventListener("input", populateSummary);
     field.addEventListener("change", populateSummary);
+    field.addEventListener("input", () => {
+      renderBankTravellerList();
+      renderNominees(getNomineeDrafts());
+    });
+    field.addEventListener("change", () => {
+      renderBankTravellerList();
+      renderNominees(getNomineeDrafts());
+    });
   });
+  renderBankTravellerList();
+  renderNominees(getNomineeDrafts());
 }
 
 function collectTravellers() {
@@ -678,10 +729,15 @@ function collectTravellers() {
 }
 
 function buildNomineeCard(index) {
+  const travellerNames = getTravellerDisplayNames();
+  const multipleTravellers = travellerNames.length > 1;
+  const cardTitle = multipleTravellers
+    ? `#${index + 1} Nominee for ${travellerNames[index] || `Traveller ${index + 1}`}`
+    : `Nominee ${index + 1}`;
   return `
     <article class="traveller-card" data-nominee-card="${index}">
       <div class="card-header">
-        <h5>Nominee ${index + 1}</h5>
+        <h5>${cardTitle}</h5>
         ${index === 0 ? "" : `<button type="button" class="button button-secondary" data-remove-nominee="${index}">Remove</button>`}
       </div>
       <div class="field-grid two">
@@ -834,8 +890,9 @@ function bindNomineeActions() {
 }
 
 function renderNominees(drafts = [{ name: "", relationship: "", idNumber: "", contact: "", share: "" }]) {
-  nomineeList.innerHTML = drafts.map((_, index) => buildNomineeCard(index)).join("");
-  drafts.forEach((draft, index) => {
+  const nextDrafts = buildNomineeDraftList(drafts);
+  nomineeList.innerHTML = nextDrafts.map((_, index) => buildNomineeCard(index)).join("");
+  nextDrafts.forEach((draft, index) => {
     if (form.elements[`nomineeName_${index}`]) {
       form.elements[`nomineeName_${index}`].value = draft.name;
       form.elements[`nomineeRelationship_${index}`].value = draft.relationship;
@@ -916,13 +973,27 @@ function setPaymentContent() {
   populateSummary();
 }
 
+function setLogicAlert(message = "") {
+  if (!logicAlert) return;
+  logicAlert.hidden = !message;
+  logicAlert.textContent = message;
+}
+
 function showError(id, message) {
   const el = document.querySelector(`[data-error-for="${id}"]`);
-  if (el) el.textContent = message;
+  if (el) {
+    el.textContent = message;
+    const container = el.closest(".field, .subsection, .optional-subsection, .payment-card, .application-card");
+    container?.classList.toggle("has-error", Boolean(message));
+  }
 }
 
 function clearError(id) {
   showError(id, "");
+}
+
+function clearAllErrorHighlights() {
+  document.querySelectorAll(".has-error").forEach((node) => node.classList.remove("has-error"));
 }
 
 function validateFamilyRoles(travellers) {
@@ -936,6 +1007,8 @@ function validateFamilyRoles(travellers) {
 
 function validateStep(step) {
   let valid = true;
+  clearAllErrorHighlights();
+  setLogicAlert("");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const departureDate = parseDate(getField("departureDate").value);
@@ -986,15 +1059,29 @@ function validateStep(step) {
       showError("selectedPlan", "Quote could not be calculated.");
       valid = false;
     }
+    if (!valid) {
+      setLogicAlert("Please complete the travel details correctly before continuing.");
+    }
   }
 
   if (step === 2) {
-    ["proposerName", "proposerMobile", "proposerEmail", "proposerOccupation", "proposerAddress", "bankName", "bankAccountNumber", "bankAccountType", "flights", "nominees", "selectedPlan"].forEach(clearError);
+    ["proposerName", "proposerMobile", "proposerEmail", "proposerOccupation", "proposerAddress", "bankName", "bankAccountNumber", "bankAccountType", "flights", "nominees", "selectedPlan", "insuredList"].forEach(clearError);
     const travellers = collectTravellers();
+    let travellerIncomplete = false;
     travellers.forEach((traveller) => {
-      if (!traveller.fullName || !traveller.nationality || !traveller.idNumber || !traveller.dateOfBirth || !traveller.gender || !traveller.mobile || !traveller.email || !traveller.occupation || !traveller.address) valid = false;
-      if (state.policyType === "family" && !traveller.category) valid = false;
+      if (!traveller.fullName || !traveller.nationality || !traveller.idNumber || !traveller.dateOfBirth || !traveller.gender || !traveller.mobile || !traveller.email || !traveller.occupation || !traveller.address) {
+        travellerIncomplete = true;
+        valid = false;
+      }
+      if (state.policyType === "family" && !traveller.category) {
+        travellerIncomplete = true;
+        valid = false;
+      }
     });
+    if (travellerIncomplete) {
+      insuredList.closest(".subsection")?.classList.add("has-error");
+      showError("insuredList", "Complete all required traveller details before continuing.");
+    }
     if (!validateFamilyRoles(travellers)) {
       showError("selectedPlan", "Family must contain exactly one Husband, one Wife and any number of Children.");
       valid = false;
@@ -1030,6 +1117,7 @@ function validateStep(step) {
     nominees.forEach((nominee) => {
       if (!nominee.name || !nominee.relationship || !nominee.idNumber || !nominee.contact || !nominee.share) {
         openOptionalSection("nomineeSectionBody");
+        showError("nominees", "Complete all nominee fields for each nominee card.");
         valid = false;
       }
     });
@@ -1037,6 +1125,9 @@ function validateStep(step) {
       openOptionalSection("nomineeSectionBody");
       showError("nominees", "Nominee allocation must total exactly 100%.");
       valid = false;
+    }
+    if (!valid) {
+      setLogicAlert("Some required details still need attention before you can continue.");
     }
   }
 
@@ -1047,6 +1138,9 @@ function validateStep(step) {
     if (!getField("consent").checked) {
       showError("consent", "Consent is required before submit.");
       valid = false;
+    }
+    if (!valid) {
+      setLogicAlert("Please resolve the highlighted confirmation issues before submitting.");
     }
   }
 
@@ -1163,6 +1257,8 @@ function resetForm() {
   renderBankOptions();
   renderFlights();
   renderNominees();
+  renderBankTravellerList();
+  setLogicAlert("");
   refreshVisibility();
   setPaymentContent();
   goToStep(1);
@@ -1252,7 +1348,7 @@ getField("buyingForSomeoneElse").addEventListener("change", () => {
 });
 getField("addNomineeButton").addEventListener("click", () => {
   openOptionalSection("nomineeSectionBody");
-  const drafts = getNomineeDrafts();
+  const drafts = buildNomineeDraftList(getNomineeDrafts());
   drafts.push({ name: "", relationship: "", idNumber: "", contact: "", share: drafts.length === 0 ? 100 : "" });
   renderNominees(drafts);
 });
