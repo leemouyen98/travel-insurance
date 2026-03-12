@@ -292,6 +292,11 @@ textarea {
   transform: translateY(-2px);
 }
 
+.quick-start-card.is-active {
+  border-color: rgba(15, 109, 168, 0.35);
+  background: linear-gradient(180deg, #ffffff 0%, #edf6fd 100%);
+}
+
 .tone-dark {
   background: linear-gradient(160deg, #133f63 0%, #102b42 100%);
   color: white;
@@ -451,6 +456,17 @@ textarea {
   gap: 0.6rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
+}
+
+.step-helper {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 18px;
+  background: rgba(15, 109, 168, 0.08);
+  color: var(--brand-deep);
 }
 
 .step {
@@ -709,6 +725,33 @@ textarea {
   margin-bottom: 0.85rem;
 }
 
+.subsection-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  text-align: left;
+}
+
+.subsection-toggle span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.subsection-toggle small,
+.subsection-toggle em {
+  color: var(--muted);
+  font-style: normal;
+}
+
+.optional-body {
+  margin-top: 1rem;
+}
+
 .stack {
   display: grid;
   gap: 1rem;
@@ -846,6 +889,27 @@ textarea {
   border-radius: 20px;
 }
 
+.accent-card {
+  background: linear-gradient(145deg, #132941 0%, #1b537f 100%);
+  color: white;
+}
+
+.accent-card .mini-label,
+.accent-card p {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.sidebar-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.accent-card .button-secondary {
+  border-color: rgba(255, 255, 255, 0.22);
+  color: white;
+}
+
 .sidebar-list {
   color: var(--muted);
 }
@@ -959,5 +1023,10 @@ textarea {
   .card-header-meta {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .step-helper,
+  .sidebar-actions {
+    display: grid;
   }
 }

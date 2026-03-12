@@ -68,7 +68,8 @@ const state = {
   selectedPlan: "essential",
   policyType: "individual",
   quote: null,
-  travellerSignature: ""
+  travellerSignature: "",
+  quickStart: "single"
 };
 
 const form = document.querySelector("#applicationForm");
@@ -333,6 +334,36 @@ function getPaymentMethodLabel(value) {
     bank: "Bank transfer",
     billplz: "Card via Billplz"
   }[value] || "-";
+}
+
+function openOptionalSection(sectionId) {
+  const body = getField(sectionId);
+  const toggle = document.querySelector(`[data-toggle-optional="${sectionId}"]`);
+  if (!body || !toggle) return;
+  body.hidden = false;
+  toggle.setAttribute("aria-expanded", "true");
+  toggle.querySelector("em").textContent = "Hide";
+}
+
+function updateQuickStartCards() {
+  document.querySelectorAll("[data-quick-start]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.quickStart === state.quickStart);
+  });
+}
+
+function updateStepHelper() {
+  const titles = {
+    1: "Step 1 of 3",
+    2: "Step 2 of 3",
+    3: "Step 3 of 3"
+  };
+  const notes = {
+    1: "About 2 minutes to get your quote ready.",
+    2: "Complete the traveller details and expand optional sections only if needed.",
+    3: "Review the premium, choose payment and submit when ready."
+  };
+  getField("stepHelperTitle").textContent = titles[state.step];
+  getField("stepHelperNote").textContent = notes[state.step];
 }
 
 function updateStickyQuoteBar() {
@@ -774,9 +805,13 @@ function validateStep(step) {
     );
     const shareTotal = nominees.reduce((sum, nominee) => sum + nominee.share, 0);
     nominees.forEach((nominee) => {
-      if (!nominee.name || !nominee.relationship || !nominee.idNumber || !nominee.contact || !nominee.share) valid = false;
+      if (!nominee.name || !nominee.relationship || !nominee.idNumber || !nominee.contact || !nominee.share) {
+        openOptionalSection("nomineeSectionBody");
+        valid = false;
+      }
     });
     if (nominees.length > 0 && shareTotal !== 100) {
+      openOptionalSection("nomineeSectionBody");
       showError("nominees", "Nominee allocation must total exactly 100%.");
       valid = false;
     }
@@ -795,6 +830,14 @@ function validateStep(step) {
   return valid;
 }
 
+function focusFirstError() {
+  const firstError = Array.from(document.querySelectorAll(".error-text")).find((node) => node.textContent.trim());
+  if (!firstError) return;
+  const field = firstError.closest(".field, .subsection, .payment-card, .application-card")?.querySelector("input, select, textarea, button");
+  if (field) field.focus({ preventScroll: true });
+  firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
 function goToStep(step) {
   state.step = step;
   document.querySelectorAll(".form-step").forEach((panel) => panel.classList.toggle("is-active", Number(panel.dataset.stepPanel) === step));
@@ -803,6 +846,7 @@ function goToStep(step) {
     item.classList.toggle("is-active", itemStep === step);
     item.classList.toggle("is-complete", itemStep < step);
   });
+  updateStepHelper();
   window.scrollTo({ top: document.querySelector("#application").offsetTop - 30, behavior: "smooth" });
 }
 
@@ -878,6 +922,7 @@ function refreshVisibility() {
   renderPolicyChoices();
   syncTravellerCards();
   refreshQuote();
+  updateQuickStartCards();
 }
 
 function resetForm() {
@@ -885,6 +930,7 @@ function resetForm() {
   state.selectedPlan = "essential";
   state.policyType = "individual";
   state.travellerSignature = "";
+  state.quickStart = "single";
   getField("under70Count").value = 1;
   getField("seniorCount").value = 0;
   getField("successCard").hidden = true;
@@ -897,6 +943,7 @@ function resetForm() {
 }
 
 function applyQuickStart(mode) {
+  state.quickStart = mode;
   if (mode === "annual") {
     getField("insuranceType").value = "annual";
     getField("coverageScope").value = "international";
@@ -922,6 +969,19 @@ function applyQuickStart(mode) {
   state.travellerSignature = "";
   refreshVisibility();
   document.querySelector("#application").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function bindOptionalSections() {
+  document.querySelectorAll("[data-toggle-optional]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const sectionId = button.dataset.toggleOptional;
+      const body = getField(sectionId);
+      const expanded = button.getAttribute("aria-expanded") === "true";
+      body.hidden = expanded;
+      button.setAttribute("aria-expanded", expanded ? "false" : "true");
+      button.querySelector("em").textContent = expanded ? "Add" : "Hide";
+    });
+  });
 }
 
 function initMinDates() {
@@ -980,6 +1040,7 @@ getField("buyingForSomeoneElse").addEventListener("change", () => {
   refreshVisibility();
 });
 getField("addNomineeButton").addEventListener("click", () => {
+  openOptionalSection("nomineeSectionBody");
   const drafts = getNomineeDrafts();
   drafts.push({ name: "", relationship: "", idNumber: "", contact: "", share: drafts.length === 0 ? 100 : "" });
   renderNominees(drafts);
@@ -988,7 +1049,10 @@ getField("addNomineeButton").addEventListener("click", () => {
 document.querySelectorAll("[data-next-step]").forEach((button) => {
   button.addEventListener("click", () => {
     const current = Number(button.dataset.nextStep) - 1;
-    if (!validateStep(current)) return;
+    if (!validateStep(current)) {
+      focusFirstError();
+      return;
+    }
     populateSummary();
     goToStep(Number(button.dataset.nextStep));
   });
@@ -1010,3 +1074,5 @@ initMinDates();
 refreshVisibility();
 renderNominees();
 setPaymentContent();
+bindOptionalSections();
+updateStepHelper();

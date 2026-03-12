@@ -51,6 +51,7 @@
         </div>
         <div class="hero-actions">
           <a href="#application" class="button button-primary">Buy Now</a>
+          <a href="#features" class="button button-secondary">See How It Works</a>
         </div>
       </div>
       <aside class="hero-panel">
@@ -198,6 +199,10 @@
             <div class="step is-active" data-step="1">1. Travel</div>
             <div class="step" data-step="2">2. Travellers</div>
             <div class="step" data-step="3">3. Review & Pay</div>
+          </div>
+          <div class="step-helper" id="stepHelper">
+            <strong id="stepHelperTitle">Step 1 of 3</strong>
+            <span id="stepHelperNote">About 2 minutes to get your quote ready.</span>
           </div>
 
           <form id="applicationForm" class="application-card" novalidate>
@@ -373,8 +378,14 @@
               </div>
 
               <div class="subsection optional-subsection">
-                <h4>Bank Details</h4>
-                <p class="subsection-copy">Optional, but useful if claim reimbursement details are needed later.</p>
+                <button type="button" class="subsection-toggle" data-toggle-optional="bankSectionBody" aria-expanded="false">
+                  <span>
+                    <strong>Bank Details</strong>
+                    <small>Optional, useful for claim reimbursement later.</small>
+                  </span>
+                  <em>Add</em>
+                </button>
+                <div class="optional-body" id="bankSectionBody" hidden>
                 <div class="field-grid three">
                   <label class="field">
                     <span>Bank name (for claim purpose)</span>
@@ -395,18 +406,28 @@
                     <small class="error-text" data-error-for="bankAccountType"></small>
                   </label>
                 </div>
+                </div>
               </div>
 
               <div class="subsection optional-subsection">
-                <div class="subsection-head">
-                  <div>
-                    <h4>Nominee details</h4>
-                    <p>Add one or more nominees if needed. Total allocation must be 100% when nominee details are filled.</p>
+                <button type="button" class="subsection-toggle" data-toggle-optional="nomineeSectionBody" aria-expanded="false">
+                  <span>
+                    <strong>Nominee details</strong>
+                    <small>Add only if needed. Allocation must total 100% when filled.</small>
+                  </span>
+                  <em>Add</em>
+                </button>
+                <div class="optional-body" id="nomineeSectionBody" hidden>
+                  <div class="subsection-head">
+                    <div>
+                      <h4>Nominee details</h4>
+                      <p>Add one or more nominees if needed. Total allocation must be 100% when nominee details are filled.</p>
+                    </div>
+                    <button type="button" class="button button-secondary" id="addNomineeButton">Add nominee</button>
                   </div>
-                  <button type="button" class="button button-secondary" id="addNomineeButton">Add nominee</button>
+                  <div id="nomineeList" class="stack"></div>
+                  <small class="error-text" data-error-for="nominees"></small>
                 </div>
-                <div id="nomineeList" class="stack"></div>
-                <small class="error-text" data-error-for="nominees"></small>
               </div>
 
               <div class="button-row">
@@ -496,6 +517,15 @@
         </div>
 
         <aside class="application-sidebar">
+          <div class="sidebar-card accent-card">
+            <p class="mini-label">Need help?</p>
+            <h4>Henry can help you complete the form.</h4>
+            <p>Clients can contact Henry if they are unsure about area, plan or payment method.</p>
+            <div class="sidebar-actions">
+              <a href="tel:+60126123540" class="button button-secondary">Call</a>
+              <a href="https://wa.me/60126123540" class="button button-primary" target="_blank" rel="noreferrer">WhatsApp</a>
+            </div>
+          </div>
           <div class="sidebar-card">
             <p class="mini-label">Important rules</p>
             <ul class="sidebar-list">
