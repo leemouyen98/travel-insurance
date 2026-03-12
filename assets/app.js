@@ -932,7 +932,7 @@ function refreshQuote() {
   const breakdown = getField("quoteBreakdown");
   if (!quote) {
     getField("quoteTotal").textContent = formatMoney(0);
-    getField("quoteNote").textContent = "Choose travel dates and traveller count to see your premium.";
+    getField("quoteNote").textContent = "";
     getField("quoteMeta").textContent = "Your total updates automatically when trip details, plan, or payment method changes.";
     breakdown.innerHTML = "";
     updateStickyQuoteBar();
