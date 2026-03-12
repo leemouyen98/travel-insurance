@@ -80,7 +80,7 @@ const PLAN_COMPARE = {
   basic: {
     title: "Basic",
     price: "From RM47",
-    suffix: "/ trip",
+    suffix: "/ pax",
     tag: "",
     rows: [
       ["Accidental Death", "RM350k"],
@@ -95,7 +95,7 @@ const PLAN_COMPARE = {
   essential: {
     title: "Essential",
     price: "From RM58",
-    suffix: "/ trip",
+    suffix: "/ pax",
     tag: "Popular",
     rows: [
       ["Accidental Death", "RM550k"],
@@ -110,7 +110,7 @@ const PLAN_COMPARE = {
   deluxe: {
     title: "Deluxe",
     price: "From RM86",
-    suffix: "/ trip",
+    suffix: "/ pax",
     tag: "",
     rows: [
       ["Accidental Death", "RM550k"],

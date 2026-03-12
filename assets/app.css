@@ -104,7 +104,8 @@ textarea {
 }
 
 .brand {
-  display: inline-flex;
+  display: inline-grid;
+  gap: 0.12rem;
   align-items: center;
   min-height: 48px;
   padding: 0.7rem 1rem;
@@ -120,6 +121,21 @@ textarea {
   line-height: 1;
   letter-spacing: -0.04em;
   color: var(--ink);
+}
+
+.brand span {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: #2f5ff0;
+}
+
+.brand small {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+  color: #7b8492;
 }
 
 .eyebrow,
@@ -207,32 +223,6 @@ textarea {
   align-content: center;
   justify-items: start;
   padding: 2.5rem;
-}
-
-.hero-badge {
-  display: inline-grid;
-  gap: 0.18rem;
-  margin: 0 0 1.35rem;
-  padding: 0.58rem 1.3rem;
-  border-radius: 999px;
-  border: 1px solid rgba(37, 99, 235, 0.12);
-  background: rgba(37, 99, 235, 0.09);
-  color: #2f5ff0;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-weight: 700;
-}
-
-.hero-badge span {
-  display: block;
-}
-
-.hero-badge small {
-  display: block;
-  font-size: 0.76em;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: #7b8492;
 }
 
 .hero-copy h1,
@@ -348,6 +338,10 @@ textarea {
   background: rgba(255, 255, 255, 0.76);
   backdrop-filter: blur(18px);
   color: var(--ink);
+}
+
+.hero-image-link {
+  text-decoration: none;
 }
 
 .hero-image-overlay strong {
@@ -1470,9 +1464,9 @@ textarea {
 
   .brand {
     width: auto;
-    font-size: 1rem;
+    font-size: 0.98rem;
     min-height: 44px;
-    padding: 0.65rem 0.9rem;
+    padding: 0.62rem 0.88rem;
   }
 
   .button-row {
