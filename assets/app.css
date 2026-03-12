@@ -448,9 +448,11 @@ textarea {
 }
 
 .stepper {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
   gap: 0.55rem;
   margin-bottom: 0.8rem;
-  flex-wrap: wrap;
+  align-items: center;
   width: 100%;
 }
 
@@ -461,19 +463,21 @@ textarea {
   margin-bottom: 0.85rem;
   padding: 0.75rem 0.9rem;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.84);
+  background: #eef3f8;
+  color: var(--ink);
+  border: 1px solid rgba(10, 40, 82, 0.08);
 }
 
 .step {
-  flex: 0 1 auto;
-  min-width: 0;
+  display: flex;
+  align-items: center;
   justify-content: center;
+  min-width: 0;
   padding: 0.65rem 0.85rem;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.62);
+  background: #f4f7fb;
+  border: 1px solid rgba(10, 40, 82, 0.1);
+  color: #61718a;
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -484,12 +488,13 @@ textarea {
 }
 
 .step.is-complete {
-  background: rgba(255, 255, 255, 0.16);
-  color: white;
+  background: #dff3f1;
+  color: var(--brand-deep);
+  border-color: rgba(11, 143, 152, 0.22);
 }
 
 .step-arrow {
-  color: rgba(255, 255, 255, 0.58);
+  color: rgba(10, 40, 82, 0.38);
   font-weight: 700;
 }
 
@@ -1046,8 +1051,7 @@ textarea {
   .card-header,
   .card-header-meta,
   .step-helper,
-  .sidebar-actions,
-  .stepper {
+  .sidebar-actions {
     display: grid;
     align-items: flex-start;
   }
@@ -1173,6 +1177,15 @@ textarea {
   .step-helper {
     padding: 0.65rem 0.75rem;
     font-size: 0.88rem;
+  }
+
+  .stepper {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .step-arrow {
+    display: none;
   }
 
   .application-card {
