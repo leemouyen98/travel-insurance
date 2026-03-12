@@ -364,13 +364,13 @@ function renderPolicyChoices() {
   container.querySelectorAll('input[name="policyType"]').forEach((input) => {
     input.addEventListener("change", () => {
       state.policyType = input.value;
-      getField("policyTypePill").textContent = `Policy type: ${input.value[0].toUpperCase()}${input.value.slice(1)}`;
+      getField("policyTypePill").textContent = `Policy Type: ${input.value[0].toUpperCase()}${input.value.slice(1)}`;
       syncTravellerCards();
       refreshQuote();
     });
   });
 
-  getField("policyTypePill").textContent = `Policy type: ${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}`;
+  getField("policyTypePill").textContent = `Policy Type: ${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}`;
 }
 
 function renderPlanChoices() {
