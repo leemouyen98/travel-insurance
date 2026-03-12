@@ -57,7 +57,7 @@ textarea {
 }
 
 .site-header {
-  padding: 1rem 0 3rem;
+  padding: 1rem 0 2rem;
   background:
     radial-gradient(circle at 85% 10%, rgba(234, 77, 120, 0.18), transparent 18%),
     linear-gradient(140deg, #f8f5ef 0%, #eef5fb 52%, #f7f0e7 100%);
@@ -144,7 +144,7 @@ textarea {
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
   gap: 1.5rem;
-  padding-top: 2rem;
+  padding-top: 1rem;
 }
 
 .hero-copy h1,
@@ -173,7 +173,7 @@ textarea {
 
 .hero-text {
   max-width: 60ch;
-  margin: 1.1rem 0 1.4rem;
+  margin: 0.9rem 0 1rem;
   font-size: 1.02rem;
 }
 
@@ -255,7 +255,11 @@ textarea {
 }
 
 .section {
-  padding: 4.5rem 0;
+  padding: 3.5rem 0;
+}
+
+.compact-section {
+  padding: 2.75rem 0;
 }
 
 .section-alt {
@@ -295,7 +299,7 @@ textarea {
 
 .info-card,
 .pricing-card {
-  padding: 1.35rem;
+  padding: 1.15rem;
 }
 
 .info-card h3,
@@ -340,6 +344,29 @@ textarea {
   grid-template-columns: minmax(0, 1fr) 320px;
   gap: 1rem;
   align-items: start;
+}
+
+.sticky-quote-bar {
+  display: none;
+  position: sticky;
+  top: 0.75rem;
+  z-index: 8;
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(19, 41, 65, 0.08);
+  border-radius: 20px;
+  background: rgba(19, 41, 65, 0.92);
+  color: white;
+  box-shadow: var(--shadow);
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sticky-quote-meta {
+  display: grid;
+  justify-items: end;
+  gap: 0.15rem;
 }
 
 .stepper {
@@ -596,6 +623,10 @@ textarea {
   margin-bottom: 1.4rem;
 }
 
+.subsection-hint {
+  margin-bottom: 0.85rem;
+}
+
 .stack {
   display: grid;
   gap: 1rem;
@@ -614,6 +645,12 @@ textarea {
   margin-bottom: 0.85rem;
 }
 
+.card-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 .card-header h5 {
   margin: 0;
   font-size: 1rem;
@@ -626,6 +663,23 @@ textarea {
   color: #9c2045;
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+.toggle-card {
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  font-weight: 700;
+}
+
+.traveller-card.is-collapsed .traveller-card-body {
+  display: none;
+}
+
+.traveller-card.is-collapsed {
+  background: linear-gradient(180deg, #ffffff 0%, #faf6f0 100%);
 }
 
 .button-row {
@@ -681,6 +735,14 @@ textarea {
   margin-bottom: 0.35rem;
 }
 
+.payment-total {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-style: normal;
+  color: var(--brand-deep);
+  font-weight: 700;
+}
+
 .checkbox-field {
   grid-template-columns: auto 1fr;
   align-items: start;
@@ -709,6 +771,18 @@ textarea {
 
 .success-card {
   background: linear-gradient(150deg, #f7fff9 0%, #eefaf4 100%);
+}
+
+.next-steps-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(25, 122, 86, 0.15);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.next-steps-card h4 {
+  margin: 0;
 }
 
 .site-footer {
@@ -746,6 +820,10 @@ textarea {
   .application-sidebar {
     position: static;
   }
+
+  .sticky-quote-bar {
+    display: flex;
+  }
 }
 
 @media (max-width: 760px) {
@@ -772,5 +850,16 @@ textarea {
   .button-row .button {
     width: 100%;
     text-align: center;
+  }
+
+  .sticky-quote-bar {
+    top: auto;
+    bottom: 0.75rem;
+  }
+
+  .card-header,
+  .card-header-meta {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

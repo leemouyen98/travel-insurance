@@ -29,18 +29,16 @@
 
     <section class="hero shell" id="hero">
       <div class="hero-copy">
-        <p class="eyebrow">Explorer Intro</p>
-        <h1>All-New Tokio Marine Explorer for confident, worry-free travel.</h1>
+        <p class="eyebrow">Travel Protection Made Simple</p>
+        <h1>Explorer protection, arranged in one clean flow.</h1>
         <p class="hero-text">
-          Built around the all-new Explorer positioning, this page turns the brochure into a practical
-          buying journey: clear protection choices, area-based pricing, and one smooth submission flow
-          from trip details to payment proof.
+          Get your Tokio Marine Explorer quote, complete traveller details, and send payment proof in one place.
+          The flow follows Explorer brochure pricing and keeps plan selection, nominee details, and payment simple for clients.
         </p>
         <div class="hero-pills">
-          <span>Buy in 3 clear steps</span>
-          <span>Popular Essential plan pre-selected</span>
-          <span>From trip planning to overseas emergencies</span>
-          <span>Payment proof sent straight to Henry</span>
+          <span>3-step purchase flow</span>
+          <span>Essential selected by default</span>
+          <span>Live premium breakdown</span>
         </div>
         <div class="hero-actions">
           <a href="#application" class="button button-primary">Buy Now</a>
@@ -48,21 +46,21 @@
       </div>
       <aside class="hero-panel">
         <div class="hero-panel-card">
-          <p class="mini-label">Why Explorer stands out</p>
+          <p class="mini-label">Why clients like this page</p>
           <ul class="feature-list">
-            <li>All-new Tokio Marine Explorer positioning</li>
-            <li>Flexible protection across domestic and worldwide trips</li>
-            <li>Simple plan comparison with Popular and Best labels</li>
-            <li>One clean buying flow from quote to payment</li>
+            <li>Travel dates, area and premium are shown immediately</li>
+            <li>Plan choices are clearer with Popular and Best labels</li>
+            <li>Traveller cards keep larger groups easier to complete</li>
+            <li>Payment and follow-up go straight to Henry Lee</li>
           </ul>
         </div>
         <div class="hero-panel-card tone-dark">
-          <p class="mini-label">What this page helps clients do</p>
+          <p class="mini-label">Explorer at a glance</p>
           <ul class="feature-list compact">
-            <li>Choose travel dates and area with live premium display</li>
-            <li>Select the right Explorer plan quickly</li>
-            <li>Submit insured, proposer, bank and nominee details</li>
-            <li>Pay by DuitNow, TNG, transfer or card request</li>
+            <li>Single trip and annual options</li>
+            <li>Domestic and worldwide areas</li>
+            <li>Individual, family and group handling</li>
+            <li>DuitNow, TNG, bank transfer or card request</li>
           </ul>
         </div>
       </aside>
@@ -100,15 +98,12 @@
       </div>
     </section>
 
-    <section class="section section-alt" id="pricing">
+    <section class="section section-alt compact-section" id="pricing">
       <div class="shell">
         <div class="section-head">
           <p class="eyebrow">Pricing snapshot</p>
           <h2>Explorer premium starting points.</h2>
-          <p class="section-copy">
-            Single trip pricing follows brochure brackets up to 180 days. Group policies apply a 5% discount.
-            Domestic pricing includes 8% service tax in this site logic. Stamp duty is only charged when premium is RM150 or above.
-          </p>
+          <p class="section-copy">Brochure-based pricing reference with automatic service tax, stamp duty threshold, and payment fee logic built into the quote.</p>
         </div>
         <div class="pricing-grid">
           <article class="pricing-card">
@@ -155,6 +150,17 @@
       <div class="section-head">
         <p class="eyebrow">Buy Explorer</p>
         <h2>Travel info, plan selection, confirmation & pay.</h2>
+      </div>
+
+      <div class="sticky-quote-bar" id="stickyQuoteBar" aria-live="polite">
+        <div>
+          <p class="mini-label">Current quote</p>
+          <strong id="stickyQuotePlan">Essential plan</strong>
+        </div>
+        <div class="sticky-quote-meta">
+          <span id="stickyQuoteTravellers">1 traveller</span>
+          <strong id="stickyQuoteTotal">RM0.00</strong>
+        </div>
       </div>
 
       <div class="application-layout">
@@ -210,12 +216,12 @@
               <div class="field-grid two">
                 <label class="field">
                   <span id="departureLabel">Departure date</span>
-                  <input type="text" name="departureDate" id="departureDate" placeholder="DD/MM/YY" inputmode="numeric" required>
+                  <input type="text" name="departureDate" id="departureDate" placeholder="DD/MM/YYYY" inputmode="numeric" required>
                   <small class="error-text" data-error-for="departureDate"></small>
                 </label>
                 <label class="field" id="returnField">
                   <span>Return date</span>
-                  <input type="text" name="returnDate" id="returnDate" placeholder="DD/MM/YY" inputmode="numeric" required>
+                  <input type="text" name="returnDate" id="returnDate" placeholder="DD/MM/YYYY" inputmode="numeric" required>
                   <small class="error-text" data-error-for="returnDate"></small>
                 </label>
               </div>
@@ -283,6 +289,7 @@
 
               <div class="field" id="planField">
                 <span class="field-label">Plan selection</span>
+                <small class="hint">Essential is pre-selected so clients can move forward faster.</small>
                 <div class="choice-grid three" id="planChoices"></div>
                 <small class="error-text" data-error-for="selectedPlan"></small>
               </div>
@@ -332,6 +339,7 @@
                     <p id="travellerSummaryText">1 traveller to complete.</p>
                   </div>
                 </div>
+                <p class="hint subsection-hint">NRIC auto-fills date of birth and gender when the IC number is entered.</p>
                 <div id="insuredList" class="stack"></div>
               </div>
 
@@ -363,7 +371,7 @@
                 <div class="subsection-head">
                   <div>
                     <h4>Nominee details</h4>
-                    <p>Add one or more nominees. Total allocation must be 100%.</p>
+                    <p>Add one or more nominees if needed. Total allocation must be 100% when nominee details are filled.</p>
                   </div>
                   <button type="button" class="button button-secondary" id="addNomineeButton">Add nominee</button>
                 </div>
@@ -398,19 +406,19 @@
                   <div class="choice-grid two payment-methods">
                     <label class="choice">
                       <input type="radio" name="paymentMethod" value="duitnow" checked>
-                      <span><strong>DuitNow QR</strong><small>Scan the QR shared by Henry</small></span>
+                      <span><strong>DuitNow QR</strong><small>Scan the QR shared by Henry</small><em class="payment-total" data-payment-total="duitnow"></em></span>
                     </label>
                     <label class="choice">
                       <input type="radio" name="paymentMethod" value="tng">
-                      <span><strong>Touch 'n Go</strong><small>012 612 3540</small></span>
+                      <span><strong>Touch 'n Go</strong><small>012 612 3540</small><em class="payment-total" data-payment-total="tng"></em></span>
                     </label>
                     <label class="choice">
                       <input type="radio" name="paymentMethod" value="bank">
-                      <span><strong>Bank transfer</strong><small>RHB 1040 2700 307120</small></span>
+                      <span><strong>Bank transfer</strong><small>RHB 1040 2700 307120</small><em class="payment-total" data-payment-total="bank"></em></span>
                     </label>
                     <label class="choice">
                       <input type="radio" name="paymentMethod" value="billplz">
-                      <span><strong>Card via Billplz</strong><small>Henry sends the payment link</small></span>
+                      <span><strong>Card via Billplz</strong><small>Henry sends the payment link</small><em class="payment-total" data-payment-total="billplz"></em></span>
                     </label>
                   </div>
 
@@ -442,6 +450,14 @@
             <p class="eyebrow">Submission sent</p>
             <h3>Client application delivered to your email.</h3>
             <p>The form data, quote summary and payment slip have been sent to Henry for follow-up.</p>
+            <div class="next-steps-card">
+              <h4>What happens next</h4>
+              <ul class="feature-list compact">
+                <li>Henry reviews the travel information and premium details</li>
+                <li>Payment proof is checked before policy follow-up</li>
+                <li>Clients can WhatsApp Henry if anything needs correction</li>
+              </ul>
+            </div>
             <div class="button-row left">
               <button type="button" class="button button-secondary" id="startNewButton">Start another submission</button>
               <a href="https://wa.me/60126123540" class="button button-primary" target="_blank" rel="noreferrer">WhatsApp Henry</a>

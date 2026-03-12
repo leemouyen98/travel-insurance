@@ -92,7 +92,15 @@ function parseDate(value) {
     const [year, month, day] = trimmed.split("-").map(Number);
     return new Date(year, month - 1, day);
   }
-  const match = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
+  let match = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (match) {
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+    const date = new Date(year, month - 1, day);
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+  }
+  match = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
   if (!match) return null;
   const day = Number(match[1]);
   const month = Number(match[2]);
@@ -104,15 +112,8 @@ function parseDate(value) {
 function formatDate(date) {
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = String(date.getFullYear()).slice(-2);
+  const year = String(date.getFullYear());
   return `${day}/${month}/${year}`;
-}
-
-function formatNricDob(date) {
-  const year = String(date.getFullYear()).slice(-2);
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}/${month}/${day}`;
 }
 
 function attachDatePicker(element, options = {}) {
@@ -121,7 +122,7 @@ function attachDatePicker(element, options = {}) {
     element._flatpickr.destroy();
   }
   window.flatpickr(element, {
-    dateFormat: "d/m/y",
+    dateFormat: "d/m/Y",
     allowInput: true,
     disableMobile: true,
     ...options
@@ -325,6 +326,36 @@ function calculateQuote() {
   };
 }
 
+function getPaymentMethodLabel(value) {
+  return {
+    duitnow: "DuitNow QR",
+    tng: "Touch 'n Go",
+    bank: "Bank transfer",
+    billplz: "Card via Billplz"
+  }[value] || "-";
+}
+
+function updateStickyQuoteBar() {
+  getField("stickyQuotePlan").textContent = `${state.selectedPlan[0].toUpperCase()}${state.selectedPlan.slice(1)} plan`;
+  getField("stickyQuoteTravellers").textContent = `${getTotalTravellers()} traveller${getTotalTravellers() === 1 ? "" : "s"}`;
+  getField("stickyQuoteTotal").textContent = formatMoney(state.quote?.total || 0);
+}
+
+function updatePaymentMethodTotals() {
+  const methods = ["duitnow", "tng", "bank", "billplz"];
+  const baseTotal = state.quote ? state.quote.total - (state.quote.cardFee || 0) : 0;
+  methods.forEach((method) => {
+    const totalNode = document.querySelector(`[data-payment-total="${method}"]`);
+    if (!totalNode) return;
+    if (!state.quote) {
+      totalNode.textContent = "";
+      return;
+    }
+    const total = method === "billplz" ? baseTotal + 1 : baseTotal;
+    totalNode.textContent = `Pay ${formatMoney(total)}`;
+  });
+}
+
 function buildTravellerCard(index, category) {
   const extraRole = state.policyType === "family" ? `
     <label class="field">
@@ -339,11 +370,15 @@ function buildTravellerCard(index, category) {
   ` : "";
 
   return `
-    <article class="traveller-card" data-traveller-card="${index}">
+    <article class="traveller-card ${index === 0 ? "" : "is-collapsed"}" data-traveller-card="${index}">
       <div class="card-header">
         <h5>Traveller ${index + 1}${index === 0 && !getField("buyingForSomeoneElse").checked ? " (also proposer)" : ""}</h5>
-        <span class="badge">${category === "senior" ? "Age 71-85" : "Age 30 days-70"}</span>
+        <div class="card-header-meta">
+          <span class="badge">${category === "senior" ? "Age 71-85" : "Age 30 days-70"}</span>
+          <button type="button" class="toggle-card" data-toggle-traveller="${index}">${index === 0 ? "Hide" : "Edit"}</button>
+        </div>
       </div>
+      <div class="traveller-card-body">
       <div class="field-grid two">
         <label class="field">
           <span>Full name</span>
@@ -358,10 +393,11 @@ function buildTravellerCard(index, category) {
         <label class="field">
           <span>NRIC/Passport (Same as IC/Passport)</span>
           <input type="text" name="insuredId_${index}" data-nric-input="${index}" required>
+          <small class="hint">For Malaysian NRIC, DOB and gender are filled automatically.</small>
         </label>
         <label class="field">
           <span>Date of birth</span>
-          <input type="text" name="insuredDob_${index}" placeholder="YY/MM/DD" inputmode="numeric" required>
+          <input type="text" name="insuredDob_${index}" placeholder="DD/MM/YYYY" inputmode="numeric" required>
         </label>
       </div>
       <div class="field-grid three">
@@ -393,8 +429,20 @@ function buildTravellerCard(index, category) {
         </label>
         ${extraRole}
       </div>
+      </div>
     </article>
   `;
+}
+
+function bindTravellerCardToggles() {
+  insuredList.querySelectorAll("[data-toggle-traveller]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const card = insuredList.querySelector(`[data-traveller-card="${button.dataset.toggleTraveller}"]`);
+      if (!card) return;
+      card.classList.toggle("is-collapsed");
+      button.textContent = card.classList.contains("is-collapsed") ? "Edit" : "Hide";
+    });
+  });
 }
 
 function attachTravellerEnhancements() {
@@ -413,9 +461,9 @@ function attachTravellerEnhancements() {
         const date = new Date(fullYear, mm - 1, dd);
         if (date.getFullYear() === fullYear && date.getMonth() === mm - 1 && date.getDate() === dd) {
           if (dobField?._flatpickr) {
-            dobField._flatpickr.setDate(date, true, "y/m/d");
+            dobField._flatpickr.setDate(date, true, "d/m/Y");
           } else {
-            dobField.value = formatNricDob(date);
+            dobField.value = formatDate(date);
           }
         }
       }
@@ -428,7 +476,7 @@ function attachTravellerEnhancements() {
 
   insuredList.querySelectorAll('input[name^="insuredDob_"]').forEach((input) => {
     attachDatePicker(input, {
-      dateFormat: "y/m/d"
+      dateFormat: "d/m/Y"
     });
   });
 }
@@ -442,6 +490,7 @@ function syncTravellerCards() {
   state.travellerSignature = signature;
   insuredList.innerHTML = travellers.map((type, index) => buildTravellerCard(index, type)).join("");
   attachTravellerEnhancements();
+  bindTravellerCardToggles();
   insuredList.querySelectorAll("input, select").forEach((field) => {
     field.addEventListener("input", populateSummary);
     field.addEventListener("change", populateSummary);
@@ -584,11 +633,15 @@ function refreshQuote() {
     getField("quoteTotal").textContent = formatMoney(0);
     getField("quoteNote").textContent = "Choose your trip details to calculate.";
     breakdown.innerHTML = "";
+    updateStickyQuoteBar();
+    updatePaymentMethodTotals();
     return;
   }
   getField("quoteTotal").textContent = formatMoney(quote.total);
   getField("quoteNote").textContent = `${quote.days} day${quote.days > 1 ? "s" : ""} • ${AREA_LABELS[quote.area]} • ${state.policyType}`;
   breakdown.innerHTML = quote.items.map((item) => `<div><dt>${item.label}</dt><dd>${item.value < 0 ? "-" : ""}${formatMoney(Math.abs(item.value))}</dd></div>`).join("");
+  updateStickyQuoteBar();
+  updatePaymentMethodTotals();
   populateSummary();
 }
 
@@ -610,9 +663,10 @@ function populateSummary() {
     <div><dt>Destination</dt><dd>${getField("coverageScope").value === "domestic" ? "Malaysia" : getField("destination").value.trim() || "-"}</dd></div>
     <div><dt>Proposer</dt><dd>${proposer.name || "-"}</dd></div>
     <div><dt>Nomination total</dt><dd>${collectNominees().reduce((sum, nominee) => sum + nominee.share, 0)}%</dd></div>
-    <div><dt>Payment method</dt><dd>${(document.querySelector('input[name="paymentMethod"]:checked')?.value || "").toUpperCase()}</dd></div>
+    <div><dt>Payment method</dt><dd>${getPaymentMethodLabel(document.querySelector('input[name="paymentMethod"]:checked')?.value || "")}</dd></div>
   `;
   getField("summaryTotal").textContent = formatMoney(state.quote.total);
+  updateStickyQuoteBar();
 }
 
 function setPaymentContent() {
