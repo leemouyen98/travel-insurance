@@ -436,6 +436,20 @@ textarea {
   color: var(--ink);
 }
 
+.flatpickr-calendar {
+  border-radius: 18px;
+  border: 1px solid rgba(19, 41, 65, 0.1);
+  box-shadow: 0 20px 50px rgba(19, 41, 65, 0.18);
+  font-family: var(--body);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
 .field input:focus,
 .field select:focus,
 .field textarea:focus {

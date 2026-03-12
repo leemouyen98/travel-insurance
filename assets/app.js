@@ -115,6 +115,19 @@ function formatNricDob(date) {
   return `${year}/${month}/${day}`;
 }
 
+function attachDatePicker(element, options = {}) {
+  if (!element || typeof window.flatpickr !== "function") return;
+  if (element._flatpickr) {
+    element._flatpickr.destroy();
+  }
+  window.flatpickr(element, {
+    dateFormat: "d/m/y",
+    allowInput: true,
+    disableMobile: true,
+    ...options
+  });
+}
+
 function addDays(date, days) {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
@@ -399,13 +412,23 @@ function attachTravellerEnhancements() {
         const fullYear = yy > currentYear ? 1900 + yy : 2000 + yy;
         const date = new Date(fullYear, mm - 1, dd);
         if (date.getFullYear() === fullYear && date.getMonth() === mm - 1 && date.getDate() === dd) {
-          dobField.value = formatNricDob(date);
+          if (dobField?._flatpickr) {
+            dobField._flatpickr.setDate(date, true, "y/m/d");
+          } else {
+            dobField.value = formatNricDob(date);
+          }
         }
       }
       if (digits.length >= 1) {
         const last = Number(digits.slice(-1));
         if (!Number.isNaN(last)) genderField.value = last % 2 === 0 ? "Female" : "Male";
       }
+    });
+  });
+
+  insuredList.querySelectorAll('input[name^="insuredDob_"]').forEach((input) => {
+    attachDatePicker(input, {
+      dateFormat: "d/m/y"
     });
   });
 }
@@ -820,13 +843,29 @@ function resetForm() {
 }
 
 function initMinDates() {
-  getField("departureDate").addEventListener("change", () => {
-    if (getField("insuranceType").value === "annual" && getField("departureDate").value) {
-      getField("returnDate").value = formatDate(addDays(parseDate(getField("departureDate").value), 365));
+  const today = new Date();
+
+  attachDatePicker(getField("departureDate"), {
+    minDate: today,
+    onChange: ([selectedDate]) => {
+      const returnField = getField("returnDate");
+      if (returnField?._flatpickr) {
+        returnField._flatpickr.set("minDate", selectedDate || today);
+      }
+      if (getField("insuranceType").value === "annual" && selectedDate) {
+        returnField.value = formatDate(addDays(selectedDate, 365));
+      }
+      refreshQuote();
     }
-    refreshQuote();
   });
-  getField("returnDate").addEventListener("change", refreshQuote);
+
+  attachDatePicker(getField("returnDate"), {
+    minDate: today,
+    onChange: () => refreshQuote()
+  });
+
+  getField("departureDate").addEventListener("input", refreshQuote);
+  getField("returnDate").addEventListener("input", refreshQuote);
 }
 
 document.querySelectorAll("[data-counter]").forEach((button) => {
