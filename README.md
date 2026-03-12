@@ -15,15 +15,14 @@ Static travel insurance application site for Henry Lee's Tokio Marine Explorer c
 ## What is implemented
 
 - Single trip and annual quoting flow
-- Domestic and international logic
-- Area 1 / Area 2 / Area 3 brochure pricing
+- Domestic / Area 1 / Area 2 / Area 3 travel area logic
+- Explorer brochure pricing
 - Tokio-style traveller age bands
 - Individual, family, and group policy rules
 - 5% group discount logic
 - Dynamic insured traveller cards based on traveller count
-- Flight / itinerary details
-- Nominee details
-- Payment method selection and payment slip upload
+- Optional destination, bank details, and nominee details
+- Payment method selection with optional payment slip upload
 - Resend email delivery through Cloudflare Pages Functions
 
 ## Environment variables
@@ -90,7 +89,7 @@ npm run check
 
 ## Notes
 
-- The site expects clients to upload a payment slip for DuitNow QR, Touch 'n Go, and bank transfer.
-- The UI references Henry's payment details directly in the page.
-- If you want to show the actual DuitNow QR image in the UI, add an image asset and place it into the payment content block in `index.html` or `assets/app.js`.
+- The current live flow is a 3-step intake: `Travel`, `Travellers`, and `Review & Pay`.
+- `assets/app.js` contains the premium logic, step validation, summary rendering, and submit payload.
+- `functions/api/submit.ts` handles the Resend email delivery from Cloudflare Pages Functions.
 - Copy `.dev.vars.example` to `.dev.vars` for local development, but do not commit `.dev.vars`.
