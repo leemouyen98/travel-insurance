@@ -86,11 +86,26 @@ function formatMoney(value) {
 }
 
 function parseDate(value) {
-  return value ? new Date(`${value}T00:00:00`) : null;
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    const [year, month, day] = trimmed.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+  const match = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
+  if (!match) return null;
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = 2000 + Number(match[3]);
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
 }
 
-function toInputDate(date) {
-  return date.toISOString().split("T")[0];
+function formatDate(date) {
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear()).slice(-2);
+  return `${day}/${month}/${year}`;
 }
 
 function addDays(date, days) {
@@ -326,7 +341,7 @@ function buildTravellerCard(index, category) {
         </label>
         <label class="field">
           <span>Date of birth</span>
-          <input type="date" name="insuredDob_${index}" required>
+          <input type="text" name="insuredDob_${index}" placeholder="DD/MM/YY" inputmode="numeric" required>
         </label>
       </div>
       <div class="field-grid three">
@@ -377,7 +392,7 @@ function attachTravellerEnhancements() {
         const fullYear = yy > currentYear ? 1900 + yy : 2000 + yy;
         const date = new Date(fullYear, mm - 1, dd);
         if (date.getFullYear() === fullYear && date.getMonth() === mm - 1 && date.getDate() === dd) {
-          dobField.value = toInputDate(date);
+          dobField.value = formatDate(date);
         }
       }
       if (digits.length >= 1) {
@@ -453,7 +468,7 @@ function buildNomineeCard(index) {
         </label>
         <label class="field">
           <span>Allocation (%)</span>
-          <input type="number" name="nomineeShare_${index}" min="1" max="100" value="${index === 0 ? 100 : ""}" required>
+          <input type="number" name="nomineeShare_${index}" min="1" max="100" value="">
         </label>
       </div>
     </article>
@@ -495,7 +510,7 @@ function bindNomineeActions() {
   });
 }
 
-function renderNominees(drafts = [{ name: "", relationship: "", idNumber: "", contact: "", share: 100 }]) {
+function renderNominees(drafts = [{ name: "", relationship: "", idNumber: "", contact: "", share: "" }]) {
   nomineeList.innerHTML = drafts.map((_, index) => buildNomineeCard(index)).join("");
   drafts.forEach((draft, index) => {
     if (form.elements[`nomineeName_${index}`]) {
@@ -552,7 +567,7 @@ function populateSummary() {
   const travellers = collectTravellers();
   const proposer = getProposerData(travellers);
   const returnDate = getField("insuranceType").value === "annual"
-    ? toInputDate(addDays(parseDate(getField("departureDate").value), 365))
+    ? formatDate(addDays(parseDate(getField("departureDate").value), 365))
     : getField("returnDate").value;
 
   summaryList.innerHTML = `
@@ -670,18 +685,14 @@ function validateStep(step) {
         }
       });
     }
-    ["bankName", "bankAccountNumber", "bankAccountType"].forEach((id) => {
-      if (!String(getField(id).value).trim()) {
-        showError(id, "This field is required.");
-        valid = false;
-      }
-    });
-    const nominees = collectNominees();
+    const nominees = collectNominees().filter((nominee) =>
+      nominee.name || nominee.relationship || nominee.idNumber || nominee.contact || nominee.share
+    );
     const shareTotal = nominees.reduce((sum, nominee) => sum + nominee.share, 0);
     nominees.forEach((nominee) => {
       if (!nominee.name || !nominee.relationship || !nominee.idNumber || !nominee.contact || !nominee.share) valid = false;
     });
-    if (!nominees.length || shareTotal !== 100) {
+    if (nominees.length > 0 && shareTotal !== 100) {
       showError("nominees", "Nominee allocation must total exactly 100%.");
       valid = false;
     }
@@ -691,11 +702,6 @@ function validateStep(step) {
     clearError("paymentSlip");
     clearError("consent");
     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-    const slip = getField("paymentSlip").files[0];
-    if (["duitnow", "tng", "bank"].includes(paymentMethod) && !slip) {
-      showError("paymentSlip", "Upload the payment slip for this method.");
-      valid = false;
-    }
     if (!getField("consent").checked) {
       showError("consent", "Consent is required before submit.");
       valid = false;
@@ -728,7 +734,7 @@ async function submitForm(event) {
   const proposer = getProposerData(travellers);
   const departureDate = getField("departureDate").value;
   const finalReturnDate = getField("insuranceType").value === "annual"
-    ? toInputDate(addDays(parseDate(departureDate), 365))
+    ? formatDate(addDays(parseDate(departureDate), 365))
     : getField("returnDate").value;
 
   const payload = {
@@ -751,7 +757,9 @@ async function submitForm(event) {
       bankAccountType: getField("bankAccountType").value
     },
     insuredTravellers: travellers,
-    nominees: collectNominees(),
+    nominees: collectNominees().filter((nominee) =>
+      nominee.name || nominee.relationship || nominee.idNumber || nominee.contact || nominee.share
+    ),
     paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value
   };
 
@@ -805,13 +813,9 @@ function resetForm() {
 }
 
 function initMinDates() {
-  const today = toInputDate(new Date());
-  getField("departureDate").min = today;
-  getField("returnDate").min = today;
   getField("departureDate").addEventListener("change", () => {
-    getField("returnDate").min = getField("departureDate").value || today;
     if (getField("insuranceType").value === "annual" && getField("departureDate").value) {
-      getField("returnDate").value = toInputDate(addDays(parseDate(getField("departureDate").value), 365));
+      getField("returnDate").value = formatDate(addDays(parseDate(getField("departureDate").value), 365));
     }
     refreshQuote();
   });
@@ -849,7 +853,7 @@ getField("buyingForSomeoneElse").addEventListener("change", () => {
 });
 getField("addNomineeButton").addEventListener("click", () => {
   const drafts = getNomineeDrafts();
-  drafts.push({ name: "", relationship: "", idNumber: "", contact: "", share: "" });
+  drafts.push({ name: "", relationship: "", idNumber: "", contact: "", share: drafts.length === 0 ? 100 : "" });
   renderNominees(drafts);
 });
 

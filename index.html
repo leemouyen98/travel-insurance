@@ -209,12 +209,12 @@
               <div class="field-grid two">
                 <label class="field">
                   <span id="departureLabel">Departure date</span>
-                  <input type="date" name="departureDate" id="departureDate" required>
+                  <input type="text" name="departureDate" id="departureDate" placeholder="DD/MM/YY" inputmode="numeric" required>
                   <small class="error-text" data-error-for="departureDate"></small>
                 </label>
                 <label class="field" id="returnField">
                   <span>Return date</span>
-                  <input type="date" name="returnDate" id="returnDate" required>
+                  <input type="text" name="returnDate" id="returnDate" placeholder="DD/MM/YY" inputmode="numeric" required>
                   <small class="error-text" data-error-for="returnDate"></small>
                 </label>
               </div>
@@ -339,17 +339,17 @@
                 <div class="field-grid three">
                   <label class="field">
                     <span>Bank name (for claim purpose)</span>
-                    <select name="bankName" id="bankName" required></select>
+                    <select name="bankName" id="bankName"></select>
                     <small class="error-text" data-error-for="bankName"></small>
                   </label>
                   <label class="field">
                     <span>Account number</span>
-                    <input type="text" name="bankAccountNumber" id="bankAccountNumber" required>
+                    <input type="text" name="bankAccountNumber" id="bankAccountNumber">
                     <small class="error-text" data-error-for="bankAccountNumber"></small>
                   </label>
                   <label class="field">
                     <span>Account type</span>
-                    <select name="bankAccountType" id="bankAccountType" required>
+                    <select name="bankAccountType" id="bankAccountType">
                       <option value="Savings" selected>Savings</option>
                       <option value="Current">Current</option>
                     </select>

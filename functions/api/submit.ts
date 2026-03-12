@@ -91,8 +91,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       ["Email", payload.proposer.email],
       ["Occupation", payload.proposer.occupation],
       ["Address", payload.proposer.address],
-      ["Bank", `${payload.proposer.bankName} (${payload.proposer.bankAccountType})`],
-      ["Account number", payload.proposer.bankAccountNumber]
+      ["Bank", payload.proposer.bankName ? `${payload.proposer.bankName}${payload.proposer.bankAccountType ? ` (${payload.proposer.bankAccountType})` : ""}` : "-"],
+      ["Account number", payload.proposer.bankAccountNumber || "-"]
     ]);
 
     const productRows = renderDefinitionList([
@@ -174,20 +174,25 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       </div>
     `;
 
+    const resendPayload: Record<string, unknown> = {
+      from: env.FROM_EMAIL,
+      to: [env.NOTIFICATION_EMAIL],
+      subject: `Explorer submission - ${payload.proposer.name || "Client"} - RM ${Number(payload.quote.total).toFixed(2)}`,
+      html,
+      attachments
+    };
+
+    if (payload.proposer.email) {
+      resendPayload.reply_to = payload.proposer.email;
+    }
+
     const resendResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${env.RESEND_API_KEY}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        from: env.FROM_EMAIL,
-        to: [env.NOTIFICATION_EMAIL],
-        reply_to: payload.proposer.email,
-        subject: `Explorer submission - ${payload.proposer.name} - RM ${Number(payload.quote.total).toFixed(2)}`,
-        html,
-        attachments
-      })
+      body: JSON.stringify(resendPayload)
     });
 
     if (!resendResponse.ok) {
