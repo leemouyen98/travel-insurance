@@ -417,21 +417,6 @@ function openOptionalSection(sectionId) {
   toggle.querySelector("em").textContent = "Hide";
 }
 
-function updateStepHelper() {
-  const titles = {
-    1: "Step 1 of 3",
-    2: "Step 2 of 3",
-    3: "Step 3 of 3"
-  };
-  const notes = {
-    1: "About 2 minutes to get your quote ready.",
-    2: "Complete the traveller details and expand optional sections only if needed.",
-    3: "Review the premium, choose payment and submit when ready."
-  };
-  getField("stepHelperTitle").textContent = titles[state.step];
-  getField("stepHelperNote").textContent = notes[state.step];
-}
-
 function updateStickyQuoteBar() {
   getField("stickyQuotePlan").textContent = `${state.selectedPlan[0].toUpperCase()}${state.selectedPlan.slice(1)} plan`;
   getField("stickyQuoteTravellers").textContent = `${getTotalTravellers()} traveller${getTotalTravellers() === 1 ? "" : "s"}`;
@@ -912,7 +897,6 @@ function goToStep(step) {
     item.classList.toggle("is-active", itemStep === step);
     item.classList.toggle("is-complete", itemStep < step);
   });
-  updateStepHelper();
   window.scrollTo({ top: document.querySelector("#application").offsetTop - 30, behavior: "smooth" });
 }
 
@@ -1107,4 +1091,3 @@ refreshVisibility();
 renderNominees();
 setPaymentContent();
 bindOptionalSections();
-updateStepHelper();
