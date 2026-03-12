@@ -365,8 +365,9 @@ textarea {
 }
 
 .hero-panel-card strong {
-  font-size: 1.35rem;
+  font-size: 1.02rem;
   letter-spacing: -0.04em;
+  line-height: 1.25;
 }
 
 .hero-panel-card span {
@@ -388,7 +389,7 @@ textarea {
 }
 
 .hero-panel-card-primary strong {
-  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-size: clamp(1.3rem, 2.2vw, 1.7rem);
 }
 
 .next-steps-card h4,
@@ -1326,6 +1327,10 @@ textarea {
 
 .info-disclosure-body ul {
   padding-left: 1rem;
+}
+
+.info-disclosure-actions {
+  margin-top: 0.25rem;
 }
 
 .success-card {
