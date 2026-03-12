@@ -300,6 +300,7 @@ textarea {
 
 .hero-actions {
   gap: 1rem;
+  margin-top: 1.5rem;
   justify-content: flex-start;
 }
 
@@ -1498,6 +1499,7 @@ textarea {
   .hero-actions {
     display: grid;
     width: 100%;
+    margin-top: 1.25rem;
   }
 
   .hero-actions .button {
