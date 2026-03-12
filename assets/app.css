@@ -1191,8 +1191,15 @@ textarea {
   }
 
   .coverage-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.45rem;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(180px, 72vw);
+    gap: 0.55rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.35rem;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
   }
 
   .coverage-head {
@@ -1226,6 +1233,11 @@ textarea {
 
   .coverage-body {
     padding: 0.62rem;
+  }
+
+  .coverage-card {
+    min-width: 0;
+    scroll-snap-align: start;
   }
 
   .coverage-price {
