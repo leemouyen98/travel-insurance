@@ -108,6 +108,13 @@ function formatDate(date) {
   return `${day}/${month}/${year}`;
 }
 
+function formatNricDob(date) {
+  const year = String(date.getFullYear()).slice(-2);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}/${month}/${day}`;
+}
+
 function addDays(date, days) {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
@@ -392,7 +399,7 @@ function attachTravellerEnhancements() {
         const fullYear = yy > currentYear ? 1900 + yy : 2000 + yy;
         const date = new Date(fullYear, mm - 1, dd);
         if (date.getFullYear() === fullYear && date.getMonth() === mm - 1 && date.getDate() === dd) {
-          dobField.value = formatDate(date);
+          dobField.value = formatNricDob(date);
         }
       }
       if (digits.length >= 1) {
