@@ -435,13 +435,6 @@ textarea {
   background: rgba(255, 255, 255, 0.92);
 }
 
-.apply-support-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
 .sticky-quote-bar {
   display: none;
   position: sticky;
@@ -516,7 +509,6 @@ textarea {
 }
 
 .application-card,
-.sidebar-card,
 .faq-item {
   border-radius: var(--radius);
   background: var(--paper);
@@ -986,25 +978,6 @@ textarea {
   border-radius: 20px;
 }
 
-.sidebar-actions {
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.help-card {
-  cursor: pointer;
-}
-
-.help-card summary {
-  list-style: none;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.help-card summary::-webkit-details-marker {
-  display: none;
-}
-
 .success-card {
   background: linear-gradient(150deg, #f7fff9 0%, #eefaf4 100%);
 }
@@ -1067,7 +1040,6 @@ textarea {
 }
 
 @media (max-width: 1080px) {
-  .apply-support-grid,
   .review-layout {
     display: grid;
     grid-template-columns: 1fr;
@@ -1119,8 +1091,7 @@ textarea {
 
   .card-header,
   .card-header-meta,
-  .step-helper,
-  .sidebar-actions {
+  .step-helper {
     display: grid;
     align-items: flex-start;
   }
@@ -1226,8 +1197,7 @@ textarea {
 
   .coverage-body,
   .summary-card,
-  .payment-card,
-  .sidebar-card {
+  .payment-card {
     padding: 0.8rem;
   }
 
