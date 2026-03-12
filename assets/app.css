@@ -69,7 +69,7 @@ textarea {
 }
 
 .site-header {
-  padding: 1rem 0 3rem;
+  padding: 0.8rem 0 2.4rem;
   background:
     radial-gradient(circle at 72% 18%, rgba(37, 99, 235, 0.14), transparent 20%),
     radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.85), transparent 35%),
@@ -80,14 +80,13 @@ textarea {
 .topbar-actions,
 .hero-actions,
 .hero-pills,
+.hero-steps,
 .stepper,
 .button-row,
 .subsection-head,
 .traveller-box-head,
 .footer-grid,
 .card-header-meta,
-.news-grid,
-.coverage-grid,
 .coverage-head,
 .coverage-list div,
 .sidebar-actions {
@@ -98,39 +97,29 @@ textarea {
 .topbar {
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.7rem 0 1.6rem;
+  padding: 0.5rem 0 1.2rem;
   position: sticky;
-  top: 0.5rem;
-  z-index: 10;
-}
-
-.brand-block {
-  display: grid;
-  gap: 0.18rem;
-  padding: 0.7rem 0.9rem;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
+  top: 0.75rem;
+  z-index: 12;
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
   font-family: var(--display);
   text-decoration: none;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
   color: var(--ink);
-}
-
-.brand-note {
-  margin: 0;
-  font-size: 0.76rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--muted);
 }
 
 .eyebrow,
@@ -170,7 +159,7 @@ textarea {
 }
 
 .button-gold {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.88);
   color: var(--ink);
   border: 1px solid rgba(16, 18, 20, 0.08);
   backdrop-filter: blur(20px);
@@ -193,20 +182,20 @@ textarea {
 }
 
 .hero {
-  padding: 3.2rem 0 2rem;
+  padding: 2.2rem 0 1.3rem;
 }
 
 .hero-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
-  gap: 1.2rem;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: 1rem;
   align-items: stretch;
 }
 
 .hero-copy,
-.hero-panel {
+.hero-visual {
   border-radius: 36px;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.84);
   backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.78);
   box-shadow: 0 28px 90px rgba(15, 23, 42, 0.08);
@@ -224,9 +213,9 @@ textarea {
   margin: 0 0 1.35rem;
   padding: 0.58rem 1.3rem;
   border-radius: 999px;
-  border: 1px solid rgba(37, 99, 235, 0.14);
-  background: rgba(37, 99, 235, 0.08);
-  color: #396dff;
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  background: rgba(37, 99, 235, 0.09);
+  color: #2f5ff0;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-weight: 700;
@@ -243,7 +232,7 @@ textarea {
 
 .hero-copy h1 {
   font-size: clamp(3.2rem, 7vw, 5.6rem);
-  max-width: 10ch;
+  max-width: 9ch;
   color: var(--ink);
   letter-spacing: -0.06em;
 }
@@ -255,22 +244,37 @@ textarea {
 .hero-text,
 .section-copy,
 .payment-detail-box p,
-.news-card p {
+.coverage-selected-card p {
   line-height: 1.6;
 }
 
 .hero-text {
-  max-width: 36ch;
+  max-width: 32ch;
   margin: 1rem 0 0;
-  font-size: clamp(1rem, 1.6vw, 1.18rem);
-  color: #556070;
+  font-size: clamp(1.02rem, 1.7vw, 1.2rem);
+  color: #475569;
   text-align: left;
+}
+
+.hero-steps {
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin: 1.4rem 0 0;
+}
+
+.hero-steps span {
+  padding: 0.56rem 0.82rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.04);
+  color: #324156;
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .hero-pills {
   gap: 0.6rem;
   flex-wrap: wrap;
-  margin: 1.75rem 0;
+  margin: 1rem 0 1.75rem;
   justify-content: flex-start;
   max-width: 720px;
 }
@@ -291,14 +295,55 @@ textarea {
   justify-content: flex-start;
 }
 
-.hero-panel {
-  padding: 1.2rem;
+.hero-visual {
   display: grid;
   gap: 0.9rem;
+  padding: 1rem;
   background:
-    radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 28%),
-    rgba(255, 255, 255, 0.68);
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.14), transparent 28%),
+    rgba(255, 255, 255, 0.72);
   animation-delay: 120ms;
+}
+
+.hero-image-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 340px;
+  border-radius: 32px;
+  background: #d8e0eb;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.hero-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-image-overlay {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  display: grid;
+  gap: 0.28rem;
+  padding: 1rem 1.1rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(18px);
+  color: var(--ink);
+}
+
+.hero-image-overlay strong {
+  font-size: 1.15rem;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+
+.hero-panel {
+  display: grid;
+  gap: 0.9rem;
 }
 
 .hero-panel-grid {
@@ -347,7 +392,6 @@ textarea {
 }
 
 .next-steps-card h4,
-.news-card h3,
 .coverage-card h3 {
   margin: 0;
 }
@@ -357,15 +401,13 @@ textarea {
 .subsection p,
 .traveller-box-head p,
 .sidebar-card p,
-.summary-card p,
-.news-card p,
-.faq-item p {
+.summary-card p {
   margin: 0;
   color: var(--muted);
 }
 
 .section {
-  padding: 3rem 0;
+  padding: 2.2rem 0;
 }
 
 .section-head {
@@ -394,96 +436,12 @@ textarea {
 }
 
 .section-quiet {
-  padding-top: 1.2rem;
-}
-
-.process-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.9rem;
-}
-
-.process-card {
-  display: grid;
-  gap: 0.8rem;
-  align-content: start;
-  min-height: 200px;
-  padding: 1.5rem;
-  border-radius: 30px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(246, 248, 252, 0.9) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.05);
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-}
-
-.process-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.08);
-}
-
-.process-step {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  background: rgba(37, 99, 235, 0.08);
-  color: var(--brand);
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
-.process-card h3 {
-  margin: 0;
-  font-size: 1.15rem;
-  letter-spacing: -0.03em;
-}
-
-.process-card p {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.65;
-}
-
-.news-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.85rem;
-  align-items: stretch;
-}
-
-.news-card {
-  display: grid;
-  align-content: start;
-  gap: 0.75rem;
-  min-height: 190px;
-  padding: 1.5rem;
-  border-radius: 32px;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06);
-  backdrop-filter: blur(20px);
-}
-
-.news-card p {
-  font-size: 0.92rem;
-}
-
-.news-icon {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #f5f8ff 0%, #eef2fa 100%);
-  font-size: 1.1rem;
+  padding-top: 1rem;
 }
 
 .coverage-showcase {
   display: grid;
-  grid-template-columns: minmax(220px, 0.9fr) minmax(0, 2.1fr);
+  grid-template-columns: minmax(260px, 0.82fr) minmax(0, 2.18fr);
   gap: 1.2rem;
   align-items: start;
 }
@@ -505,6 +463,30 @@ textarea {
 
 .coverage-copy-card .section-copy {
   margin-bottom: 0;
+}
+
+.coverage-selected-card {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1.35rem;
+  padding: 1rem;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+.coverage-selected-card strong {
+  font-size: 1.2rem;
+  letter-spacing: -0.04em;
+}
+
+.coverage-selected-card p {
+  margin: 0;
+  color: #4b5a70;
+}
+
+.coverage-selected-card .button {
+  justify-self: start;
 }
 
 .coverage-rail {
@@ -606,7 +588,7 @@ textarea {
 }
 
 #application {
-  padding: 2.5rem;
+  padding: 2rem;
   border-radius: 42px;
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.12), transparent 24%),
@@ -621,28 +603,11 @@ textarea {
 }
 
 #application .section-head {
-  margin-bottom: 1.7rem;
+  margin-bottom: 1.2rem;
 }
 
 #application .section-head h2 {
   max-width: none;
-}
-
-.application-trust {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-  margin: 0 0 1.1rem;
-}
-
-.application-trust span {
-  padding: 0.55rem 0.8rem;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.84);
-  font-size: 0.8rem;
-  font-weight: 600;
 }
 
 .application-shell {
@@ -655,10 +620,12 @@ textarea {
   animation-delay: 180ms;
 }
 
-.application-topbar {
+.application-meta-row {
   display: flex;
-  justify-content: flex-start;
-  margin-bottom: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
 }
 
 .top-back-button {
@@ -673,25 +640,32 @@ textarea {
 }
 
 .sticky-quote-bar {
-  display: none;
-  position: sticky;
-  top: 0.75rem;
-  z-index: 8;
-  margin-bottom: 1rem;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
   padding: 0.95rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(16, 18, 20, 0.06);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+  color: var(--ink);
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+}
+
+.sticky-quote-bar > div {
+  min-width: 0;
 }
 
 .sticky-quote-meta {
   display: grid;
   justify-items: end;
   gap: 0.15rem;
+}
+
+.sticky-quote-meta span {
+  color: var(--muted);
 }
 
 .stepper {
@@ -730,8 +704,7 @@ textarea {
   border-color: rgba(11, 143, 152, 0.22);
 }
 
-.application-card,
-.faq-item {
+.application-card {
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.92);
@@ -1089,10 +1062,15 @@ textarea {
   box-shadow: 0 28px 70px rgba(15, 23, 42, 0.12);
 }
 
+.coverage-card:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.2);
+  outline-offset: 3px;
+}
+
 .coverage-card.is-selected {
   border: 2px solid var(--brand);
-  box-shadow: 0 34px 90px rgba(37, 99, 235, 0.18);
-  transform: translateY(-4px);
+  box-shadow: 0 36px 100px rgba(37, 99, 235, 0.22);
+  transform: translateY(-8px);
 }
 
 .coverage-card.is-selected .coverage-head {
@@ -1314,6 +1292,42 @@ textarea {
   border-radius: 24px;
 }
 
+.info-disclosure {
+  margin-top: 0.9rem;
+  border-radius: 22px;
+  border: 1px solid rgba(16, 18, 20, 0.08);
+  background: rgba(250, 251, 254, 0.92);
+  overflow: hidden;
+}
+
+.info-disclosure summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.95rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.info-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.info-disclosure-body {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0 1rem 1rem;
+  color: var(--muted);
+}
+
+.info-disclosure-body p,
+.info-disclosure-body ul {
+  margin: 0;
+}
+
+.info-disclosure-body ul {
+  padding-left: 1rem;
+}
+
 .success-card {
   background: linear-gradient(150deg, #f7fff9 0%, #eefaf4 100%);
 }
@@ -1324,32 +1338,6 @@ textarea {
   border: 1px solid rgba(25, 122, 86, 0.15);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.75);
-}
-
-.faq-list {
-  display: grid;
-  gap: 1rem;
-}
-
-.faq-item {
-  overflow: hidden;
-}
-
-.faq-item summary {
-  cursor: pointer;
-  list-style: none;
-  padding: 1rem 1.15rem;
-  font-size: 0.98rem;
-  font-weight: 800;
-}
-
-.faq-item summary::-webkit-details-marker {
-  display: none;
-}
-
-.faq-item p {
-  padding: 0 1.15rem 1rem;
-  font-size: 0.92rem;
 }
 
 .site-footer {
@@ -1381,16 +1369,12 @@ textarea {
   }
 
   .hero-copy,
-  .hero-panel {
+  .hero-visual {
     padding: 1.5rem;
   }
 
   .review-layout {
     display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .process-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1406,14 +1390,9 @@ textarea {
     position: static;
   }
 
-  .sticky-quote-bar {
-    display: flex;
-  }
 }
 
 @media (max-width: 760px) {
-  .topbar,
-  .topbar-actions,
   .field-grid.two,
   .field-grid.three,
   .choice-grid.two,
@@ -1423,22 +1402,27 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .topbar-actions {
-    justify-items: start;
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 0.8rem;
   }
 
-  .brand-block {
-    width: 100%;
+  .topbar-actions {
+    display: block;
+  }
+
+  .topbar-actions {
+    justify-items: unset;
   }
 
   .brand {
-    font-size: 1.3rem;
-  }
-
-  .eyebrow,
-  .mini-label,
-  .brand-note {
-    font-size: 0.66rem;
+    width: auto;
+    font-size: 1rem;
+    min-height: 44px;
+    padding: 0.65rem 0.9rem;
   }
 
   .button-row {
@@ -1458,9 +1442,13 @@ textarea {
   }
 
   .hero-copy,
-  .hero-panel {
+  .hero-visual {
     padding: 1.15rem;
     border-radius: 28px;
+  }
+
+  .hero {
+    padding-top: 1rem;
   }
 
   #application {
@@ -1480,6 +1468,16 @@ textarea {
   .hero-copy h1 {
     font-size: clamp(2.25rem, 12vw, 3.2rem);
     max-width: 8ch;
+  }
+
+  .hero-steps {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .hero-image-card {
+    min-height: 240px;
+    border-radius: 24px;
   }
 
   .hero-panel-grid {
@@ -1524,45 +1522,6 @@ textarea {
     text-align: center;
   }
 
-  .application-trust {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .application-trust span {
-    font-size: 0.74rem;
-  }
-
-  .news-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.6rem;
-  }
-
-  .process-card {
-    min-height: 0;
-    padding: 1rem;
-    border-radius: 24px;
-  }
-
-  .news-card {
-    min-height: 0;
-    padding: 0.72rem;
-    gap: 0.45rem;
-  }
-
-  .news-card h3 {
-    font-size: 0.78rem;
-  }
-
-  .news-card p {
-    font-size: 0.68rem;
-    line-height: 1.45;
-  }
-
-  .news-icon {
-    font-size: 1rem;
-  }
-
   .coverage-showcase {
     gap: 0.8rem;
   }
@@ -1576,6 +1535,11 @@ textarea {
     grid-auto-columns: minmax(220px, 78vw);
     gap: 0.6rem;
     padding-bottom: 0.35rem;
+  }
+
+  .coverage-selected-card .button {
+    width: 100%;
+    text-align: center;
   }
 
   .coverage-head {
@@ -1626,12 +1590,13 @@ textarea {
     overflow-wrap: anywhere;
   }
 
+  .application-meta-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .sticky-quote-bar {
-    position: static;
-    top: auto;
-    z-index: auto;
     padding: 0.8rem 0.85rem;
-    margin-bottom: 0.85rem;
   }
 
   .sticky-quote-meta {

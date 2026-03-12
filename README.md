@@ -1,6 +1,6 @@
 # Travel Insurance Intake
 
-Static travel insurance application site for Henry Lee's Tokio Marine Explorer clients.
+Static Cloudflare Pages site for Henry Lee's Tokio Marine Explorer clients. The experience is built around a fast quote-first flow: compare plans, get the payable amount instantly, and submit details online.
 
 ## Structure
 
@@ -14,14 +14,14 @@ Static travel insurance application site for Henry Lee's Tokio Marine Explorer c
 
 ## What is implemented
 
+- Premium landing page with plan showcase and preselection
 - Single trip and annual quoting flow
 - Domestic / Area 1 / Area 2 / Area 3 travel area logic
 - Explorer brochure pricing
-- Tokio-style traveller age bands
 - Individual, family, and group policy rules
 - 5% group discount logic
 - Dynamic insured traveller cards based on traveller count
-- Optional destination, bank details, and nominee details
+- Optional flight, bank, and nominee sections
 - Payment method selection with optional payment slip upload
 - Resend email delivery through Cloudflare Pages Functions
 
@@ -89,7 +89,8 @@ npm run check
 
 ## Notes
 
-- The current live flow is a 3-step intake: `Travel`, `Travellers`, and `Review & Pay`.
-- `assets/app.js` contains the premium logic, step validation, summary rendering, and submit payload.
+- The current live flow is a 3-step intake: `Travel Details`, `Choose Plan`, and `Confirm & Pay`.
+- The top marketing plan cards sync directly into the in-form plan selection.
+- `assets/app.js` contains the premium logic, validation, summary rendering, and submit payload.
 - `functions/api/submit.ts` handles the Resend email delivery from Cloudflare Pages Functions.
 - Copy `.dev.vars.example` to `.dev.vars` for local development, but do not commit `.dev.vars`.

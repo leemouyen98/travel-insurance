@@ -187,6 +187,8 @@ const nomineeList = document.querySelector("#nomineeList");
 const summaryList = document.querySelector("#summaryList");
 const paymentDetailBox = document.querySelector("#paymentDetailBox");
 const marketingPlanCards = document.querySelector("#marketingPlanCards");
+const coverageSelectedTitle = document.querySelector("#coverageSelectedTitle");
+const coverageSelectedText = document.querySelector("#coverageSelectedText");
 
 function getField(id) {
   return document.getElementById(id);
@@ -375,6 +377,11 @@ function renderPlanGuidance() {
 
 function renderMarketingPlanCards() {
   if (!marketingPlanCards) return;
+  if (coverageSelectedTitle && coverageSelectedText) {
+    const selectedPlan = PLAN_GUIDANCE[state.selectedPlan];
+    coverageSelectedTitle.textContent = selectedPlan?.title || "Essential";
+    coverageSelectedText.textContent = selectedPlan?.summary || "";
+  }
   marketingPlanCards.querySelectorAll("[data-marketing-plan]").forEach((card) => {
     const selected = card.dataset.marketingPlan === state.selectedPlan;
     card.classList.toggle("is-selected", selected);
@@ -1226,11 +1233,17 @@ document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => inpu
 document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => input.addEventListener("change", refreshQuote));
 getField("destination").addEventListener("input", populateSummary);
 marketingPlanCards?.querySelectorAll("[data-marketing-plan]").forEach((card) => {
-  card.addEventListener("click", () => {
+  const selectMarketingPlan = () => {
     state.selectedPlan = card.dataset.marketingPlan;
     renderMarketingPlanCards();
     renderPlanChoices();
     card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  };
+  card.addEventListener("click", selectMarketingPlan);
+  card.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    selectMarketingPlan();
   });
 });
 getField("buyingForSomeoneElse").addEventListener("change", () => {

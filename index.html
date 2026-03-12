@@ -18,23 +18,25 @@
 <body>
   <header class="site-header">
     <nav class="topbar shell">
-      <div class="brand-block">
-        <a href="#hero" class="brand">Travel Insurance Intake Form</a>
-        <p class="brand-note">Powered by Henry Lee</p>
-      </div>
+      <a href="#hero" class="brand">Tokio Marine Explorer</a>
       <div class="topbar-actions">
-        <a href="#application" class="button button-gold">Get Covered</a>
+        <a href="#application" class="button button-gold">Start Quote</a>
       </div>
     </nav>
 
     <section class="hero shell" id="hero">
       <div class="hero-layout">
         <div class="hero-copy">
-          <p class="hero-badge">Tokio Marine Explorer</p>
-          <h1>Travel cover that feels effortless.</h1>
+          <p class="hero-badge">Travel Insurance by Henry Lee</p>
+          <h1>Beautifully simple cover for every trip.</h1>
           <p class="hero-text">
-            Choose your plan, see your premium instantly, and submit everything in one calm, guided flow.
+            Get your premium instantly, compare the right plan, and submit everything in one calm, guided flow.
           </p>
+          <div class="hero-steps" aria-label="How it works">
+            <span>1. Pick your trip</span>
+            <span>2. Choose your plan</span>
+            <span>3. Submit with confidence</span>
+          </div>
           <div class="hero-pills">
             <span>Premiums from RM47</span>
             <span>Cashless medical support overseas</span>
@@ -46,28 +48,37 @@
             <a href="#marketingPlanCards" class="button button-secondary button-secondary-light">Compare Plans</a>
           </div>
         </div>
-        <div class="hero-panel">
-          <div class="hero-panel-card hero-panel-card-primary">
-            <p class="mini-label">Explorer</p>
-            <strong>From RM47</strong>
-            <span>Single Trip Cover</span>
+        <div class="hero-visual">
+          <div class="hero-image-card">
+            <img src="/assets/explorer.jpg" alt="Traveller with backpack at the airport" class="hero-image">
+            <div class="hero-image-overlay">
+              <p class="mini-label">Ready when you are</p>
+              <strong>From quote to submission in minutes</strong>
+            </div>
           </div>
-          <div class="hero-panel-grid">
-            <div class="hero-panel-card">
-              <strong>24/7</strong>
-              <span>Emergency support</span>
+          <div class="hero-panel">
+            <div class="hero-panel-card hero-panel-card-primary">
+              <p class="mini-label">Explorer</p>
+              <strong>From RM47</strong>
+              <span>Single Trip Cover</span>
             </div>
-            <div class="hero-panel-card">
-              <strong>1 Day</strong>
-              <span>Policy follow-up</span>
-            </div>
-            <div class="hero-panel-card">
-              <strong>Unlimited</strong>
-              <span>Medical evacuation</span>
-            </div>
-            <div class="hero-panel-card">
-              <strong>Instant Quote</strong>
-              <span>See total before you submit</span>
+            <div class="hero-panel-grid">
+              <div class="hero-panel-card">
+                <strong>24/7</strong>
+                <span>Emergency support</span>
+              </div>
+              <div class="hero-panel-card">
+                <strong>1 Day</strong>
+                <span>Policy follow-up</span>
+              </div>
+              <div class="hero-panel-card">
+                <strong>Unlimited</strong>
+                <span>Medical evacuation</span>
+              </div>
+              <div class="hero-panel-card">
+                <strong>Instant Quote</strong>
+                <span>See total before you submit</span>
+              </div>
             </div>
           </div>
         </div>
@@ -76,30 +87,6 @@
   </header>
 
   <main>
-    <section class="section shell">
-      <div class="section-head compact">
-        <p class="eyebrow">How It Works</p>
-        <h2>A smoother way to get protected.</h2>
-      </div>
-      <div class="process-grid">
-        <article class="process-card">
-          <span class="process-step">01</span>
-          <h3>Enter your trip</h3>
-          <p>Pick your destination, dates, and traveller count. The quote updates instantly as you go.</p>
-        </article>
-        <article class="process-card">
-          <span class="process-step">02</span>
-          <h3>Choose your plan</h3>
-          <p>Compare Basic, Essential, and Deluxe in a clear side-by-side view before deciding.</p>
-        </article>
-        <article class="process-card">
-          <span class="process-step">03</span>
-          <h3>Submit with confidence</h3>
-          <p>Review everything, upload payment proof if needed, and Henry follows up within 1 business day.</p>
-        </article>
-      </div>
-    </section>
-
     <section class="section shell section-quiet">
       <div class="section-head compact">
         <p class="eyebrow">Coverage Summary</p>
@@ -111,9 +98,15 @@
           <p class="eyebrow">Plan Guide</p>
           <h2>What’s covered</h2>
           <p class="section-copy">International plans cover accidents and illnesses. Domestic covers accidents only. Essential is the easiest recommendation for most trips.</p>
+          <div class="coverage-selected-card" id="coverageSelectedCard">
+            <p class="mini-label">Currently selected</p>
+            <strong id="coverageSelectedTitle">Essential</strong>
+            <p id="coverageSelectedText">The easiest recommendation for most clients because it balances price and protection well.</p>
+            <a href="#application" class="button button-secondary">Continue with this plan</a>
+          </div>
         </div>
         <div class="coverage-rail" id="marketingPlanCards">
-        <article class="coverage-card" data-marketing-plan="basic">
+        <article class="coverage-card" data-marketing-plan="basic" role="button" tabindex="0" aria-label="Select Basic plan">
           <div class="coverage-select-indicator" aria-hidden="true"></div>
           <div class="coverage-head">
             <h3>Basic</h3>
@@ -131,7 +124,7 @@
             </dl>
           </div>
         </article>
-        <article class="coverage-card coverage-card-featured" data-marketing-plan="essential">
+        <article class="coverage-card coverage-card-featured" data-marketing-plan="essential" role="button" tabindex="0" aria-label="Select Essential plan">
           <div class="coverage-select-indicator" aria-hidden="true"></div>
           <div class="coverage-head coverage-head-featured">
             <h3>Essential</h3>
@@ -150,7 +143,7 @@
             </dl>
           </div>
         </article>
-        <article class="coverage-card" data-marketing-plan="deluxe">
+        <article class="coverage-card" data-marketing-plan="deluxe" role="button" tabindex="0" aria-label="Select Deluxe plan">
           <div class="coverage-select-indicator" aria-hidden="true"></div>
           <div class="coverage-head">
             <h3>Deluxe</h3>
@@ -176,28 +169,22 @@
       <div class="section-head">
         <p class="eyebrow">Apply Online</p>
         <h2>Get Covered in Minutes</h2>
-        <p class="section-copy section-copy-light">A simple, guided application built to help clients finish quickly and accurately.</p>
-      </div>
-      <div class="application-trust">
-        <span>See the premium before you submit</span>
-        <span>Review everything before payment</span>
-        <span>Henry follows up after submission</span>
-      </div>
-
-      <div class="sticky-quote-bar" id="stickyQuoteBar" aria-live="polite">
-        <div>
-          <p class="mini-label">Current quote</p>
-          <strong id="stickyQuotePlan">Essential plan</strong>
-        </div>
-        <div class="sticky-quote-meta">
-          <span id="stickyQuoteTravellers">1 traveller</span>
-          <strong id="stickyQuoteTotal">RM0.00</strong>
-        </div>
+        <p class="section-copy section-copy-light">A guided three-step application that keeps the important information clear and the rest out of the way.</p>
       </div>
 
       <div class="application-shell">
         <div>
-          <div class="application-topbar">
+          <div class="application-meta-row">
+            <div class="sticky-quote-bar" id="stickyQuoteBar" aria-live="polite">
+              <div>
+                <p class="mini-label">Current Quote</p>
+                <strong id="stickyQuotePlan">Essential plan</strong>
+              </div>
+              <div class="sticky-quote-meta">
+                <span id="stickyQuoteTravellers">1 traveller</span>
+                <strong id="stickyQuoteTotal">RM0.00</strong>
+              </div>
+            </div>
             <button type="button" class="top-back-button" id="topBackButton" hidden>Back</button>
           </div>
           <div class="stepper" id="stepper">
@@ -299,16 +286,21 @@
                   <small class="error-text" data-error-for="policyType"></small>
                 </div>
 
-                <div class="hint">
-                  <p>1. Age eligibility</p>
-                  <ul>
-                    <li>Individual: From 30 days to 70 years old</li>
-                    <li>Senior: From 71 to 85 years old</li>
-                    <li>Family: From 18 to 70 years old (for Parent/Legal Guardian) &amp; from 30 days to 23 years old (for Children)</li>
-                  </ul>
-                  <p>2. Family plan is applicable to a group of family members at the following relationships to the policyholder. Legal spouse (limited to only 1 legal spouse). Legal child(ren) and/or legally adopted children.</p>
-                  <p>3. For policy insured as Family plan, the maximum benefit amount per family will be 3 times of the individual limits stated in Table of Coverages.</p>
-                </div>
+                <details class="info-disclosure">
+                  <summary>Eligibility &amp; family rules</summary>
+                  <div class="info-disclosure-body">
+                    <p><strong>Age eligibility</strong></p>
+                    <ul>
+                      <li>Individual: From 30 days to 70 years old</li>
+                      <li>Senior: From 71 to 85 years old</li>
+                      <li>Family: From 18 to 70 years old (for Parent/Legal Guardian) &amp; from 30 days to 23 years old (for Children)</li>
+                    </ul>
+                    <p><strong>Family plan</strong></p>
+                    <p>Applicable to legal spouse (limited to 1 legal spouse), legal child(ren), and legally adopted children.</p>
+                    <p><strong>Maximum benefit</strong></p>
+                    <p>For Family plans, the maximum benefit amount per family is 3 times of the individual limits stated in the Table of Coverages.</p>
+                  </div>
+                </details>
               </div>
 
               <div class="quote-panel" id="quotePanel">
