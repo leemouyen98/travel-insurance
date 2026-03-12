@@ -361,7 +361,7 @@ function buildTravellerCard(index, category) {
         </label>
         <label class="field">
           <span>Date of birth</span>
-          <input type="text" name="insuredDob_${index}" placeholder="DD/MM/YY" inputmode="numeric" required>
+          <input type="text" name="insuredDob_${index}" placeholder="YY/MM/DD" inputmode="numeric" required>
         </label>
       </div>
       <div class="field-grid three">
@@ -428,7 +428,7 @@ function attachTravellerEnhancements() {
 
   insuredList.querySelectorAll('input[name^="insuredDob_"]').forEach((input) => {
     attachDatePicker(input, {
-      dateFormat: "d/m/y"
+      dateFormat: "y/m/d"
     });
   });
 }
