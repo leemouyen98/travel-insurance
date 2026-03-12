@@ -8,7 +8,7 @@
   --brand: #2563eb;
   --brand-deep: #0f172a;
   --brand-soft: #eef4ff;
-  --accent: #d4af37;
+  --accent: #f4c542;
   --success: #197a56;
   --shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
   --radius: 30px;
@@ -550,12 +550,13 @@ textarea {
 .coverage-tag {
   padding: 0.35rem 0.58rem;
   border-radius: 12px;
-  background: var(--accent);
-  color: var(--brand-deep);
+  background: linear-gradient(135deg, #ffd978 0%, #f4b400 100%);
+  color: #5b3d00;
   font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .coverage-body {
@@ -602,8 +603,6 @@ textarea {
 }
 
 .coverage-card-featured {
-  border: 2px solid var(--brand);
-  transform: translateY(-0.45rem);
   animation-delay: 120ms;
 }
 
