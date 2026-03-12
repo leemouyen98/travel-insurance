@@ -435,6 +435,23 @@ textarea {
   background: rgba(255, 255, 255, 0.92);
 }
 
+.application-topbar {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.top-back-button {
+  border: 1px solid rgba(10, 40, 82, 0.12);
+  background: #f4f7fb;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .sticky-quote-bar {
   display: none;
   position: sticky;
@@ -466,6 +483,7 @@ textarea {
 }
 
 .step {
+  appearance: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -477,6 +495,7 @@ textarea {
   color: #61718a;
   font-size: 0.82rem;
   font-weight: 700;
+  cursor: pointer;
 }
 
 .step.is-active {
@@ -1085,6 +1104,11 @@ textarea {
 
   .application-shell {
     padding: 0.8rem;
+  }
+
+  .top-back-button {
+    padding: 0.48rem 0.78rem;
+    font-size: 0.76rem;
   }
 
   .hero-copy h1 {

@@ -175,10 +175,13 @@
 
       <div class="application-shell">
         <div>
+          <div class="application-topbar">
+            <button type="button" class="top-back-button" id="topBackButton" hidden>Back</button>
+          </div>
           <div class="stepper" id="stepper">
-            <div class="step is-active" data-step="1">1. Travel</div>
-            <div class="step" data-step="2">2. Travellers</div>
-            <div class="step" data-step="3">3. Review & Pay</div>
+            <button type="button" class="step is-active" data-step="1">1. Travel</button>
+            <button type="button" class="step" data-step="2">2. Travellers</button>
+            <button type="button" class="step" data-step="3">3. Review & Pay</button>
           </div>
 
           <form id="applicationForm" class="application-card" novalidate>

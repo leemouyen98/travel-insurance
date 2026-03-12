@@ -897,6 +897,7 @@ function goToStep(step) {
     item.classList.toggle("is-active", itemStep === step);
     item.classList.toggle("is-complete", itemStep < step);
   });
+  getField("topBackButton").hidden = step === 1;
   window.scrollTo({ top: document.querySelector("#application").offsetTop - 30, behavior: "smooth" });
 }
 
@@ -1080,6 +1081,17 @@ document.querySelectorAll("[data-next-step]").forEach((button) => {
 
 document.querySelectorAll("[data-prev-step]").forEach((button) => {
   button.addEventListener("click", () => goToStep(Number(button.dataset.prevStep)));
+});
+
+document.querySelectorAll(".stepper .step").forEach((button) => {
+  button.addEventListener("click", () => {
+    const targetStep = Number(button.dataset.step);
+    if (targetStep < state.step) goToStep(targetStep);
+  });
+});
+
+getField("topBackButton").addEventListener("click", () => {
+  if (state.step > 1) goToStep(state.step - 1);
 });
 
 getField("startNewButton").addEventListener("click", resetForm);
