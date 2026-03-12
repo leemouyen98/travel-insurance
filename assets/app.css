@@ -345,7 +345,7 @@ textarea {
 }
 
 .hero-image-overlay strong {
-  font-size: 1.15rem;
+  font-size: 1.35rem;
   letter-spacing: -0.04em;
   line-height: 1.15;
 }
@@ -468,7 +468,8 @@ textarea {
 }
 
 .coverage-copy-card h2 {
-  max-width: 9ch;
+  max-width: none;
+  font-size: clamp(2rem, 3vw, 2.8rem);
 }
 
 .coverage-copy-card .section-copy {
