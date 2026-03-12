@@ -70,7 +70,6 @@ textarea {
 .subsection-head,
 .traveller-box-head,
 .footer-grid,
-.quick-start-grid,
 .card-header-meta,
 .news-grid,
 .coverage-grid,
@@ -236,38 +235,12 @@ textarea {
   justify-content: center;
 }
 
-.quick-start-section {
-  margin-top: -2rem;
-  padding: 0 0 2rem;
-}
-
-.quick-start-grid {
-  gap: 1rem;
-  align-items: stretch;
-}
-
-.quick-start-card {
-  flex: 1 1 0;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-direction: column;
-  gap: 0.7rem;
-  padding: 1.3rem;
-  border: 1px solid rgba(10, 40, 82, 0.08);
-  border-radius: 24px;
-  background: #f7f8fb;
-  box-shadow: var(--shadow);
-  text-align: left;
-}
-
-.quick-start-card h3,
 .next-steps-card h4,
 .news-card h3,
 .coverage-card h3 {
   margin: 0;
 }
 
-.quick-start-card p,
 .section-copy,
 .form-section-head p,
 .subsection p,
@@ -278,15 +251,6 @@ textarea {
 .faq-item p {
   margin: 0;
   color: var(--muted);
-}
-
-.quick-start-card:hover {
-  transform: translateY(-2px);
-}
-
-.quick-start-card.is-active {
-  border-color: rgba(11, 143, 152, 0.55);
-  background: linear-gradient(180deg, #ffffff 0%, #e7f7f5 100%);
 }
 
 .section {
@@ -342,6 +306,8 @@ textarea {
 .coverage-grid {
   gap: 1rem;
   align-items: stretch;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .coverage-card {
@@ -496,8 +462,8 @@ textarea {
 }
 
 .step {
-  flex: 1 1 0;
-  min-width: 150px;
+  flex: 0 1 auto;
+  min-width: 0;
   justify-content: center;
   padding: 0.8rem 1rem;
   border-radius: 18px;
@@ -516,6 +482,11 @@ textarea {
 .step.is-complete {
   background: rgba(255, 255, 255, 0.16);
   color: white;
+}
+
+.step-arrow {
+  color: rgba(255, 255, 255, 0.58);
+  font-weight: 700;
 }
 
 .application-card,
@@ -666,6 +637,11 @@ textarea {
 .choice input:checked + span {
   border-color: var(--brand);
   background: var(--brand-soft);
+}
+
+.area-grid .choice span {
+  min-height: 120px;
+  align-content: start;
 }
 
 .traveller-box,
@@ -901,6 +877,19 @@ textarea {
   font-weight: 700;
 }
 
+.payment-instructions-card {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(10, 40, 82, 0.08);
+  background: linear-gradient(180deg, #fffdf8 0%, #f3eee2 100%);
+}
+
+.payment-summary-block {
+  display: grid;
+  gap: 0.35rem;
+}
+
 .checkbox-field {
   grid-template-columns: auto 1fr;
   align-items: start;
@@ -930,6 +919,20 @@ textarea {
 .sidebar-actions {
   gap: 0.75rem;
   margin-top: 1rem;
+}
+
+.help-card {
+  cursor: pointer;
+}
+
+.help-card summary {
+  list-style: none;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.help-card summary::-webkit-details-marker {
+  display: none;
 }
 
 .accent-card .button-secondary {
@@ -1011,11 +1014,6 @@ textarea {
     width: 100%;
   }
 
-  .quick-start-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
   .coverage-card-featured {
     transform: none;
   }
@@ -1032,7 +1030,8 @@ textarea {
   .field-grid.three,
   .choice-grid.two,
   .choice-grid.three,
-  .quote-panel {
+  .quote-panel,
+  .coverage-grid {
     display: grid;
     grid-template-columns: 1fr;
   }
@@ -1053,7 +1052,8 @@ textarea {
   .card-header,
   .card-header-meta,
   .step-helper,
-  .sidebar-actions {
+  .sidebar-actions,
+  .stepper {
     display: grid;
     align-items: flex-start;
   }

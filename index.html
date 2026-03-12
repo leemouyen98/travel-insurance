@@ -18,25 +18,23 @@
   <header class="site-header">
     <nav class="topbar shell">
       <div class="brand-block">
-        <p class="eyebrow">Travel Insurance By</p>
+        <p class="eyebrow">Travel Insurance Intake Form, powered by Henry Lee</p>
         <a href="#hero" class="brand">Henry Lee Travel Insurance</a>
       </div>
       <div class="topbar-actions">
-        <a href="tel:+60126123540" class="topbar-link">012-612 3540</a>
         <a href="#application" class="button button-gold">Get Covered</a>
       </div>
     </nav>
 
     <section class="hero shell" id="hero">
       <div class="hero-copy hero-copy-wide">
-        <p class="hero-badge">Tokio Marine Explorer - All New 2025</p>
+        <p class="hero-badge">All New Tokio Marine Explorer</p>
         <h1>Travel with <span>confidence.</span><br>Protected every step.</h1>
         <p class="hero-text hero-text-large">
           Comprehensive travel insurance from RM47. Apply in minutes, no agent visit needed.
         </p>
         <div class="hero-pills hero-pills-wide">
           <span>Cashless Hospital Admission</span>
-          <span>Unlimited Emergency Evacuation</span>
           <span>COVID-19 Coverage Included</span>
           <span>CFAR, Cancel for Any Reason</span>
           <span>Complimentary Lounge on Delays</span>
@@ -49,26 +47,6 @@
   </header>
 
   <main>
-    <section class="shell quick-start-section">
-      <div class="quick-start-grid">
-        <button type="button" class="quick-start-card" data-quick-start="single">
-          <p class="mini-label">Start Here</p>
-          <h3>Single Trip</h3>
-          <p>For one-off travel with brochure-based area pricing.</p>
-        </button>
-        <button type="button" class="quick-start-card" data-quick-start="annual">
-          <p class="mini-label">Start Here</p>
-          <h3>Annual</h3>
-          <p>For frequent travellers who want one plan period.</p>
-        </button>
-        <button type="button" class="quick-start-card" data-quick-start="family">
-          <p class="mini-label">Start Here</p>
-          <h3>Family / Group</h3>
-          <p>For spouse and children, or multiple travellers under one application.</p>
-        </button>
-      </div>
-    </section>
-
     <section class="section shell section-featured">
       <div class="section-head section-head-wide">
         <p class="eyebrow">What's New</p>
@@ -174,7 +152,7 @@
     <section class="section shell" id="application">
       <div class="section-head">
         <p class="eyebrow">Apply Online</p>
-        <h2>Get covered in 3 minutes</h2>
+        <h2>Get Covered in 3 Minutes</h2>
         <p class="section-copy section-copy-light">Fill in your details, select your plan, and pay instantly. I'll confirm your policy within 1 business day.</p>
       </div>
 
@@ -193,7 +171,9 @@
         <div class="application-main">
           <div class="stepper" id="stepper">
             <div class="step is-active" data-step="1">1. Travel</div>
+            <div class="step-arrow">-&gt;</div>
             <div class="step" data-step="2">2. Travellers</div>
+            <div class="step-arrow">-&gt;</div>
             <div class="step" data-step="3">3. Review & Pay</div>
           </div>
           <div class="step-helper" id="stepHelper">
@@ -212,33 +192,31 @@
                 <label class="field">
                   <span>Insurance type</span>
                   <select name="insuranceType" id="insuranceType" required>
-                    <option value="single">Single trip</option>
+                    <option value="single" selected>Single trip</option>
                     <option value="annual">Annual</option>
                   </select>
                 </label>
-                <label class="field">
-                  <span>Coverage scope</span>
-                  <select name="coverageScope" id="coverageScope" required>
-                    <option value="international">International</option>
-                    <option value="domestic">Domestic (Malaysia)</option>
-                  </select>
-                </label>
+                <div></div>
               </div>
 
               <div class="field" id="areaField">
-                <span class="field-label">Coverage area</span>
-                <div class="choice-grid three" id="areaChoices">
+                <span class="field-label">Travel Area</span>
+                <div class="choice-grid two area-grid" id="areaChoices">
                   <label class="choice">
-                    <input type="radio" name="coverageArea" value="area1" checked>
-                    <span><strong>Area 1</strong><small>Asia and nearby destinations</small></span>
+                    <input type="radio" name="travelArea" value="area1" checked>
+                    <span><strong>Area 1</strong><small>Australia, Bangladesh, Brunei, Cambodia, China, Hong Kong, India, Indonesia, Japan, Korea, Laos, Macau, Maldives, Myanmar, New Zealand, Pakistan, Philippines, Singapore, Sri Lanka, Taiwan, Thailand and Vietnam</small></span>
                   </label>
                   <label class="choice">
-                    <input type="radio" name="coverageArea" value="area2">
-                    <span><strong>Area 2</strong><small>Worldwide excluding USA, Canada, Nepal, Tibet</small></span>
+                    <input type="radio" name="travelArea" value="area2">
+                    <span><strong>Area 2</strong><small>Worldwide excluding Malaysia, USA, Canada, Nepal and Tibet</small></span>
                   </label>
                   <label class="choice">
-                    <input type="radio" name="coverageArea" value="area3">
+                    <input type="radio" name="travelArea" value="area3">
                     <span><strong>Area 3</strong><small>Worldwide excluding Malaysia</small></span>
+                  </label>
+                  <label class="choice">
+                    <input type="radio" name="travelArea" value="domestic">
+                    <span><strong>Domestic</strong><small>Within Malaysia</small></span>
                   </label>
                 </div>
               </div>
@@ -257,7 +235,7 @@
               </div>
 
               <label class="field" id="destinationField">
-                <span>Destination</span>
+                <span>Destination Country / City (Optional)</span>
                 <input type="text" name="destination" id="destination" placeholder="e.g. Japan, Tokyo">
                 <small class="error-text" data-error-for="destination"></small>
               </label>
@@ -471,6 +449,16 @@
 
                   <div class="payment-detail-box" id="paymentDetailBox"></div>
 
+                  <div class="payment-instructions-card">
+                    <p class="mini-label">Payment Instructions</p>
+                    <div class="payment-summary-block">
+                      <strong>LEE MOU YEN</strong>
+                      <span>Touch 'n Go: 012 612 3540</span>
+                      <span>RHB Bank: 1040 2700 307120</span>
+                      <span>Send the payment slip once done.</span>
+                    </div>
+                  </div>
+
                   <label class="field">
                     <span>Upload payment slip</span>
                     <input type="file" id="paymentSlip" name="paymentSlip" accept="image/*,.pdf">
@@ -514,15 +502,13 @@
       </div>
 
       <div class="apply-support-grid">
-        <div class="sidebar-card accent-card">
-          <p class="mini-label">Need help?</p>
-          <h4>Henry can help you complete the form.</h4>
-          <p>Clients can contact Henry if they are unsure about area, plan or payment method.</p>
+        <details class="sidebar-card help-card">
+          <summary>Need Help?</summary>
           <div class="sidebar-actions">
-            <a href="tel:+60126123540" class="button button-secondary">Call</a>
-            <a href="https://wa.me/60126123540" class="button button-primary" target="_blank" rel="noreferrer">WhatsApp</a>
+            <a href="tel:+60126123540" class="button button-secondary">Call Henry</a>
+            <a href="https://wa.me/60126123540" class="button button-primary" target="_blank" rel="noreferrer">WhatsApp Henry</a>
           </div>
-        </div>
+        </details>
         <div class="sidebar-card">
           <p class="mini-label">Important rules</p>
           <ul class="sidebar-list">
@@ -533,22 +519,13 @@
             <li>Group policy allows 2 to 20 travellers and applies a 5% discount.</li>
           </ul>
         </div>
-        <div class="sidebar-card">
-          <p class="mini-label">Payment instructions</p>
-          <div class="payment-summary-block">
-            <strong>LEE MOU YEN</strong>
-            <span>Touch 'n Go: 012 612 3540</span>
-            <span>RHB Bank: 1040 2700 307120</span>
-            <span>Send payment slip once done.</span>
-          </div>
-        </div>
       </div>
     </section>
 
     <section class="section shell">
       <div class="section-head section-head-wide">
-        <p class="eyebrow">Questions People Actually Ask</p>
-        <h2>Questions people actually ask</h2>
+        <p class="eyebrow">Common Questions</p>
+        <h2>Questions Clients Often Ask</h2>
       </div>
       <div class="faq-list">
         <details class="faq-item" open>
@@ -581,15 +558,6 @@
 
   <footer class="site-footer">
     <div class="shell footer-grid">
-      <div>
-        <p class="footer-title">Henry Lee Mou Yen</p>
-        <p>Tokio Marine travel insurance intake page for direct client submissions.</p>
-      </div>
-      <div>
-        <p class="footer-title">Contact</p>
-        <p><a href="tel:+60126123540">012-612 3540</a></p>
-        <p><a href="https://wa.me/60126123540" target="_blank" rel="noreferrer">WhatsApp Henry</a></p>
-      </div>
       <div>
         <p class="footer-title">Note</p>
         <p>This site is a custom intake flow and not an official Tokio Marine issuance portal.</p>

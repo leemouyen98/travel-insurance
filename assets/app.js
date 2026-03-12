@@ -68,8 +68,7 @@ const state = {
   selectedPlan: "essential",
   policyType: "individual",
   quote: null,
-  travellerSignature: "",
-  quickStart: "single"
+  travellerSignature: ""
 };
 
 const form = document.querySelector("#applicationForm");
@@ -149,7 +148,7 @@ function getTotalTravellers() {
 }
 
 function getSelectedArea() {
-  return getField("coverageScope").value === "domestic" ? "domestic" : document.querySelector('input[name="coverageArea"]:checked').value;
+  return document.querySelector('input[name="travelArea"]:checked')?.value || "area1";
 }
 
 function getTripDays() {
@@ -211,7 +210,7 @@ function renderPolicyChoices() {
 
 function renderPlanChoices() {
   const container = getField("planChoices");
-  const isDomestic = getField("coverageScope").value === "domestic";
+  const isDomestic = getSelectedArea() === "domestic";
   const plans = isDomestic
     ? [{ value: "domestic", label: "Domestic", note: "Malaysia only accidents-only cover.", tag: "" }]
     : [
@@ -219,7 +218,9 @@ function renderPlanChoices() {
         { value: "essential", label: "Essential", note: "Recommended balance of cover.", tag: "Popular" },
         { value: "deluxe", label: "Deluxe", note: "Highest benefits and CFAR.", tag: "Best" }
       ];
-  if (!plans.some((plan) => plan.value === state.selectedPlan)) state.selectedPlan = plans[0].value;
+  if (!plans.some((plan) => plan.value === state.selectedPlan)) {
+    state.selectedPlan = isDomestic ? "domestic" : "essential";
+  }
   container.innerHTML = plans.map((plan) => `
     <label class="choice">
       <input type="radio" name="selectedPlan" value="${plan.value}" ${plan.value === state.selectedPlan ? "checked" : ""}>
@@ -250,13 +251,12 @@ function calculateQuote() {
   if (!days || total === 0) return null;
 
   const annual = getField("insuranceType").value === "annual";
-  const scope = getField("coverageScope").value;
   const area = getSelectedArea();
   let base = 0;
   let discount = 0;
   const items = [];
 
-  if (scope === "domestic") {
+  if (area === "domestic") {
     if (state.policyType === "family") {
       base = getBracketValue(PREMIUMS.domestic.family, days, annual);
       items.push({ label: "Domestic family premium", value: base });
@@ -345,12 +345,6 @@ function openOptionalSection(sectionId) {
   toggle.querySelector("em").textContent = "Hide";
 }
 
-function updateQuickStartCards() {
-  document.querySelectorAll("[data-quick-start]").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.quickStart === state.quickStart);
-  });
-}
-
 function updateStepHelper() {
   const titles = {
     1: "Step 1 of 3",
@@ -428,7 +422,7 @@ function buildTravellerCard(index, category) {
         </label>
         <label class="field">
           <span>Date of birth</span>
-          <input type="text" name="insuredDob_${index}" placeholder="DD/MM/YYYY" inputmode="numeric" required>
+          <input type="text" name="insuredDob_${index}" placeholder="YY/MM/DD" inputmode="numeric" required>
         </label>
       </div>
       <div class="field-grid three">
@@ -492,9 +486,9 @@ function attachTravellerEnhancements() {
         const date = new Date(fullYear, mm - 1, dd);
         if (date.getFullYear() === fullYear && date.getMonth() === mm - 1 && date.getDate() === dd) {
           if (dobField?._flatpickr) {
-            dobField._flatpickr.setDate(date, true, "d/m/Y");
+            dobField._flatpickr.setDate(date, true, "Y/m/d");
           } else {
-            dobField.value = formatDate(date);
+            dobField.value = `${String(fullYear).slice(-2)}/${String(mm).padStart(2, "0")}/${String(dd).padStart(2, "0")}`;
           }
         }
       }
@@ -507,7 +501,7 @@ function attachTravellerEnhancements() {
 
   insuredList.querySelectorAll('input[name^="insuredDob_"]').forEach((input) => {
     attachDatePicker(input, {
-      dateFormat: "d/m/Y"
+      dateFormat: "Y/m/d"
     });
   });
 }
@@ -669,7 +663,7 @@ function refreshQuote() {
     return;
   }
   getField("quoteTotal").textContent = formatMoney(quote.total);
-  getField("quoteNote").textContent = `${quote.days} day${quote.days > 1 ? "s" : ""} • ${AREA_LABELS[quote.area]} • ${state.policyType}`;
+  getField("quoteNote").textContent = `${quote.days} day${quote.days > 1 ? "s" : ""} • ${AREA_LABELS[quote.area]} • ${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}`;
   breakdown.innerHTML = quote.items.map((item) => `<div><dt>${item.label}</dt><dd>${item.value < 0 ? "-" : ""}${formatMoney(Math.abs(item.value))}</dd></div>`).join("");
   updateStickyQuoteBar();
   updatePaymentMethodTotals();
@@ -686,12 +680,12 @@ function populateSummary() {
 
   summaryList.innerHTML = `
     <div><dt>Insurance type</dt><dd>${getField("insuranceType").value === "annual" ? "Annual" : "Single trip"}</dd></div>
-    <div><dt>Coverage area</dt><dd>${AREA_LABELS[state.quote.area]}</dd></div>
-    <div><dt>Policy type</dt><dd>${state.policyType}</dd></div>
-    <div><dt>Plan</dt><dd>${state.selectedPlan}</dd></div>
+    <div><dt>Travel area</dt><dd>${AREA_LABELS[state.quote.area]}</dd></div>
+    <div><dt>Policy type</dt><dd>${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}</dd></div>
+    <div><dt>Plan</dt><dd>${state.selectedPlan[0].toUpperCase()}${state.selectedPlan.slice(1)}</dd></div>
     <div><dt>Travellers</dt><dd>${getTotalTravellers()}</dd></div>
     <div><dt>Travel dates</dt><dd>${getField("departureDate").value} to ${returnDate}</dd></div>
-    <div><dt>Destination</dt><dd>${getField("coverageScope").value === "domestic" ? "Malaysia" : getField("destination").value.trim() || "-"}</dd></div>
+    <div><dt>Destination</dt><dd>${state.quote.area === "domestic" ? "Malaysia" : getField("destination").value.trim() || "-"}</dd></div>
     <div><dt>Proposer</dt><dd>${proposer.name || "-"}</dd></div>
     <div><dt>Nomination total</dt><dd>${collectNominees().reduce((sum, nominee) => sum + nominee.share, 0)}%</dd></div>
     <div><dt>Payment method</dt><dd>${getPaymentMethodLabel(document.querySelector('input[name="paymentMethod"]:checked')?.value || "")}</dd></div>
@@ -732,7 +726,7 @@ function validateStep(step) {
   const total = getTotalTravellers();
 
   if (step === 1) {
-    ["departureDate", "returnDate", "destination", "policyType", "selectedPlan"].forEach(clearError);
+    ["departureDate", "returnDate", "policyType", "selectedPlan"].forEach(clearError);
     if (!departureDate) {
       showError("departureDate", "Select a departure or policy start date.");
       valid = false;
@@ -766,10 +760,6 @@ function validateStep(step) {
         showError("returnDate", "Single trip maximum cover is 180 days.");
         valid = false;
       }
-    }
-    if (getField("coverageScope").value !== "domestic" && !getField("destination").value.trim()) {
-      showError("destination", "Destination is required.");
-      valid = false;
     }
     if (total === 0 || total > 20) {
       showError("policyType", "Traveller count must be between 1 and 20.");
@@ -869,7 +859,7 @@ async function submitForm(event) {
     quote: state.quote,
     product: {
       insuranceType: getField("insuranceType").value,
-      coverageScope: getField("coverageScope").value,
+      coverageScope: getSelectedArea() === "domestic" ? "domestic" : "international",
       coverageArea: getSelectedArea(),
       policyType: state.policyType,
       selectedPlan: state.selectedPlan,
@@ -911,10 +901,7 @@ async function submitForm(event) {
 }
 
 function refreshVisibility() {
-  const isDomestic = getField("coverageScope").value === "domestic";
   const isAnnual = getField("insuranceType").value === "annual";
-  getField("areaField").hidden = isDomestic;
-  getField("destinationField").hidden = isDomestic;
   getField("returnField").hidden = isAnnual;
   getField("departureLabel").textContent = isAnnual ? "Policy start date" : "Departure date";
   getField("proposerSection").hidden = !getField("buyingForSomeoneElse").checked;
@@ -922,7 +909,6 @@ function refreshVisibility() {
   renderPolicyChoices();
   syncTravellerCards();
   refreshQuote();
-  updateQuickStartCards();
 }
 
 function resetForm() {
@@ -930,7 +916,9 @@ function resetForm() {
   state.selectedPlan = "essential";
   state.policyType = "individual";
   state.travellerSignature = "";
-  state.quickStart = "single";
+  getField("insuranceType").value = "single";
+  const defaultArea = document.querySelector('input[name="travelArea"][value="area1"]');
+  if (defaultArea) defaultArea.checked = true;
   getField("under70Count").value = 1;
   getField("seniorCount").value = 0;
   getField("successCard").hidden = true;
@@ -940,35 +928,6 @@ function resetForm() {
   refreshVisibility();
   setPaymentContent();
   goToStep(1);
-}
-
-function applyQuickStart(mode) {
-  state.quickStart = mode;
-  if (mode === "annual") {
-    getField("insuranceType").value = "annual";
-    getField("coverageScope").value = "international";
-    getField("under70Count").value = 1;
-    getField("seniorCount").value = 0;
-  }
-
-  if (mode === "single") {
-    getField("insuranceType").value = "single";
-    getField("coverageScope").value = "international";
-    getField("under70Count").value = 1;
-    getField("seniorCount").value = 0;
-  }
-
-  if (mode === "family") {
-    getField("insuranceType").value = "single";
-    getField("coverageScope").value = "international";
-    getField("under70Count").value = 2;
-    getField("seniorCount").value = 0;
-    state.policyType = "family";
-  }
-
-  state.travellerSignature = "";
-  refreshVisibility();
-  document.querySelector("#application").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function bindOptionalSections() {
@@ -1027,11 +986,11 @@ document.querySelectorAll("[data-counter]").forEach((button) => {
   });
 });
 
-["insuranceType", "coverageScope"].forEach((id) => {
+["insuranceType"].forEach((id) => {
   getField(id).addEventListener("change", refreshVisibility);
 });
 
-document.querySelectorAll('input[name="coverageArea"]').forEach((input) => input.addEventListener("change", refreshQuote));
+document.querySelectorAll('input[name="travelArea"]').forEach((input) => input.addEventListener("change", refreshVisibility));
 document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => input.addEventListener("change", setPaymentContent));
 document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => input.addEventListener("change", refreshQuote));
 getField("destination").addEventListener("input", populateSummary);
@@ -1056,10 +1015,6 @@ document.querySelectorAll("[data-next-step]").forEach((button) => {
     populateSummary();
     goToStep(Number(button.dataset.nextStep));
   });
-});
-
-document.querySelectorAll("[data-quick-start]").forEach((button) => {
-  button.addEventListener("click", () => applyQuickStart(button.dataset.quickStart));
 });
 
 document.querySelectorAll("[data-prev-step]").forEach((button) => {
