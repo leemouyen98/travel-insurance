@@ -412,6 +412,23 @@ textarea {
   max-width: none;
 }
 
+.application-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin: 0 0 1.1rem;
+}
+
+.application-trust span {
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .application-shell {
   padding: 1.1rem;
   border-radius: 32px;
@@ -648,11 +665,63 @@ textarea {
 .choice input:checked + span {
   border-color: var(--brand);
   background: var(--brand-soft);
+  box-shadow: inset 0 0 0 1px rgba(11, 143, 152, 0.18);
 }
 
 .area-grid .choice span {
   min-height: 104px;
   align-content: start;
+}
+
+.area-guidance,
+.plan-guidance,
+.review-assurance {
+  margin-top: 0.75rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 16px;
+  border: 1px solid rgba(10, 40, 82, 0.08);
+  background: linear-gradient(180deg, #f9fbfd 0%, #f2f7f8 100%);
+}
+
+.area-guidance strong,
+.plan-guidance strong {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.92rem;
+}
+
+.area-guidance p,
+.plan-guidance p,
+.review-assurance p {
+  margin: 0;
+  color: var(--ink);
+}
+
+.area-guidance small {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.quote-meta {
+  margin: 0.55rem 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.plan-guidance ul,
+.feature-list {
+  margin: 0.55rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.38rem;
+  color: var(--muted);
+}
+
+.feature-list.compact {
+  gap: 0.28rem;
 }
 
 .traveller-box,
@@ -1088,6 +1157,15 @@ textarea {
     font-size: 0.76rem;
   }
 
+  .application-trust {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .application-trust span {
+    font-size: 0.74rem;
+  }
+
   .news-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.6rem;
@@ -1205,5 +1283,17 @@ textarea {
 
   .area-grid .choice span {
     min-height: auto;
+  }
+
+  .area-guidance,
+  .plan-guidance,
+  .review-assurance {
+    padding: 0.72rem;
+  }
+
+  .area-guidance small,
+  .plan-guidance ul,
+  .feature-list {
+    font-size: 0.78rem;
   }
 }

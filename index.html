@@ -156,6 +156,11 @@
         <h2>Get Covered in 3 Minutes</h2>
         <p class="section-copy section-copy-light">Fill in your details, select your plan, and pay instantly. I'll confirm your policy within 1 business day.</p>
       </div>
+      <div class="application-trust">
+        <span>See the premium before you submit</span>
+        <span>Review everything before payment</span>
+        <span>Henry follows up after submission</span>
+      </div>
 
       <div class="sticky-quote-bar" id="stickyQuoteBar" aria-live="polite">
         <div>
@@ -205,21 +210,22 @@
                 <div class="choice-grid two area-grid" id="areaChoices">
                   <label class="choice">
                     <input type="radio" name="travelArea" value="area1" checked>
-                    <span><strong>Area 1</strong><small>Australia, Bangladesh, Brunei, Cambodia, China, Hong Kong, India, Indonesia, Japan, Korea, Laos, Macau, Maldives, Myanmar, New Zealand, Pakistan, Philippines, Singapore, Sri Lanka, Taiwan, Thailand and Vietnam</small></span>
+                    <span><strong>Area 1</strong><small>Asia-Pacific favourites like Japan, China, Singapore, Thailand, Australia, and New Zealand</small></span>
                   </label>
                   <label class="choice">
                     <input type="radio" name="travelArea" value="area2">
-                    <span><strong>Area 2</strong><small>Worldwide excluding Malaysia, USA, Canada, Nepal and Tibet</small></span>
+                    <span><strong>Area 2</strong><small>Worldwide excluding Malaysia, USA, Canada, Nepal, and Tibet</small></span>
                   </label>
                   <label class="choice">
                     <input type="radio" name="travelArea" value="area3">
-                    <span><strong>Area 3</strong><small>Worldwide excluding Malaysia</small></span>
+                    <span><strong>Area 3</strong><small>Worldwide excluding Malaysia, including USA and Canada</small></span>
                   </label>
                   <label class="choice">
                     <input type="radio" name="travelArea" value="domestic">
-                    <span><strong>Domestic</strong><small>Within Malaysia</small></span>
+                    <span><strong>Domestic</strong><small>Travel within Malaysia only</small></span>
                   </label>
                 </div>
+                <div class="area-guidance" id="areaGuidance"></div>
               </div>
 
               <div class="field-grid two">
@@ -281,6 +287,7 @@
                   <p class="quote-label">Estimated premium</p>
                   <h3 id="quoteTotal">RM0.00</h3>
                   <p class="quote-note" id="quoteNote">Choose travel dates and traveller count to see your premium.</p>
+                  <p class="quote-meta" id="quoteMeta">Your total updates automatically when trip details, plan, or payment method changes.</p>
                 </div>
                 <dl class="quote-breakdown" id="quoteBreakdown"></dl>
               </div>
@@ -300,6 +307,7 @@
                 <span class="field-label">Plan selection</span>
                 <small class="hint">Essential is pre-selected so clients can move forward faster.</small>
                 <div class="choice-grid three" id="planChoices"></div>
+                <div class="plan-guidance" id="planGuidance"></div>
                 <small class="error-text" data-error-for="selectedPlan"></small>
               </div>
 
@@ -458,6 +466,15 @@
                       <span>RHB Bank: 1040 2700 307120</span>
                       <span>Send the payment slip once done.</span>
                     </div>
+                  </div>
+
+                  <div class="review-assurance">
+                    <p class="mini-label">Before You Submit</p>
+                    <ul class="feature-list compact">
+                      <li>You will see the final payable amount before submission.</li>
+                      <li>Payment is checked before policy follow-up.</li>
+                      <li>Henry reviews your details if anything looks incomplete.</li>
+                    </ul>
                   </div>
 
                   <label class="field">

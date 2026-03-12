@@ -30,6 +30,52 @@ const AREA_LABELS = {
   domestic: "Domestic"
 };
 
+const AREA_GUIDANCE = {
+  area1: {
+    title: "Area 1",
+    summary: "Best for Asia-Pacific trips.",
+    detail: "Australia, Bangladesh, Brunei, Cambodia, China, Hong Kong, India, Indonesia, Japan, Korea, Laos, Macau, Maldives, Myanmar, New Zealand, Pakistan, Philippines, Singapore, Sri Lanka, Taiwan, Thailand and Vietnam."
+  },
+  area2: {
+    title: "Area 2",
+    summary: "Worldwide cover excluding a few higher-risk destinations.",
+    detail: "Worldwide excluding Malaysia, USA, Canada, Nepal and Tibet."
+  },
+  area3: {
+    title: "Area 3",
+    summary: "Worldwide cover including USA and Canada.",
+    detail: "Worldwide excluding Malaysia."
+  },
+  domestic: {
+    title: "Domestic",
+    summary: "For travel within Malaysia.",
+    detail: "Within Malaysia."
+  }
+};
+
+const PLAN_GUIDANCE = {
+  basic: {
+    title: "Basic",
+    summary: "A lower-premium option for travellers who want core Explorer protection.",
+    bullets: ["Lower starting premium", "Core medical and travel inconvenience benefits", "No lounge access or CFAR"]
+  },
+  essential: {
+    title: "Essential",
+    summary: "The easiest recommendation for most clients because it balances price and protection well.",
+    bullets: ["Most popular option", "Includes lounge access on qualifying delays", "Higher limits than Basic"]
+  },
+  deluxe: {
+    title: "Deluxe",
+    summary: "Best for clients who want the strongest cover and the most flexibility before departure.",
+    bullets: ["Highest protection level", "Includes lounge access", "Includes CFAR, subject to policy wording"]
+  },
+  domestic: {
+    title: "Domestic",
+    summary: "For Malaysia-only trips with domestic cover logic and pricing.",
+    bullets: ["For travel within Malaysia", "Domestic rating applies", "Medical illness cover does not apply like international plans"]
+  }
+};
+
 const PAYMENT_CONTENT = {
   duitnow: '<strong>DuitNow QR</strong><p>Scan Henry\'s QR and upload the payment screenshot before submit. Henry can verify and follow up faster when the slip is included.</p><img src="/duitnow-qr.png" alt="DuitNow QR">',
   tng: "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>. Upload the payment screenshot once done.</p>",
@@ -165,6 +211,17 @@ function renderBankOptions() {
   bank.innerHTML = `<option value="">Select bank</option>${MALAYSIAN_BANKS.map((name) => `<option value="${name}">${name}</option>`).join("")}`;
 }
 
+function renderAreaGuidance() {
+  const data = AREA_GUIDANCE[getSelectedArea()];
+  const node = getField("areaGuidance");
+  if (!data || !node) return;
+  node.innerHTML = `
+    <strong>${data.title}</strong>
+    <p>${data.summary}</p>
+    <small>${data.detail}</small>
+  `;
+}
+
 function nationalityOptions(selected = "Malaysian") {
   return NATIONALITIES.map((name) => `<option value="${name}" ${name === selected ? "selected" : ""}>${name}</option>`).join("");
 }
@@ -230,9 +287,24 @@ function renderPlanChoices() {
   container.querySelectorAll('input[name="selectedPlan"]').forEach((input) => {
     input.addEventListener("change", () => {
       state.selectedPlan = input.value;
+      renderPlanGuidance();
       refreshQuote();
     });
   });
+  renderPlanGuidance();
+}
+
+function renderPlanGuidance() {
+  const data = PLAN_GUIDANCE[state.selectedPlan];
+  const node = getField("planGuidance");
+  if (!data || !node) return;
+  node.innerHTML = `
+    <strong>${data.title}</strong>
+    <p>${data.summary}</p>
+    <ul>
+      ${data.bullets.map((item) => `<li>${item}</li>`).join("")}
+    </ul>
+  `;
 }
 
 function getBracketValue(table, days, annual) {
@@ -657,6 +729,7 @@ function refreshQuote() {
   if (!quote) {
     getField("quoteTotal").textContent = formatMoney(0);
     getField("quoteNote").textContent = "Choose travel dates and traveller count to see your premium.";
+    getField("quoteMeta").textContent = "Your total updates automatically when trip details, plan, or payment method changes.";
     breakdown.innerHTML = "";
     updateStickyQuoteBar();
     updatePaymentMethodTotals();
@@ -664,6 +737,9 @@ function refreshQuote() {
   }
   getField("quoteTotal").textContent = formatMoney(quote.total);
   getField("quoteNote").textContent = `${quote.days} day${quote.days > 1 ? "s" : ""} • ${AREA_LABELS[quote.area]} • ${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}`;
+  getField("quoteMeta").textContent = quote.items.some((item) => item.label.includes("Stamp duty") || item.label.includes("Card convenience fee"))
+    ? "The payable amount already includes any applicable stamp duty and payment fee shown below."
+    : "The payable amount already includes the applicable taxes shown below.";
   breakdown.innerHTML = quote.items.map((item) => `<div><dt>${item.label}</dt><dd>${item.value < 0 ? "-" : ""}${formatMoney(Math.abs(item.value))}</dd></div>`).join("");
   updateStickyQuoteBar();
   updatePaymentMethodTotals();
@@ -905,6 +981,7 @@ function refreshVisibility() {
   getField("returnField").hidden = isAnnual;
   getField("departureLabel").textContent = isAnnual ? "Policy start date" : "Departure date";
   getField("proposerSection").hidden = !getField("buyingForSomeoneElse").checked;
+  renderAreaGuidance();
   renderPlanChoices();
   renderPolicyChoices();
   syncTravellerCards();
