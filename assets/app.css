@@ -210,6 +210,8 @@ textarea {
 }
 
 .hero-badge {
+  display: inline-grid;
+  gap: 0.18rem;
   margin: 0 0 1.35rem;
   padding: 0.58rem 1.3rem;
   border-radius: 999px;
@@ -219,6 +221,12 @@ textarea {
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-weight: 700;
+}
+
+.hero-badge small {
+  font-size: 0.84em;
+  letter-spacing: 0.16em;
+  color: #6a86f6;
 }
 
 .hero-copy h1,
@@ -464,6 +472,8 @@ textarea {
 
 .coverage-copy-card .section-copy {
   margin-bottom: 0;
+  font-size: 1rem;
+  line-height: 1.7;
 }
 
 .coverage-selected-card {
@@ -1504,19 +1514,6 @@ textarea {
     font-size: 0.92rem;
   }
 
-  .hero-pills {
-    display: grid;
-    grid-template-columns: 1fr;
-    width: 100%;
-    gap: 0.5rem;
-  }
-
-  .hero-pills span {
-    text-align: left;
-    padding: 0.52rem 0.7rem;
-    font-size: 0.76rem;
-  }
-
   .hero-actions {
     display: grid;
     width: 100%;
@@ -1536,10 +1533,16 @@ textarea {
     border-radius: 22px;
   }
 
+  .coverage-copy-card .section-copy,
+  .coverage-selected-card p {
+    font-size: 0.98rem;
+    line-height: 1.72;
+  }
+
   .coverage-rail {
-    grid-auto-columns: minmax(220px, 78vw);
-    gap: 0.6rem;
-    padding-bottom: 0.35rem;
+    grid-auto-columns: minmax(264px, 84vw);
+    gap: 0.8rem;
+    padding-bottom: 0.45rem;
   }
 
   .coverage-selected-card .button {
@@ -1552,12 +1555,12 @@ textarea {
   }
 
   .coverage-head h3 {
-    font-size: 0.8rem;
+    font-size: 0.92rem;
   }
 
   .coverage-tag {
-    padding: 0.2rem 0.38rem;
-    font-size: 0.52rem;
+    padding: 0.24rem 0.44rem;
+    font-size: 0.56rem;
   }
 
   .section-head h2 {
@@ -1637,12 +1640,12 @@ textarea {
 
   .coverage-price {
     margin-bottom: 0.55rem;
-    font-size: 0.98rem;
+    font-size: 1.12rem;
   }
 
   .coverage-list {
     gap: 0.38rem;
-    font-size: 0.55rem;
+    font-size: 0.66rem;
   }
 
   .coverage-list div {
