@@ -55,17 +55,17 @@ const AREA_GUIDANCE = {
 
 const PLAN_GUIDANCE = {
   basic: {
-    title: "Basic",
+    title: "Basic Plan",
     summary: "A lower-premium option for travellers who want core Explorer protection.",
     bullets: ["Lower starting premium", "Core medical and travel inconvenience benefits", "No lounge access or CFAR"]
   },
   essential: {
-    title: "Essential",
+    title: "Essential Plan",
     summary: "The easiest recommendation for most clients because it balances price and protection well.",
     bullets: ["Most popular option", "Includes lounge access on qualifying delays", "Higher limits than Basic"]
   },
   deluxe: {
-    title: "Deluxe",
+    title: "Deluxe Plan",
     summary: "Best for clients who want the strongest cover and the most flexibility before departure.",
     bullets: ["Highest protection level", "Includes lounge access", "Includes CFAR, subject to policy wording"]
   },
@@ -78,7 +78,7 @@ const PLAN_GUIDANCE = {
 
 const PLAN_COMPARE = {
   basic: {
-    title: "Basic",
+    title: "Basic Plan",
     price: "From RM47",
     suffix: "/ pax",
     tag: "",
@@ -93,7 +93,7 @@ const PLAN_COMPARE = {
     ]
   },
   essential: {
-    title: "Essential",
+    title: "Essential Plan",
     price: "From RM58",
     suffix: "/ pax",
     tag: "Popular",
@@ -108,7 +108,7 @@ const PLAN_COMPARE = {
     ]
   },
   deluxe: {
-    title: "Deluxe",
+    title: "Deluxe Plan",
     price: "From RM86",
     suffix: "/ pax",
     tag: "",
