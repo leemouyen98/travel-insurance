@@ -223,10 +223,16 @@ textarea {
   font-weight: 700;
 }
 
+.hero-badge span {
+  display: block;
+}
+
 .hero-badge small {
-  font-size: 0.84em;
-  letter-spacing: 0.16em;
-  color: #6a86f6;
+  display: block;
+  font-size: 0.76em;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: #7b8492;
 }
 
 .hero-copy h1,
