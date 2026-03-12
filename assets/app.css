@@ -36,6 +36,42 @@ body {
   color: var(--ink);
 }
 
+.help-strip {
+  border-bottom: 1px solid rgba(19, 41, 65, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.help-strip-inner,
+.help-strip-actions,
+.quick-start-grid,
+.quick-start-card,
+.card-header-meta {
+  display: flex;
+  align-items: center;
+}
+
+.help-strip-inner {
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 52px;
+}
+
+.help-strip-inner p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.help-strip-actions {
+  gap: 1rem;
+}
+
+.help-strip-actions a {
+  color: var(--brand-deep);
+  text-decoration: none;
+  font-weight: 700;
+}
+
 img {
   max-width: 100%;
 }
@@ -67,12 +103,12 @@ textarea {
 .topbar-actions,
 .hero-actions,
 .hero-pills,
-.trust-grid,
-.stepper,
-.button-row,
-.subsection-head,
-.traveller-box-head,
-.footer-grid {
+ .trust-grid,
+ .stepper,
+ .button-row,
+ .subsection-head,
+ .traveller-box-head,
+ .footer-grid {
   display: flex;
   align-items: center;
 }
@@ -158,7 +194,7 @@ textarea {
 
 .hero-copy h1 {
   font-size: clamp(2.8rem, 5vw, 5rem);
-  max-width: 13ch;
+  max-width: 11ch;
 }
 
 .hero-text,
@@ -216,6 +252,44 @@ textarea {
 
 .hero-panel-card {
   padding: 1.4rem;
+}
+
+.quick-start-section {
+  margin-top: -0.5rem;
+  padding-bottom: 1rem;
+}
+
+.quick-start-grid {
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.quick-start-card {
+  flex: 1 1 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(19, 41, 65, 0.08);
+  border-radius: 24px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+
+.quick-start-card h3,
+.next-steps-card h4 {
+  margin: 0;
+}
+
+.quick-start-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.quick-start-card:hover {
+  transform: translateY(-2px);
 }
 
 .tone-dark {
@@ -337,6 +411,10 @@ textarea {
 .quote-breakdown dd {
   margin: 0;
   font-weight: 700;
+}
+
+.pricing-card p {
+  min-height: 2.8rem;
 }
 
 .application-layout {
@@ -627,6 +705,10 @@ textarea {
   margin-bottom: 0.85rem;
 }
 
+.subsection-copy {
+  margin-bottom: 0.85rem;
+}
+
 .stack {
   display: grid;
   gap: 1rem;
@@ -646,8 +728,6 @@ textarea {
 }
 
 .card-header-meta {
-  display: flex;
-  align-items: center;
   gap: 0.6rem;
 }
 
@@ -759,6 +839,13 @@ textarea {
   top: 1rem;
 }
 
+.optional-subsection {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(246, 248, 250, 0.92) 100%);
+  padding: 1rem;
+  border: 1px dashed rgba(19, 41, 65, 0.16);
+  border-radius: 20px;
+}
+
 .sidebar-list {
   color: var(--muted);
 }
@@ -817,6 +904,11 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .quick-start-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .application-sidebar {
     position: static;
   }
@@ -827,6 +919,7 @@ textarea {
 }
 
 @media (max-width: 760px) {
+  .help-strip-inner,
   .topbar,
   .topbar-actions,
   .trust-grid,
@@ -841,6 +934,11 @@ textarea {
 
   .topbar-actions {
     justify-items: start;
+  }
+
+  .help-strip-actions {
+    display: grid;
+    gap: 0.45rem;
   }
 
   .button-row {

@@ -31,10 +31,10 @@ const AREA_LABELS = {
 };
 
 const PAYMENT_CONTENT = {
-  duitnow: '<strong>DuitNow QR</strong><p>Scan Henry\'s QR and upload the payment screenshot before submit.</p><img src="/duitnow-qr.png" alt="DuitNow QR">',
-  tng: "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>.</p>",
-  bank: "<strong>RHB Bank Transfer</strong><p>Account name <b>LEE MOU YEN</b><br>Account number <b>1040 2700 307120</b></p>",
-  billplz: "<strong>Billplz card request</strong><p>Henry will send the payment link after submission. RM1 convenience fee applies.</p>"
+  duitnow: '<strong>DuitNow QR</strong><p>Scan Henry\'s QR and upload the payment screenshot before submit. Henry can verify and follow up faster when the slip is included.</p><img src="/duitnow-qr.png" alt="DuitNow QR">',
+  tng: "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>. Upload the payment screenshot once done.</p>",
+  bank: "<strong>RHB Bank Transfer</strong><p>Account name <b>LEE MOU YEN</b><br>Account number <b>1040 2700 307120</b><br>Include the payment slip to speed up follow-up.</p>",
+  billplz: "<strong>Billplz card request</strong><p>Henry will send the payment link after submission. RM1 convenience fee applies and no payment slip is needed at this stage.</p>"
 };
 
 const MALAYSIAN_BANKS = [
@@ -631,7 +631,7 @@ function refreshQuote() {
   const breakdown = getField("quoteBreakdown");
   if (!quote) {
     getField("quoteTotal").textContent = formatMoney(0);
-    getField("quoteNote").textContent = "Choose your trip details to calculate.";
+    getField("quoteNote").textContent = "Choose travel dates and traveller count to see your premium.";
     breakdown.innerHTML = "";
     updateStickyQuoteBar();
     updatePaymentMethodTotals();
@@ -896,6 +896,34 @@ function resetForm() {
   goToStep(1);
 }
 
+function applyQuickStart(mode) {
+  if (mode === "annual") {
+    getField("insuranceType").value = "annual";
+    getField("coverageScope").value = "international";
+    getField("under70Count").value = 1;
+    getField("seniorCount").value = 0;
+  }
+
+  if (mode === "single") {
+    getField("insuranceType").value = "single";
+    getField("coverageScope").value = "international";
+    getField("under70Count").value = 1;
+    getField("seniorCount").value = 0;
+  }
+
+  if (mode === "family") {
+    getField("insuranceType").value = "single";
+    getField("coverageScope").value = "international";
+    getField("under70Count").value = 2;
+    getField("seniorCount").value = 0;
+    state.policyType = "family";
+  }
+
+  state.travellerSignature = "";
+  refreshVisibility();
+  document.querySelector("#application").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function initMinDates() {
   const today = new Date();
 
@@ -964,6 +992,10 @@ document.querySelectorAll("[data-next-step]").forEach((button) => {
     populateSummary();
     goToStep(Number(button.dataset.nextStep));
   });
+});
+
+document.querySelectorAll("[data-quick-start]").forEach((button) => {
+  button.addEventListener("click", () => applyQuickStart(button.dataset.quickStart));
 });
 
 document.querySelectorAll("[data-prev-step]").forEach((button) => {
