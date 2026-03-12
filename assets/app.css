@@ -332,7 +332,9 @@ textarea {
   right: 1rem;
   bottom: 1rem;
   display: grid;
-  gap: 0.28rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8rem;
   padding: 1rem 1.1rem;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.76);
@@ -344,10 +346,28 @@ textarea {
   text-decoration: none;
 }
 
+.hero-image-copy {
+  display: grid;
+  gap: 0.18rem;
+}
+
 .hero-image-overlay strong {
   font-size: 1.35rem;
   letter-spacing: -0.04em;
   line-height: 1.15;
+}
+
+.hero-image-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 800;
 }
 
 .hero-panel {
