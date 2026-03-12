@@ -442,6 +442,19 @@ textarea {
   align-items: start;
 }
 
+.application-shell {
+  padding: 1.4rem;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.apply-support-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .sticky-quote-bar {
   display: none;
   position: sticky;
@@ -468,6 +481,7 @@ textarea {
   gap: 0.75rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .step-helper {
@@ -482,6 +496,7 @@ textarea {
 }
 
 .step {
+  flex: 1 1 0;
   min-width: 150px;
   justify-content: center;
   padding: 0.8rem 1rem;
@@ -514,6 +529,7 @@ textarea {
 
 .application-card {
   padding: 1.6rem;
+  border-radius: 24px;
 }
 
 .form-step {
@@ -894,13 +910,6 @@ textarea {
   margin-top: 0.25rem;
 }
 
-.application-sidebar {
-  display: grid;
-  gap: 1rem;
-  position: sticky;
-  top: 1rem;
-}
-
 .optional-subsection {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(246, 248, 250, 0.96) 100%);
   padding: 1rem;
@@ -992,7 +1001,7 @@ textarea {
 @media (max-width: 1080px) {
   .news-grid,
   .coverage-grid,
-  .application-layout,
+  .apply-support-grid,
   .review-layout {
     display: grid;
     grid-template-columns: 1fr;
@@ -1009,10 +1018,6 @@ textarea {
 
   .coverage-card-featured {
     transform: none;
-  }
-
-  .application-sidebar {
-    position: static;
   }
 
   .sticky-quote-bar {
