@@ -93,7 +93,7 @@ textarea {
 }
 
 .site-header {
-  padding: 1rem 0 2rem;
+  padding: 1rem 0 1.35rem;
   background:
     radial-gradient(circle at 85% 10%, rgba(234, 77, 120, 0.18), transparent 18%),
     linear-gradient(140deg, #f8f5ef 0%, #eef5fb 52%, #f7f0e7 100%);
@@ -256,7 +256,7 @@ textarea {
 
 .quick-start-section {
   margin-top: -0.5rem;
-  padding-bottom: 1rem;
+  padding-bottom: 0.75rem;
 }
 
 .quick-start-grid {
@@ -328,13 +328,13 @@ textarea {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  min-height: 64px;
+  min-height: 54px;
   font-size: 0.88rem;
   color: var(--muted);
 }
 
 .section {
-  padding: 3.5rem 0;
+  padding: 2.75rem 0;
 }
 
 .compact-section {
@@ -349,7 +349,7 @@ textarea {
 .section-head {
   display: grid;
   gap: 0.7rem;
-  margin-bottom: 1.8rem;
+  margin-bottom: 1.25rem;
 }
 
 .section-head h2 {
