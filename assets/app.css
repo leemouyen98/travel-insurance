@@ -49,7 +49,7 @@ textarea {
 }
 
 .shell {
-  width: min(calc(100% - 2rem), var(--shell));
+  width: min(calc(100% - 2.25rem), var(--shell));
   margin: 0 auto;
 }
 
@@ -94,7 +94,7 @@ textarea {
 .brand {
   font-family: var(--display);
   text-decoration: none;
-  font-size: 1.75rem;
+  font-size: 1.55rem;
   font-weight: 600;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -120,9 +120,10 @@ textarea {
   border-radius: 18px;
   text-decoration: none;
   cursor: pointer;
-  padding: 0.95rem 1.35rem;
+  padding: 0.8rem 1.15rem;
   font-weight: 800;
   transition: transform 140ms ease, background 140ms ease, color 140ms ease, border-color 140ms ease;
+  font-size: 0.95rem;
 }
 
 .button:hover {
@@ -147,12 +148,12 @@ textarea {
 }
 
 .button-large {
-  padding: 1.15rem 2.1rem;
-  font-size: 1.15rem;
+  padding: 0.95rem 1.7rem;
+  font-size: 1rem;
 }
 
 .hero {
-  padding: 3.5rem 0 2rem;
+  padding: 2.75rem 0 1.7rem;
 }
 
 .hero-copy {
@@ -161,8 +162,8 @@ textarea {
 }
 
 .hero-badge {
-  margin: 0 0 1.7rem;
-  padding: 0.7rem 1.7rem;
+  margin: 0 0 1.35rem;
+  padding: 0.58rem 1.3rem;
   border-radius: 999px;
   border: 1px solid rgba(12, 193, 207, 0.45);
   background: rgba(11, 143, 152, 0.08);
@@ -182,7 +183,7 @@ textarea {
 }
 
 .hero-copy h1 {
-  font-size: clamp(3.8rem, 8vw, 6.6rem);
+  font-size: clamp(3.2rem, 7vw, 5.4rem);
   max-width: 11ch;
   color: white;
   text-align: center;
@@ -201,28 +202,28 @@ textarea {
 
 .hero-text {
   max-width: 32ch;
-  margin: 1.2rem auto 0;
-  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  margin: 1rem auto 0;
+  font-size: clamp(1rem, 1.6vw, 1.3rem);
   color: rgba(255, 255, 255, 0.84);
   text-align: center;
 }
 
 .hero-pills {
-  gap: 0.8rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
-  margin: 2rem 0;
+  margin: 1.5rem 0;
   justify-content: center;
   max-width: 980px;
 }
 
 .hero-pills span,
 .policy-pill {
-  padding: 0.8rem 1.15rem;
+  padding: 0.6rem 0.9rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: white;
-  font-size: 0.98rem;
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
@@ -250,23 +251,23 @@ textarea {
 }
 
 .section {
-  padding: 2.9rem 0;
+  padding: 2.35rem 0;
 }
 
 .section-head {
   display: grid;
-  gap: 0.8rem;
-  margin-bottom: 1.8rem;
+  gap: 0.65rem;
+  margin-bottom: 1.45rem;
 }
 
 .section-head h2 {
-  font-size: clamp(2.6rem, 5vw, 4.6rem);
+  font-size: clamp(2.2rem, 4.2vw, 3.8rem);
   max-width: 14ch;
 }
 
 .section-copy {
   max-width: 48ch;
-  font-size: 1.05rem;
+  font-size: 0.98rem;
 }
 
 .section-copy-light {
@@ -276,16 +277,16 @@ textarea {
 .news-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.85rem;
   align-items: stretch;
 }
 
 .news-card {
   display: grid;
   align-content: start;
-  gap: 1rem;
-  min-height: 220px;
-  padding: 1.9rem;
+  gap: 0.75rem;
+  min-height: 190px;
+  padding: 1.35rem;
   border-radius: var(--radius);
   background: #f6f7fa;
   border: 1px solid rgba(10, 40, 82, 0.08);
@@ -293,15 +294,15 @@ textarea {
 }
 
 .news-card p {
-  font-size: 1.02rem;
+  font-size: 0.92rem;
 }
 
 .news-icon {
-  font-size: 2rem;
+  font-size: 1.4rem;
 }
 
 .coverage-grid {
-  gap: 1rem;
+  gap: 0.85rem;
   align-items: stretch;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -318,7 +319,7 @@ textarea {
 
 .coverage-head {
   justify-content: space-between;
-  padding: 1.35rem 1.5rem;
+  padding: 1rem 1.1rem;
   background: #e9edf4;
 }
 
@@ -328,24 +329,24 @@ textarea {
 }
 
 .coverage-tag {
-  padding: 0.42rem 0.72rem;
+  padding: 0.35rem 0.58rem;
   border-radius: 12px;
   background: var(--accent);
   color: var(--brand-deep);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .coverage-body {
-  padding: 1.5rem;
+  padding: 1.1rem;
 }
 
 .coverage-price {
-  margin: 0 0 1.3rem;
+  margin: 0 0 1rem;
   font-family: var(--display);
-  font-size: clamp(2rem, 3.2vw, 3.4rem);
+  font-size: clamp(1.5rem, 2.2vw, 2.5rem);
   line-height: 1;
 }
 
@@ -358,7 +359,8 @@ textarea {
 .coverage-list {
   margin: 0;
   display: grid;
-  gap: 0.75rem;
+  gap: 0.55rem;
+  font-size: 0.88rem;
 }
 
 .coverage-list div {
@@ -383,7 +385,7 @@ textarea {
 }
 
 #application {
-  padding: 3rem;
+  padding: 2.2rem;
   border-radius: 36px;
   background: linear-gradient(180deg, #07244c 0%, #123d69 100%);
 }
@@ -403,7 +405,7 @@ textarea {
 }
 
 .application-shell {
-  padding: 1.4rem;
+  padding: 1.1rem;
   border-radius: 32px;
   background: rgba(255, 255, 255, 0.92);
 }
@@ -438,8 +440,8 @@ textarea {
 }
 
 .stepper {
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 0.55rem;
+  margin-bottom: 0.8rem;
   flex-wrap: wrap;
   width: 100%;
 }
@@ -448,8 +450,8 @@ textarea {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1rem;
-  padding: 0.9rem 1rem;
+  margin-bottom: 0.85rem;
+  padding: 0.75rem 0.9rem;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.84);
@@ -459,12 +461,12 @@ textarea {
   flex: 0 1 auto;
   min-width: 0;
   justify-content: center;
-  padding: 0.8rem 1rem;
+  padding: 0.65rem 0.85rem;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.62);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 700;
 }
 
@@ -493,7 +495,7 @@ textarea {
 }
 
 .application-card {
-  padding: 1.6rem;
+  padding: 1.25rem;
   border-radius: 24px;
 }
 
@@ -508,16 +510,16 @@ textarea {
 .form-section-head {
   display: grid;
   gap: 0.45rem;
-  margin-bottom: 1.4rem;
+  margin-bottom: 1rem;
 }
 
 .form-section-head h3 {
-  font-size: 1.8rem;
+  font-size: 1.45rem;
 }
 
 .field-grid {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .field-grid.two {
@@ -532,13 +534,13 @@ textarea {
 .checkbox-field {
   display: grid;
   gap: 0.45rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
 }
 
 .field > span,
 .field-label {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
 }
 
 .field input,
@@ -547,8 +549,9 @@ textarea {
   border-radius: 16px;
   border: 1px solid var(--line);
   background: #fbfcfe;
-  padding: 1rem;
+  padding: 0.82rem 0.9rem;
   color: var(--ink);
+  font-size: 0.95rem;
 }
 
 .flatpickr-calendar {
@@ -588,7 +591,7 @@ textarea {
 
 .choice-grid {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.65rem;
 }
 
 .choice-grid.two {
@@ -613,7 +616,7 @@ textarea {
   display: grid;
   gap: 0.25rem;
   min-height: 100%;
-  padding: 1rem;
+  padding: 0.85rem;
   border-radius: 20px;
   border: 1px solid var(--line);
   background: white;
@@ -621,11 +624,12 @@ textarea {
 }
 
 .choice strong {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .choice small {
   color: var(--muted);
+  font-size: 0.82rem;
 }
 
 .choice input:checked + span {
@@ -634,7 +638,7 @@ textarea {
 }
 
 .area-grid .choice span {
-  min-height: 120px;
+  min-height: 104px;
   align-content: start;
 }
 
@@ -644,8 +648,8 @@ textarea {
 .payment-card,
 .traveller-card,
 .sidebar-card {
-  padding: 1rem;
-  border-radius: 20px;
+  padding: 0.85rem;
+  border-radius: 18px;
   border: 1px solid rgba(10, 40, 82, 0.08);
   background: rgba(255, 255, 255, 0.84);
 }
@@ -664,18 +668,18 @@ textarea {
 
 .counter {
   display: grid;
-  grid-template-columns: 46px 1fr 46px;
+  grid-template-columns: 40px 1fr 40px;
   align-items: center;
   gap: 0.5rem;
 }
 
 .counter button {
-  width: 46px;
-  height: 46px;
-  border-radius: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   border: 1px solid var(--line);
   background: white;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .counter input {
@@ -698,7 +702,7 @@ textarea {
 
 .quote-panel h3 {
   margin: 0.35rem 0;
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   font-family: var(--display);
 }
 
@@ -738,7 +742,7 @@ textarea {
 
 .summary-total strong {
   font-family: var(--display);
-  font-size: 1.8rem;
+  font-size: 1.55rem;
 }
 
 .subsection {
@@ -895,7 +899,7 @@ textarea {
 
 .optional-subsection {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(246, 248, 250, 0.96) 100%);
-  padding: 1rem;
+  padding: 0.85rem;
   border: 1px dashed rgba(10, 40, 82, 0.16);
   border-radius: 20px;
 }
@@ -943,8 +947,8 @@ textarea {
 .faq-item summary {
   cursor: pointer;
   list-style: none;
-  padding: 1.4rem 1.6rem;
-  font-size: 1.1rem;
+  padding: 1rem 1.15rem;
+  font-size: 0.98rem;
   font-weight: 800;
 }
 
@@ -953,8 +957,8 @@ textarea {
 }
 
 .faq-item p {
-  padding: 0 1.6rem 1.4rem;
-  font-size: 1.02rem;
+  padding: 0 1.15rem 1rem;
+  font-size: 0.92rem;
 }
 
 .site-footer {
@@ -1016,7 +1020,12 @@ textarea {
   }
 
   .brand {
-    font-size: 1.45rem;
+    font-size: 1.18rem;
+  }
+
+  .eyebrow,
+  .mini-label {
+    font-size: 0.66rem;
   }
 
   .button-row {
@@ -1038,32 +1047,84 @@ textarea {
   }
 
   #application {
-    padding: 1.25rem;
-    border-radius: 24px;
+    padding: 1rem;
+    border-radius: 22px;
+  }
+
+  .application-shell {
+    padding: 0.8rem;
   }
 
   .hero-copy h1 {
-    font-size: clamp(2.8rem, 15vw, 4rem);
-    max-width: 7ch;
+    font-size: clamp(2.25rem, 12vw, 3.2rem);
+    max-width: 8ch;
   }
 
   .hero-text {
-    max-width: 22ch;
-    font-size: 1.02rem;
+    max-width: 24ch;
+    font-size: 0.92rem;
   }
 
   .hero-pills {
     display: grid;
     grid-template-columns: 1fr;
     width: 100%;
+    gap: 0.5rem;
   }
 
   .hero-pills span {
     text-align: center;
+    padding: 0.52rem 0.7rem;
+    font-size: 0.76rem;
   }
 
   .section-head h2 {
-    font-size: clamp(2.2rem, 11vw, 3.1rem);
-    max-width: 9ch;
+    font-size: clamp(1.9rem, 10vw, 2.5rem);
+    max-width: 10ch;
+  }
+
+  .section-copy {
+    font-size: 0.9rem;
+  }
+
+  .news-card,
+  .coverage-body,
+  .summary-card,
+  .payment-card,
+  .sidebar-card {
+    padding: 0.8rem;
+  }
+
+  .quote-panel h3 {
+    font-size: 1.55rem;
+  }
+
+  .step {
+    font-size: 0.76rem;
+    padding: 0.58rem 0.7rem;
+  }
+
+  .step-helper {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.88rem;
+  }
+
+  .application-card {
+    padding: 1rem;
+  }
+
+  .form-section-head h3 {
+    font-size: 1.25rem;
+  }
+
+  .field input,
+  .field select,
+  .field textarea,
+  .choice span {
+    font-size: 0.9rem;
+  }
+
+  .area-grid .choice span {
+    min-height: auto;
   }
 }
