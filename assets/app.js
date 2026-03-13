@@ -1631,6 +1631,7 @@ marketingPlanCards?.querySelectorAll("[data-marketing-plan]").forEach((card) => 
     state.selectedPlan = card.dataset.marketingPlan;
     renderMarketingPlanCards();
     renderPlanChoices();
+    refreshQuote();
     card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   };
   card.addEventListener("click", selectMarketingPlan);
