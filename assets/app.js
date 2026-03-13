@@ -147,6 +147,7 @@ const PAYMENT_CONTENT = {
 };
 
 const BILLPLZ_CARD_FEE_RATE = 0.018;
+const DRAFT_STORAGE_KEY = "travel-insurance-draft-v1";
 
 const MALAYSIAN_BANKS = [
   "Affin Bank", "Agrobank", "Alliance Bank", "AmBank", "Bank Islam", "Bank Muamalat",
@@ -207,6 +208,126 @@ function roundMoney(value) {
 
 function getBillplzCardFee(baseTotal) {
   return roundMoney(baseTotal * BILLPLZ_CARD_FEE_RATE);
+}
+
+function saveDraft() {
+  try {
+    const draft = {
+      insuranceType: getField("insuranceType").value,
+      travelArea: getSelectedArea(),
+      departureDate: getField("departureDate").value,
+      returnDate: getField("returnDate").value,
+      destination: getField("destination").value,
+      under70Count: getField("under70Count").value,
+      seniorCount: getField("seniorCount").value,
+      buyingForSomeoneElse: getField("buyingForSomeoneElse").checked,
+      proposer: {
+        name: getField("proposerName")?.value || "",
+        mobile: getField("proposerMobile")?.value || "",
+        email: getField("proposerEmail")?.value || "",
+        occupation: getField("proposerOccupation")?.value || "",
+        address: getField("proposerAddress")?.value || ""
+      },
+      paymentMethod: document.querySelector('input[name="paymentMethod"]:checked')?.value || "duitnow",
+      selectedPlan: state.selectedPlan,
+      policyType: state.policyType,
+      travellers: Array.from(insuredList.querySelectorAll("[data-traveller-card]")).map((_, index) => ({
+        category: form.elements[`insuredRole_${index}`]?.value || "",
+        fullName: form.elements[`insuredName_${index}`]?.value || "",
+        nationality: form.elements[`insuredNationality_${index}`]?.value || "Malaysian",
+        idNumber: form.elements[`insuredId_${index}`]?.value || "",
+        dateOfBirth: form.elements[`insuredDob_${index}`]?.value || "",
+        gender: form.elements[`insuredGender_${index}`]?.value || "",
+        mobile: form.elements[`insuredMobile_${index}`]?.value || "",
+        email: form.elements[`insuredEmail_${index}`]?.value || "",
+        occupation: form.elements[`insuredOccupation_${index}`]?.value || "",
+        address: form.elements[`insuredAddress_${index}`]?.value || ""
+      })),
+      flights: getFlightDrafts(),
+      nominees: getNomineeDrafts(),
+      bankDetails: getBankDrafts()
+    };
+    window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+  } catch (error) {
+    console.warn("Draft save skipped.", error);
+  }
+}
+
+function clearDraft() {
+  try {
+    window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch (error) {
+    console.warn("Draft clear skipped.", error);
+  }
+}
+
+function fillTravellerDrafts(travellers = []) {
+  travellers.forEach((traveller, index) => {
+    if (!form.elements[`insuredName_${index}`]) return;
+    form.elements[`insuredRole_${index}`] && (form.elements[`insuredRole_${index}`].value = traveller.category || "");
+    form.elements[`insuredName_${index}`].value = traveller.fullName || "";
+    form.elements[`insuredNationality_${index}`].value = traveller.nationality || "Malaysian";
+    form.elements[`insuredId_${index}`].value = traveller.idNumber || "";
+    form.elements[`insuredDob_${index}`].value = traveller.dateOfBirth || "";
+    form.elements[`insuredGender_${index}`].value = traveller.gender || "";
+    form.elements[`insuredMobile_${index}`].value = traveller.mobile || "";
+    form.elements[`insuredEmail_${index}`].value = traveller.email || "";
+    form.elements[`insuredOccupation_${index}`].value = traveller.occupation || "";
+    form.elements[`insuredAddress_${index}`].value = traveller.address || "";
+  });
+}
+
+function restoreDraft() {
+  try {
+    const raw = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (!raw) return;
+    const draft = JSON.parse(raw);
+    if (!draft || typeof draft !== "object") return;
+
+    getField("insuranceType").value = draft.insuranceType || "single";
+    const areaInput = document.querySelector(`input[name="travelArea"][value="${draft.travelArea || "area1"}"]`);
+    if (areaInput) areaInput.checked = true;
+    getField("under70Count").value = draft.under70Count || "1";
+    getField("seniorCount").value = draft.seniorCount || "0";
+    getField("buyingForSomeoneElse").checked = Boolean(draft.buyingForSomeoneElse);
+    state.selectedPlan = draft.selectedPlan || "essential";
+    state.policyType = draft.policyType || "individual";
+    setTravelDates(draft.departureDate || "", draft.returnDate || "");
+    getField("destination").value = draft.destination || "";
+
+    getField("proposerName").value = draft.proposer?.name || "";
+    getField("proposerMobile").value = draft.proposer?.mobile || "";
+    getField("proposerEmail").value = draft.proposer?.email || "";
+    getField("proposerOccupation").value = draft.proposer?.occupation || "";
+    getField("proposerAddress").value = draft.proposer?.address || "";
+
+    state.travellerSignature = "";
+    refreshVisibility();
+    fillTravellerDrafts(draft.travellers || []);
+    renderFlights(draft.flights?.length ? draft.flights : undefined);
+    renderNominees(draft.nominees?.length ? draft.nominees : undefined);
+    renderBankDetails(draft.bankDetails?.length ? draft.bankDetails : undefined);
+    if (draft.flights?.some((flight) => flight.departureFlightNumber || flight.departureDate || flight.arrivalFlightNumber || flight.arrivalDate)) {
+      openOptionalSection("flightSectionBody");
+    }
+    if (draft.nominees?.some((nominee) => nominee.name || nominee.relationship || nominee.idNumber || nominee.contact || nominee.share)) {
+      openOptionalSection("nomineeSectionBody");
+    }
+    if (draft.bankDetails?.some((bank) => bank.bankName || bank.bankAccountNumber)) {
+      openOptionalSection("bankSectionBody");
+    }
+
+    const paymentMethod = document.querySelector(`input[name="paymentMethod"][value="${draft.paymentMethod || "duitnow"}"]`);
+    if (paymentMethod) paymentMethod.checked = true;
+
+    syncTravelDateInput();
+    renderMarketingPlanCards();
+    setPaymentContent();
+    populateSummary();
+    refreshQuote();
+  } catch (error) {
+    console.warn("Draft restore skipped.", error);
+  }
 }
 
 function parseDate(value) {
@@ -1338,6 +1459,7 @@ async function submitForm(event) {
     const response = await fetch("/api/submit", { method: "POST", body });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Submission failed.");
+    clearDraft();
     form.hidden = true;
     getField("successCard").hidden = false;
   } catch (error) {
@@ -1365,6 +1487,7 @@ function refreshVisibility() {
 }
 
 function resetForm() {
+  clearDraft();
   form.reset();
   state.selectedPlan = "essential";
   state.policyType = "individual";
@@ -1516,6 +1639,9 @@ getField("topBackButton").addEventListener("click", () => {
 getField("startNewButton").addEventListener("click", resetForm);
 form.addEventListener("submit", submitForm);
 
+form.addEventListener("input", saveDraft);
+form.addEventListener("change", saveDraft);
+
 refreshVisibility();
 renderFlights();
 renderBankDetails();
@@ -1523,3 +1649,4 @@ renderNominees();
 setPaymentContent();
 bindOptionalSections();
 renderMarketingPlanCards();
+restoreDraft();
