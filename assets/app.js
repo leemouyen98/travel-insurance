@@ -428,7 +428,7 @@ function getTripDays() {
   if (getField("insuranceType").value === "annual") return 365;
   const end = parseDate(getField("returnDate").value);
   if (!end) return null;
-  return Math.round((end - start) / 86400000);
+  return Math.round((end - start) / 86400000) + 1;
 }
 
 function bankOptionsMarkup(selected = "") {
