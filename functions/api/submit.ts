@@ -2,7 +2,6 @@ interface Env {
   RESEND_API_KEY: string;
   NOTIFICATION_EMAIL: string;
   FROM_EMAIL: string;
-  CLIENT_CONFIRMATION_EMAIL?: string;
 }
 
 const corsHeaders = {

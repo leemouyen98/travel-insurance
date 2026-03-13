@@ -44,17 +44,12 @@ Example:
 
 1. Push this repo to GitHub.
 2. Create a Cloudflare Pages project from the repo.
-3. Build command: none
-4. Build output directory: `/`
-5. Add the environment variables above.
-6. Redeploy.
-
-If you deploy from CLI instead:
-
-```bash
-npm install
-npx wrangler pages deploy .
-```
+3. Framework preset: `None`
+4. Build command: leave empty
+5. Build output directory: `.`
+6. Root directory: leave empty
+7. Add the environment variables above.
+8. Redeploy.
 
 ## Local preview
 
