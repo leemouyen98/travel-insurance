@@ -802,7 +802,7 @@ function buildTravellerCard(index, category) {
       <div class="card-header">
         <h5>Traveller ${index + 1}${index === 0 && !getField("buyingForSomeoneElse").checked ? " (also proposer)" : ""}</h5>
         <div class="card-header-meta">
-          <span class="badge">${category === "senior" ? "Age 71-85" : "Age 30 days-70"}</span>
+          <span class="badge">${category === "senior" ? "Age 71-85" : "Aged up to 70 years old"}</span>
           <button type="button" class="toggle-card" data-toggle-traveller="${index}">${index === 0 ? "Hide" : "Edit"}</button>
         </div>
       </div>
