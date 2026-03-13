@@ -43,6 +43,76 @@ function renderDefinitionList(entries: Array<[string, string | number]>) {
     .join("");
 }
 
+function titleCase(value: string) {
+  return value
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => {
+      if (/^(RM|NRIC|ID|CFAR)$/i.test(word)) return word.toUpperCase();
+      if (/^\d/.test(word)) return word.toUpperCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
+function formatInsuranceType(value: string) {
+  return value === "single" ? "Single Trip" : "Annual Plan";
+}
+
+function formatCoverageScope(value: string) {
+  return value === "international" ? "International" : "Domestic";
+}
+
+function formatCoverageArea(value: string) {
+  const map: Record<string, string> = {
+    area1: "Area 1",
+    area2: "Area 2",
+    area3: "Area 3",
+    domestic: "Domestic"
+  };
+  return map[value] || titleCase(value);
+}
+
+function formatPolicyType(value: string) {
+  const map: Record<string, string> = {
+    individual: "Individual",
+    family: "Family",
+    group: "Group"
+  };
+  return map[value] || titleCase(value);
+}
+
+function formatPlan(value: string) {
+  const map: Record<string, string> = {
+    basic: "Basic Plan",
+    essential: "Essential Plan",
+    deluxe: "Deluxe Plan",
+    domestic: "Domestic Plan"
+  };
+  return map[value] || `${titleCase(value)} Plan`;
+}
+
+function formatPaymentMethod(value: string) {
+  const map: Record<string, string> = {
+    duitnow: "DuitNow QR",
+    tng: "Touch 'n Go",
+    bank: "Bank Transfer",
+    billplz: "Card via Billplz"
+  };
+  return map[value] || titleCase(value);
+}
+
+function formatAgeBand(value: string) {
+  const map: Record<string, string> = {
+    Adult: "Adult",
+    Senior: "Senior"
+  };
+  return map[value] || titleCase(value);
+}
+
 export const onRequestOptions = async () =>
   new Response(null, {
     status: 204,
@@ -89,24 +159,31 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       ["Name", payload.proposer.name],
       ["Mobile", payload.proposer.mobile],
       ["Email", payload.proposer.email],
-      ["Occupation", payload.proposer.occupation],
+      ["Occupation", titleCase(payload.proposer.occupation)],
       ["Address", payload.proposer.address],
       ["Bank", payload.proposer.bankName ? `${payload.proposer.bankName}${payload.proposer.bankAccountType ? ` (${payload.proposer.bankAccountType})` : ""}` : "-"],
-      ["Account number", payload.proposer.bankAccountNumber || "-"]
+      ["Account Number", payload.proposer.bankAccountNumber || "-"]
     ]);
 
     const productRows = renderDefinitionList([
-      ["Insurance type", payload.product.insuranceType],
-      ["Coverage scope", payload.product.coverageScope],
-      ["Coverage area", payload.product.coverageArea],
-      ["Policy type", payload.product.policyType],
-      ["Plan", payload.product.selectedPlan],
-      ["Departure", payload.product.departureDate],
-      ["Return", payload.product.returnDate],
+      ["Insurance Type", formatInsuranceType(payload.product.insuranceType)],
+      ["Coverage Scope", formatCoverageScope(payload.product.coverageScope)],
+      ["Coverage Area", formatCoverageArea(payload.product.coverageArea)],
+      ["Policy Type", formatPolicyType(payload.product.policyType)],
+      ["Selected Plan", formatPlan(payload.product.selectedPlan)],
+      ["Departure Date", payload.product.departureDate],
+      ["Return Date", payload.product.returnDate],
       ["Destination", payload.product.destination || "Malaysia"],
-      ["Payment method", payload.paymentMethod],
-      ["Total quote", `RM ${Number(payload.quote.total).toFixed(2)}`]
+      ["Payment Method", formatPaymentMethod(payload.paymentMethod)],
+      ["Total Premium", `RM ${Number(payload.quote.total).toFixed(2)}`]
     ]);
+
+    const quoteRows = renderDefinitionList(
+      (payload.quote.items || []).map((item: Record<string, string | number>) => [
+        titleCase(String(item.label || "Item")),
+        `RM ${Number(item.value || 0).toFixed(2)}`
+      ])
+    );
 
     const travellerRows = payload.insuredTravellers
       .map(
@@ -115,16 +192,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             <td colspan="2" style="padding-top:14px;font-weight:700;color:#0f6da8">Traveller ${index + 1}</td>
           </tr>
           ${renderDefinitionList([
-            ["Age bucket", traveller.ageBand],
-            ["Family role", traveller.category || "-"],
+            ["Age Band", formatAgeBand(traveller.ageBand)],
+            ["Family Role", traveller.category ? titleCase(traveller.category) : "-"],
             ["Name", traveller.fullName],
             ["Nationality", traveller.nationality],
-            ["ID", traveller.idNumber],
-            ["DOB", traveller.dateOfBirth],
-            ["Gender", traveller.gender],
+            ["NRIC / Passport", traveller.idNumber],
+            ["Date of Birth", traveller.dateOfBirth],
+            ["Gender", titleCase(traveller.gender)],
             ["Mobile", traveller.mobile],
             ["Email", traveller.email],
-            ["Occupation", traveller.occupation],
+            ["Occupation", titleCase(traveller.occupation)],
             ["Address", traveller.address]
           ])}
         `
@@ -138,10 +215,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             <td colspan="2" style="padding-top:14px;font-weight:700;color:#0f6da8">Flight ${index + 1}</td>
           </tr>
           ${renderDefinitionList([
-            ["Departure flight", String(flight.departureFlightNumber || "-")],
-            ["Departure date", String(flight.departureDate || "-")],
-            ["Arrival flight", String(flight.arrivalFlightNumber || "-")],
-            ["Arrival date", String(flight.arrivalDate || "-")]
+            ["Departure Flight Number", String(flight.departureFlightNumber || "-")],
+            ["Departure Date", String(flight.departureDate || "-")],
+            ["Arrival Flight Number", String(flight.arrivalFlightNumber || "-")],
+            ["Arrival Date", String(flight.arrivalDate || "-")]
           ])}
         `
       )
@@ -155,8 +232,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           </tr>
           ${renderDefinitionList([
             ["Name", String(nominee.name || "-")],
-            ["Relationship", String(nominee.relationship || "-")],
-            ["ID", String(nominee.idNumber || "-")],
+            ["Relationship", String(nominee.relationship ? titleCase(String(nominee.relationship)) : "-")],
+            ["NRIC / Passport", String(nominee.idNumber || "-")],
             ["Contact", String(nominee.contact || "-")],
             ["Share", `${Number(nominee.share || 0)}%`]
           ])}
@@ -174,40 +251,58 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           </tr>
           ${renderDefinitionList([
             ["Bank", String(bank.bankName ? `${bank.bankName}${bank.bankAccountType ? ` (${bank.bankAccountType})` : ""}` : "-")],
-            ["Account number", String(bank.bankAccountNumber || "-")]
+            ["Account Number", String(bank.bankAccountNumber || "-")]
           ])}
         `
       )
       .join("");
 
     const html = `
-      <div style="font-family:Arial,sans-serif;background:#f7f4ef;padding:24px;color:#132941">
-        <div style="max-width:760px;margin:0 auto;background:#fff;border-radius:20px;padding:28px">
+      <div style="font-family:Arial,sans-serif;background:#f4f1eb;padding:32px 18px;color:#132941">
+        <div style="max-width:760px;margin:0 auto;background:#ffffff;border-radius:24px;padding:32px;border:1px solid #e8e2d7;box-shadow:0 20px 60px rgba(19,41,65,0.08)">
           <p style="margin:0 0 8px;color:#0f6da8;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase">
-            Travel insurance submission
+            Travel Insurance Submission
           </p>
-          <h1 style="margin:0 0 16px;font-size:28px;line-height:1.1">New Tokio Marine Explorer intake</h1>
-          <p style="margin:0 0 18px;color:#5b6a7f">
-            Sent from the client-facing travel insurance site. Payment slip is attached if supplied.
+          <h1 style="margin:0 0 12px;font-size:30px;line-height:1.1">Tokio Marine Explorer Intake Summary</h1>
+          <p style="margin:0 0 24px;color:#5b6a7f;font-size:15px;line-height:1.6">
+            This summary was sent from the live intake form. Any uploaded payment slip is attached for review.
           </p>
 
-          <h2 style="margin:24px 0 10px;font-size:18px">Product and quote</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0 0 28px">
+            <div style="padding:14px 16px;border-radius:16px;background:#f8fafc;border:1px solid #e3ebf5">
+              <div style="font-size:12px;color:#5b6a7f;text-transform:uppercase;letter-spacing:0.08em">Applicant</div>
+              <div style="margin-top:6px;font-size:18px;font-weight:700;color:#132941">${escapeHtml(payload.proposer.name || "Client")}</div>
+            </div>
+            <div style="padding:14px 16px;border-radius:16px;background:#f8fafc;border:1px solid #e3ebf5">
+              <div style="font-size:12px;color:#5b6a7f;text-transform:uppercase;letter-spacing:0.08em">Plan</div>
+              <div style="margin-top:6px;font-size:18px;font-weight:700;color:#132941">${escapeHtml(formatPlan(payload.product.selectedPlan))}</div>
+            </div>
+            <div style="padding:14px 16px;border-radius:16px;background:#f8fafc;border:1px solid #e3ebf5">
+              <div style="font-size:12px;color:#5b6a7f;text-transform:uppercase;letter-spacing:0.08em">Total Premium</div>
+              <div style="margin-top:6px;font-size:18px;font-weight:700;color:#132941">RM ${Number(payload.quote.total).toFixed(2)}</div>
+            </div>
+          </div>
+
+          <h2 style="margin:24px 0 10px;font-size:18px">Product Summary</h2>
           <table style="width:100%;border-collapse:collapse">${productRows}</table>
 
-          <h2 style="margin:24px 0 10px;font-size:18px">Proposer</h2>
+          <h2 style="margin:24px 0 10px;font-size:18px">Premium Breakdown</h2>
+          <table style="width:100%;border-collapse:collapse">${quoteRows || renderDefinitionList([["Premium Breakdown", "Not available"]])}</table>
+
+          <h2 style="margin:24px 0 10px;font-size:18px">Proposer Details</h2>
           <table style="width:100%;border-collapse:collapse">${proposerRows}</table>
 
-          <h2 style="margin:24px 0 10px;font-size:18px">Bank details</h2>
-          <table style="width:100%;border-collapse:collapse">${bankRows || renderDefinitionList([["Bank details", "None provided"]])}</table>
+          <h2 style="margin:24px 0 10px;font-size:18px">Bank Details</h2>
+          <table style="width:100%;border-collapse:collapse">${bankRows || renderDefinitionList([["Bank Details", "None provided"]])}</table>
 
-          <h2 style="margin:24px 0 10px;font-size:18px">Insured travellers</h2>
+          <h2 style="margin:24px 0 10px;font-size:18px">Insured Travellers</h2>
           <table style="width:100%;border-collapse:collapse">${travellerRows}</table>
 
-          <h2 style="margin:24px 0 10px;font-size:18px">Flight details</h2>
-          <table style="width:100%;border-collapse:collapse">${flightRows || renderDefinitionList([["Flights", "None provided"]])}</table>
+          <h2 style="margin:24px 0 10px;font-size:18px">Flight Details</h2>
+          <table style="width:100%;border-collapse:collapse">${flightRows || renderDefinitionList([["Flight Details", "None provided"]])}</table>
 
-          <h2 style="margin:24px 0 10px;font-size:18px">Nominee</h2>
-          <table style="width:100%;border-collapse:collapse">${nomineeRows || renderDefinitionList([["Nominees", "None provided"]])}</table>
+          <h2 style="margin:24px 0 10px;font-size:18px">Nominee Details</h2>
+          <table style="width:100%;border-collapse:collapse">${nomineeRows || renderDefinitionList([["Nominee Details", "None provided"]])}</table>
         </div>
       </div>
     `;
@@ -215,7 +310,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     const resendPayload: Record<string, unknown> = {
       from: env.FROM_EMAIL,
       to: [env.NOTIFICATION_EMAIL],
-      subject: `Explorer submission - ${payload.proposer.name || "Client"} - RM ${Number(payload.quote.total).toFixed(2)}`,
+      subject: `Tokio Marine Explorer Submission - ${payload.proposer.name || "Client"} - RM ${Number(payload.quote.total).toFixed(2)}`,
       html,
       attachments
     };
