@@ -1185,7 +1185,7 @@ function refreshQuote() {
 function populateSummary() {
   if (!state.quote) return;
   const returnDate = getField("insuranceType").value === "annual"
-    ? formatDate(addDays(parseDate(getField("departureDate").value), 365))
+    ? formatDate(addDays(parseDate(getField("departureDate").value), 364))
     : getField("returnDate").value;
 
   summaryList.innerHTML = `
@@ -1417,7 +1417,7 @@ async function submitForm(event) {
   const proposer = getProposerData(travellers);
   const departureDate = getField("departureDate").value;
   const finalReturnDate = getField("insuranceType").value === "annual"
-    ? formatDate(addDays(parseDate(departureDate), 365))
+    ? formatDate(addDays(parseDate(departureDate), 364))
     : getField("returnDate").value;
 
   const payload = {
