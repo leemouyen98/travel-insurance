@@ -809,7 +809,7 @@ function buildTravellerCard(index, category) {
       <div class="traveller-card-body">
       <div class="field-grid two">
         <label class="field">
-          <span>Full name *</span>
+          <span>Full name (Follow NRIC/ Passport) *</span>
           <input type="text" name="insuredName_${index}" required>
         </label>
         <label class="field">
@@ -819,7 +819,7 @@ function buildTravellerCard(index, category) {
       </div>
       <div class="field-grid two">
         <label class="field">
-          <span>NRIC/Passport (Same as IC/Passport) *</span>
+          <span>NRIC/Passport *</span>
           <input type="text" name="insuredId_${index}" data-nric-input="${index}" required>
           <small class="hint">For Malaysian NRIC, DOB and gender are filled automatically.</small>
         </label>
@@ -986,7 +986,7 @@ function buildNomineeCard(index) {
       </div>
       <div class="field-grid three">
         <label class="field">
-          <span>NRIC/Passport (Same as IC/Passport) *</span>
+          <span>NRIC/Passport *</span>
           <input type="text" name="nomineeId_${index}" required>
         </label>
         <label class="field">
