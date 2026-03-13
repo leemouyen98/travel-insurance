@@ -228,7 +228,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       .map(
         (nominee: Record<string, string | number>, index: number) => `
           <tr>
-            <td colspan="2" style="padding-top:14px;font-weight:700;color:#0f6da8">Nominee ${index + 1}</td>
+            <td colspan="2" style="padding-top:14px;font-weight:700;color:#0f6da8">${escapeHtml(
+              nominee.travellerName ? `Nominee for ${String(nominee.travellerName)}` : `Nominee ${index + 1}`
+            )}</td>
           </tr>
           ${renderDefinitionList([
             ["Name", String(nominee.name || "-")],
