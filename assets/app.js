@@ -1366,6 +1366,7 @@ function initTravelDatePicker() {
     : [departureDate, returnDate].filter(Boolean);
 
   attachDatePicker(getField("travelDates"), {
+    allowInput: false,
     minDate: today,
     mode: isAnnual ? "single" : "range",
     defaultDate,
