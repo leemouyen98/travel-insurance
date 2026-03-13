@@ -143,8 +143,10 @@ const PAYMENT_CONTENT = {
   duitnow: '<strong>DuitNow QR</strong><p>Scan Henry\'s QR and upload the payment screenshot before submit. Henry can verify and follow up faster when the slip is included.</p><img src="/duitnow-qr.png" alt="DuitNow QR">',
   tng: "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>. Upload the payment screenshot once done.</p>",
   bank: "<strong>RHB Bank Transfer</strong><p>Account name <b>LEE MOU YEN</b><br>Account number <b>1040 2700 307120</b><br>Include the payment slip to speed up follow-up.</p>",
-  billplz: "<strong>Billplz card request</strong><p>Henry will send the payment link after submission. RM1 convenience fee applies and no payment slip is needed at this stage.</p>"
+  billplz: "<strong>Billplz card request</strong><p>Henry will send the payment link after submission. A 1.8% card processing fee applies and no payment slip is needed at this stage.</p>"
 };
+
+const BILLPLZ_CARD_FEE_RATE = 0.018;
 
 const MALAYSIAN_BANKS = [
   "Affin Bank", "Agrobank", "Alliance Bank", "AmBank", "Bank Islam", "Bank Muamalat",
@@ -197,6 +199,14 @@ function getField(id) {
 
 function formatMoney(value) {
   return new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", minimumFractionDigits: 2 }).format(value);
+}
+
+function roundMoney(value) {
+  return Math.round(value * 100) / 100;
+}
+
+function getBillplzCardFee(baseTotal) {
+  return roundMoney(baseTotal * BILLPLZ_CARD_FEE_RATE);
 }
 
 function parseDate(value) {
@@ -563,7 +573,7 @@ function calculateQuote() {
     const taxableTotal = premium + serviceTax;
     const stampDuty = taxableTotal >= 150 ? 10 : 0;
     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || "duitnow";
-    const cardFee = paymentMethod === "billplz" ? 1 : 0;
+    const cardFee = paymentMethod === "billplz" ? getBillplzCardFee(taxableTotal + stampDuty) : 0;
     return {
       area,
       days,
@@ -598,7 +608,7 @@ function calculateQuote() {
   const premiumSubtotal = base - discount;
   const stampDuty = premiumSubtotal >= 150 ? 10 : 0;
   const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || "duitnow";
-  const cardFee = paymentMethod === "billplz" ? 1 : 0;
+  const cardFee = paymentMethod === "billplz" ? getBillplzCardFee(premiumSubtotal + stampDuty) : 0;
   return {
     area,
     days,
@@ -648,7 +658,7 @@ function updatePaymentMethodTotals() {
       totalNode.textContent = "";
       return;
     }
-    const total = method === "billplz" ? baseTotal + 1 : baseTotal;
+    const total = method === "billplz" ? baseTotal + getBillplzCardFee(baseTotal) : baseTotal;
     totalNode.textContent = `Pay ${formatMoney(total)}`;
   });
 }
