@@ -648,10 +648,12 @@ function renderPlanChoices() {
       state.selectedPlan = input.value;
       renderPlanGuidance();
       renderMarketingPlanCards();
+      updateStickyQuoteBar();
       refreshQuote();
     });
   });
   renderPlanGuidance();
+  updateStickyQuoteBar();
 }
 
 function renderPlanGuidance() {
@@ -674,6 +676,7 @@ function renderMarketingPlanCards() {
     coverageSelectedTitle.textContent = selectedPlan?.title || "Essential";
     coverageSelectedText.textContent = selectedPlan?.summary || "";
   }
+  updateStickyQuoteBar();
   marketingPlanCards.querySelectorAll("[data-marketing-plan]").forEach((card) => {
     const selected = card.dataset.marketingPlan === state.selectedPlan;
     card.classList.toggle("is-selected", selected);
@@ -782,6 +785,10 @@ function getPaymentMethodLabel(value) {
   }[value] || "-";
 }
 
+function formatSelectedPlanLabel() {
+  return PLAN_GUIDANCE[state.selectedPlan]?.title || "Selected Plan";
+}
+
 function openOptionalSection(sectionId) {
   const body = getField(sectionId);
   const toggle = document.querySelector(`[data-toggle-optional="${sectionId}"]`);
@@ -792,7 +799,7 @@ function openOptionalSection(sectionId) {
 }
 
 function updateStickyQuoteBar() {
-  getField("stickyQuotePlan").textContent = `${state.selectedPlan[0].toUpperCase()}${state.selectedPlan.slice(1)} plan`;
+  getField("stickyQuotePlan").textContent = formatSelectedPlanLabel();
   getField("stickyQuoteTravellers").textContent = `${getTotalTravellers()} traveller${getTotalTravellers() === 1 ? "" : "s"}`;
   getField("stickyQuoteTotal").textContent = formatMoney(state.quote?.total || 0);
 }
