@@ -431,6 +431,34 @@ function getTripDays() {
   return Math.round((end - start) / 86400000) + 1;
 }
 
+function getTravelDateDefaults() {
+  return {
+    departureDate: getField("departureDate").value || "",
+    returnDate: getField("returnDate").value || ""
+  };
+}
+
+function getDefaultFlightDraft() {
+  const { departureDate, returnDate } = getTravelDateDefaults();
+  return {
+    departureFlightNumber: "",
+    departureDate,
+    arrivalFlightNumber: "",
+    arrivalDate: returnDate
+  };
+}
+
+function syncFlightDatesWithTravelDates() {
+  if (!flightList?.querySelector("[data-flight-card]")) return;
+  const { departureDate, returnDate } = getTravelDateDefaults();
+  const drafts = getFlightDrafts().map((flight) => ({
+    ...flight,
+    departureDate: flight.departureDate || departureDate,
+    arrivalDate: flight.arrivalDate || returnDate
+  }));
+  renderFlights(drafts);
+}
+
 function bankOptionsMarkup(selected = "") {
   return `<option value="">Select bank</option>${MALAYSIAN_BANKS.map((name) => `<option value="${name}" ${name === selected ? "selected" : ""}>${name}</option>`).join("")}`;
 }
@@ -809,7 +837,7 @@ function buildTravellerCard(index, category) {
       <div class="traveller-card-body">
       <div class="field-grid two">
         <label class="field">
-          <span>Full name (Follow NRIC/ Passport) *</span>
+          <span>Full Name (Follow NRIC/ Passport) *</span>
           <input type="text" name="insuredName_${index}" required>
         </label>
         <label class="field">
@@ -824,7 +852,7 @@ function buildTravellerCard(index, category) {
           <small class="hint">For Malaysian NRIC, DOB and gender are filled automatically.</small>
         </label>
         <label class="field">
-          <span>Date of birth *</span>
+          <span>Date of Birth *</span>
           <input type="text" name="insuredDob_${index}" placeholder="YY/MM/DD" inputmode="numeric" required>
         </label>
       </div>
@@ -838,11 +866,11 @@ function buildTravellerCard(index, category) {
           </select>
         </label>
         <label class="field">
-          <span>Mobile number *</span>
+          <span>Mobile Number *</span>
           <input type="tel" name="insuredMobile_${index}" required>
         </label>
         <label class="field">
-          <span>Email address *</span>
+          <span>Email Address *</span>
           <input type="email" name="insuredEmail_${index}" required>
         </label>
       </div>
@@ -852,7 +880,7 @@ function buildTravellerCard(index, category) {
           <input type="text" name="insuredOccupation_${index}" required>
         </label>
         <label class="field">
-          <span>Home address *</span>
+          <span>Home Address *</span>
           <input type="text" name="insuredAddress_${index}" required>
         </label>
         ${extraRole}
@@ -968,7 +996,7 @@ function buildNomineeCard(index) {
           </select>
         </label>
         <label class="field">
-          <span>Nominee full name *</span>
+          <span>Nominee's Full Name *</span>
           <input type="text" name="nomineeName_${index}" required>
         </label>
       </div>
@@ -990,7 +1018,7 @@ function buildNomineeCard(index) {
           <input type="text" name="nomineeId_${index}" required>
         </label>
         <label class="field">
-          <span>Contact number *</span>
+          <span>Contact Number *</span>
           <input type="tel" name="nomineeContact_${index}" required>
         </label>
         <label class="field">
@@ -1011,21 +1039,21 @@ function buildFlightCard(index) {
       </div>
       <div class="field-grid two">
         <label class="field">
-          <span>Departure flight number</span>
+          <span>Departure Flight No</span>
           <input type="text" name="departureFlightNumber_${index}">
         </label>
         <label class="field">
-          <span>Departure date</span>
+          <span>Departure Date</span>
           <input type="text" name="departureFlightDate_${index}" placeholder="DD/MM/YYYY" inputmode="numeric">
         </label>
       </div>
       <div class="field-grid two">
         <label class="field">
-          <span>Arrival flight number</span>
+          <span>Return Flight No</span>
           <input type="text" name="arrivalFlightNumber_${index}">
         </label>
         <label class="field">
-          <span>Arrival date</span>
+          <span>Return Date</span>
           <input type="text" name="arrivalFlightDate_${index}" placeholder="DD/MM/YYYY" inputmode="numeric">
         </label>
       </div>
@@ -1069,7 +1097,7 @@ function bindFlightActions() {
   });
 }
 
-function renderFlights(drafts = [{ departureFlightNumber: "", departureDate: "", arrivalFlightNumber: "", arrivalDate: "" }]) {
+function renderFlights(drafts = [getDefaultFlightDraft()]) {
   flightList.innerHTML = drafts.map((_, index) => buildFlightCard(index)).join("");
   drafts.forEach((draft, index) => {
     if (form.elements[`departureFlightNumber_${index}`]) {
@@ -1558,6 +1586,7 @@ function initTravelDatePicker() {
           endDate ? formatDate(endDate) : ""
         );
       }
+      syncFlightDatesWithTravelDates();
       refreshQuote();
     }
   });
@@ -1617,7 +1646,7 @@ getField("addNomineeButton").addEventListener("click", () => {
 getField("addFlightButton").addEventListener("click", () => {
   openOptionalSection("flightSectionBody");
   const drafts = getFlightDrafts();
-  drafts.push({ departureFlightNumber: "", departureDate: "", arrivalFlightNumber: "", arrivalDate: "" });
+  drafts.push(getDefaultFlightDraft());
   renderFlights(drafts);
 });
 
