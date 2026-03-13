@@ -396,18 +396,18 @@ function renderBankDetails(drafts = [{ bankName: "", bankAccountNumber: "", bank
 }
 
 function getNomineeTargetCount(currentCount = 0) {
-  const travellerTotal = getTotalTravellers();
-  return Math.max(travellerTotal, 1);
+  return Math.max(currentCount, 1);
 }
 
 function buildNomineeDraftList(existingDrafts = []) {
   const targetCount = getNomineeTargetCount(existingDrafts.length);
   return Array.from({ length: targetCount }, (_, index) => existingDrafts[index] || {
+    travellerIndex: "0",
     name: "",
     relationship: "",
     idNumber: "",
     contact: "",
-    share: "100"
+    share: ""
   });
 }
 
@@ -822,20 +822,26 @@ function collectTravellers() {
 
 function buildNomineeCard(index) {
   const travellerNames = getTravellerDisplayNames();
-  const multipleTravellers = travellerNames.length > 1;
-  const cardTitle = multipleTravellers
-    ? `#${index + 1} Nominee for ${travellerNames[index] || `Traveller ${index + 1}`}`
-    : "Nominee Details";
+  const cardTitle = `Nominee ${index + 1}`;
   return `
     <article class="traveller-card" data-nominee-card="${index}">
       <div class="card-header">
         <h5>${cardTitle}</h5>
+        ${index === 0 ? "" : `<button type="button" class="button button-secondary" data-remove-nominee="${index}">Remove</button>`}
       </div>
       <div class="field-grid two">
+        <label class="field">
+          <span>Traveller *</span>
+          <select name="nomineeTraveller_${index}" required>
+            ${travellerNames.map((name, travellerIndex) => `<option value="${travellerIndex}">#${travellerIndex + 1} ${name}</option>`).join("")}
+          </select>
+        </label>
         <label class="field">
           <span>Nominee full name *</span>
           <input type="text" name="nomineeName_${index}" required>
         </label>
+      </div>
+      <div class="field-grid two">
         <label class="field">
           <span>Relationship *</span>
           <select name="nomineeRelationship_${index}" required>
@@ -856,8 +862,11 @@ function buildNomineeCard(index) {
           <span>Contact number *</span>
           <input type="tel" name="nomineeContact_${index}" required>
         </label>
+        <label class="field">
+          <span>Allocation (%) *</span>
+          <input type="number" name="nomineeShare_${index}" min="1" max="100" value="" required>
+        </label>
       </div>
-      <input type="hidden" name="nomineeShare_${index}" value="100">
     </article>
   `;
 }
@@ -944,37 +953,48 @@ function renderFlights(drafts = [{ departureFlightNumber: "", departureDate: "",
 
 function collectNominees() {
   return Array.from(nomineeList.querySelectorAll("[data-nominee-card]")).map((_, index) => ({
-    travellerName: getTravellerDisplayNames()[index] || `Traveller ${index + 1}`,
+    travellerIndex: Number(form.elements[`nomineeTraveller_${index}`]?.value || 0),
+    travellerName: getTravellerDisplayNames()[Number(form.elements[`nomineeTraveller_${index}`]?.value || 0)] || `Traveller ${Number(form.elements[`nomineeTraveller_${index}`]?.value || 0) + 1}`,
     name: form.elements[`nomineeName_${index}`]?.value.trim() || "",
     relationship: form.elements[`nomineeRelationship_${index}`]?.value || "",
     idNumber: form.elements[`nomineeId_${index}`]?.value.trim() || "",
     contact: form.elements[`nomineeContact_${index}`]?.value.trim() || "",
-    share: Number(form.elements[`nomineeShare_${index}`]?.value || 100)
+    share: Number(form.elements[`nomineeShare_${index}`]?.value || 0)
   }));
 }
 
 function getNomineeDrafts() {
   return Array.from(nomineeList.querySelectorAll("[data-nominee-card]")).map((_, index) => ({
+    travellerIndex: form.elements[`nomineeTraveller_${index}`]?.value || "0",
     name: form.elements[`nomineeName_${index}`]?.value || "",
     relationship: form.elements[`nomineeRelationship_${index}`]?.value || "",
     idNumber: form.elements[`nomineeId_${index}`]?.value || "",
     contact: form.elements[`nomineeContact_${index}`]?.value || "",
-    share: form.elements[`nomineeShare_${index}`]?.value || "100"
+    share: form.elements[`nomineeShare_${index}`]?.value || ""
   }));
 }
 
 function bindNomineeActions() {
+  nomineeList.querySelectorAll("[data-remove-nominee]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const drafts = getNomineeDrafts();
+      if (drafts.length <= 1) return;
+      drafts.splice(Number(button.dataset.removeNominee), 1);
+      renderNominees(drafts);
+    });
+  });
   nomineeList.querySelectorAll("input, select").forEach((field) => {
     field.addEventListener("input", populateSummary);
     field.addEventListener("change", populateSummary);
   });
 }
 
-function renderNominees(drafts = [{ name: "", relationship: "", idNumber: "", contact: "", share: "100" }]) {
+function renderNominees(drafts = [{ travellerIndex: "0", name: "", relationship: "", idNumber: "", contact: "", share: "" }]) {
   const nextDrafts = buildNomineeDraftList(drafts);
   nomineeList.innerHTML = nextDrafts.map((_, index) => buildNomineeCard(index)).join("");
   nextDrafts.forEach((draft, index) => {
-    if (form.elements[`nomineeName_${index}`]) {
+    if (form.elements[`nomineeTraveller_${index}`]) {
+      form.elements[`nomineeTraveller_${index}`].value = draft.travellerIndex ?? "0";
       form.elements[`nomineeName_${index}`].value = draft.name;
       form.elements[`nomineeRelationship_${index}`].value = draft.relationship;
       form.elements[`nomineeId_${index}`].value = draft.idNumber;
@@ -1195,9 +1215,21 @@ function validateStep(step) {
       nominee.name || nominee.relationship || nominee.idNumber || nominee.contact
     );
     nominees.forEach((nominee) => {
-      if (!nominee.name || !nominee.relationship || !nominee.idNumber || !nominee.contact) {
+      if (!nominee.name || !nominee.relationship || !nominee.idNumber || !nominee.contact || !nominee.share) {
         openOptionalSection("nomineeSectionBody");
         showError("nominees", "Complete all nominee fields for each nominee card.");
+        valid = false;
+      }
+    });
+    const nomineeTotals = new Map();
+    nominees.forEach((nominee) => {
+      const key = nominee.travellerIndex;
+      nomineeTotals.set(key, (nomineeTotals.get(key) || 0) + nominee.share);
+    });
+    nomineeTotals.forEach((totalShare) => {
+      if (totalShare !== 100) {
+        openOptionalSection("nomineeSectionBody");
+        showError("nominees", "Each traveller's nominee allocation must total exactly 100%.");
         valid = false;
       }
     });
@@ -1430,6 +1462,12 @@ marketingPlanCards?.querySelectorAll("[data-marketing-plan]").forEach((card) => 
 getField("buyingForSomeoneElse").addEventListener("change", () => {
   state.travellerSignature = "";
   refreshVisibility();
+});
+getField("addNomineeButton").addEventListener("click", () => {
+  openOptionalSection("nomineeSectionBody");
+  const drafts = getNomineeDrafts();
+  drafts.push({ travellerIndex: "0", name: "", relationship: "", idNumber: "", contact: "", share: "" });
+  renderNominees(drafts);
 });
 getField("addFlightButton").addEventListener("click", () => {
   openOptionalSection("flightSectionBody");
