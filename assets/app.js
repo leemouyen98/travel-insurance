@@ -1158,6 +1158,17 @@ function getProposerData(travellers) {
   };
 }
 
+function buildSuccessWhatsAppLink(payload) {
+  const name = payload.proposer?.name || payload.insuredTravellers?.[0]?.fullName || "I";
+  const insuranceType = payload.product?.insuranceType === "annual" ? "annual plan" : "single trip plan";
+  const plan = payload.product?.selectedPlan ? `${payload.product.selectedPlan[0].toUpperCase()}${payload.product.selectedPlan.slice(1)} Plan` : "selected plan";
+  const travelPeriod = payload.product?.departureDate && payload.product?.returnDate
+    ? `${payload.product.departureDate} to ${payload.product.returnDate}`
+    : payload.product?.departureDate || "";
+  const message = `Hi Henry, ${name} here. I have completed my Tokio Marine Explorer submission for the ${insuranceType} under ${plan}${travelPeriod ? ` (${travelPeriod})` : ""}. Please let me know if anything else is needed.`;
+  return `https://wa.me/60126123540?text=${encodeURIComponent(message)}`;
+}
+
 function refreshQuote() {
   state.quote = calculateQuote();
   const quote = state.quote;
@@ -1460,6 +1471,7 @@ async function submitForm(event) {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Submission failed.");
     clearDraft();
+    getField("successWhatsAppButton").href = buildSuccessWhatsAppLink(payload);
     form.hidden = true;
     getField("successCard").hidden = false;
   } catch (error) {
