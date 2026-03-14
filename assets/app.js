@@ -375,9 +375,11 @@ function attachDatePicker(element, options = {}) {
   if (element._flatpickr) {
     element._flatpickr.destroy();
   }
+  const allowInput = options.allowInput ?? true;
+  element.readOnly = !allowInput;
   window.flatpickr(element, {
     dateFormat: "d/m/Y",
-    allowInput: true,
+    allowInput,
     disableMobile: true,
     ...options
   });
@@ -1060,7 +1062,7 @@ function buildFlightCard(index) {
         </label>
         <label class="field">
           <span>Departure Date</span>
-          <input type="text" name="departureFlightDate_${index}" placeholder="DD/MM/YYYY" inputmode="numeric">
+          <input type="text" name="departureFlightDate_${index}" placeholder="DD/MM/YYYY" autocomplete="off" readonly>
         </label>
       </div>
       <div class="field-grid two">
@@ -1070,7 +1072,7 @@ function buildFlightCard(index) {
         </label>
         <label class="field">
           <span>Return Date</span>
-          <input type="text" name="arrivalFlightDate_${index}" placeholder="DD/MM/YYYY" inputmode="numeric">
+          <input type="text" name="arrivalFlightDate_${index}" placeholder="DD/MM/YYYY" autocomplete="off" readonly>
         </label>
       </div>
     </article>
@@ -1105,7 +1107,7 @@ function bindFlightActions() {
     });
   });
   flightList.querySelectorAll('input[name^="departureFlightDate_"], input[name^="arrivalFlightDate_"]').forEach((input) => {
-    attachDatePicker(input);
+    attachDatePicker(input, { allowInput: false });
   });
   flightList.querySelectorAll("input").forEach((field) => {
     field.addEventListener("input", populateSummary);
