@@ -202,6 +202,15 @@ function formatMoney(value) {
   return new Intl.NumberFormat("en-MY", { style: "currency", currency: "MYR", minimumFractionDigits: 2 }).format(value);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function roundMoney(value) {
   return Math.round(value * 100) / 100;
 }
@@ -1204,6 +1213,98 @@ function buildSuccessWhatsAppLink(payload) {
   return `https://wa.me/60126123540?text=${encodeURIComponent(message)}`;
 }
 
+function summaryItem(label, value) {
+  return `
+    <div>
+      <dt>${escapeHtml(label)}</dt>
+      <dd>${escapeHtml(value || "-")}</dd>
+    </div>
+  `;
+}
+
+function renderSummarySection(title, items, options = {}) {
+  const rows = items.filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== "");
+  if (!rows.length && !options.showWhenEmpty) return "";
+  const content = rows.length
+    ? `<dl class="summary-list">${rows.map(([label, value]) => summaryItem(label, value)).join("")}</dl>`
+    : `<p class="review-empty">${escapeHtml(options.emptyText || "No details added.")}</p>`;
+  return `
+    <section class="review-section">
+      <div class="review-section-head">
+        <h5>${escapeHtml(title)}</h5>
+      </div>
+      ${content}
+    </section>
+  `;
+}
+
+function renderTravellerSummary(travellers) {
+  if (!travellers.length) {
+    return `
+      <section class="review-section">
+        <div class="review-section-head">
+          <h5>Traveller Details</h5>
+        </div>
+        <p class="review-empty">Traveller details will appear here once completed.</p>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="review-section">
+      <div class="review-section-head">
+        <h5>Traveller Details</h5>
+      </div>
+      <div class="review-traveller-grid">
+        ${travellers.map((traveller, index) => {
+          const heading = traveller.fullName || `Traveller ${index + 1}`;
+          const items = [
+            ["Name", traveller.fullName],
+            ["IC / Passport", traveller.idNumber],
+            ["Mobile", traveller.mobile],
+            ["Email", traveller.email],
+            ...(state.policyType === "family" ? [["Role", traveller.category]] : [])
+          ].filter(([, value]) => value && String(value).trim() !== "");
+          return `
+            <article class="review-mini-card">
+              <h6>${escapeHtml(heading)}</h6>
+              <dl class="summary-list compact">
+                ${items.map(([label, value]) => summaryItem(label, value)).join("")}
+              </dl>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderFlightSummary(flights) {
+  if (!flights.length) return "";
+  return `
+    <section class="review-section">
+      <div class="review-section-head">
+        <h5>Flight Details</h5>
+      </div>
+      <div class="review-traveller-grid">
+        ${flights.map((flight, index) => `
+          <article class="review-mini-card">
+            <h6>Flight ${index + 1}</h6>
+            <dl class="summary-list compact">
+              ${[
+                ["Departure Flight", flight.departureFlightNumber],
+                ["Departure Date", flight.departureDate],
+                ["Arrival Flight", flight.arrivalFlightNumber],
+                ["Arrival Date", flight.arrivalDate]
+              ].map(([label, value]) => summaryItem(label, value)).join("")}
+            </dl>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function refreshQuote() {
   state.quote = calculateQuote();
   const quote = state.quote;
@@ -1230,18 +1331,34 @@ function refreshQuote() {
 
 function populateSummary() {
   if (!state.quote) return;
+  const travellers = collectTravellers();
+  const proposer = getProposerData(travellers);
+  const flights = collectFlights().filter((flight) =>
+    flight.departureFlightNumber || flight.departureDate || flight.arrivalFlightNumber || flight.arrivalDate
+  );
   const returnDate = getField("insuranceType").value === "annual"
     ? formatDate(addDays(parseDate(getField("departureDate").value), 364))
     : getField("returnDate").value;
 
-  summaryList.innerHTML = `
-    <div><dt>Insurance Type</dt><dd>${getField("insuranceType").value === "annual" ? "Annual" : "Single Trip"}</dd></div>
-    <div><dt>Travel Area</dt><dd>${AREA_LABELS[state.quote.area]}</dd></div>
-    <div><dt>Policy Type</dt><dd>${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}</dd></div>
-    <div><dt>Plan</dt><dd>${state.selectedPlan[0].toUpperCase()}${state.selectedPlan.slice(1)}</dd></div>
-    <div><dt>Travellers</dt><dd>${getTotalTravellers()}</dd></div>
-    <div><dt>Travel Period</dt><dd>${getField("departureDate").value} to ${returnDate}</dd></div>
-  `;
+  summaryList.innerHTML = [
+    renderSummarySection("Trip & Cover", [
+      ["Insurance Type", getField("insuranceType").value === "annual" ? "Annual" : "Single Trip"],
+      ["Area", AREA_LABELS[state.quote.area]],
+      ["Destination", getField("destination").value.trim()],
+      ["Policy Type", `${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}`],
+      ["Plan Selected", `${state.selectedPlan[0].toUpperCase()}${state.selectedPlan.slice(1)}`],
+      ["No. of Travellers", String(getTotalTravellers())],
+      ["Travel Period", `${getField("departureDate").value} to ${returnDate}`]
+    ]),
+    renderSummarySection("Contact Details", [
+      ["Name", proposer.name],
+      ["Mobile", proposer.mobile],
+      ["Email", proposer.email],
+      ["Address", proposer.address]
+    ]),
+    renderTravellerSummary(travellers),
+    renderFlightSummary(flights)
+  ].join("");
   getField("summaryTotal").textContent = formatMoney(state.quote.total);
   updateStickyQuoteBar();
 }

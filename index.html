@@ -441,9 +441,15 @@
               </div>
 
               <div class="review-layout">
-                <div class="summary-card">
-                  <h4>Submission Summary</h4>
-                  <dl id="summaryList" class="summary-list"></dl>
+                <div class="summary-card review-card">
+                  <div class="review-card-head">
+                    <div>
+                      <h4>Review Your Details</h4>
+                      <p>Double-check the trip and contact details before payment. Nominee and bank details are not shown here.</p>
+                    </div>
+                    <button type="button" class="button button-secondary button-compact" data-prev-step="2">Edit details</button>
+                  </div>
+                  <div id="summaryList" class="review-summary"></div>
                   <div class="summary-total">
                     <span>Total payable</span>
                     <strong id="summaryTotal">RM0.00</strong>
