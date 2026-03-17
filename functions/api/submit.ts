@@ -381,7 +381,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         return json({ error: "Missing BILLPLZ_API_KEY environment variable." }, 500);
       }
 
-      const amountInSen = Math.round(Number(payload.quote.total) * 100);
+      // ── 2% credit card convenience fee ────────────────────────────────────
+      const basePremium = Number(payload.quote.total);
+      const convenienceFeeRate = 0.02;
+      const convenienceFee = Math.round(basePremium * convenienceFeeRate * 100) / 100;
+      const totalWithFee = Math.round((basePremium + convenienceFee) * 100) / 100;
+      const amountInSen = Math.round(totalWithFee * 100);
+
       const origin = new URL(request.url).origin;
 
       const bill = await createBillplzBill(env, {
@@ -391,13 +397,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           ? String(payload.proposer.mobile).replace(/[^0-9+]/g, "")
           : undefined,
         amount: amountInSen,
-        description: `Tokio Marine Explorer — ${formatPlan(payload.product.selectedPlan)} — ${payload.proposer.name || "Client"}`,
+        description: `Tokio Marine Explorer — ${formatPlan(payload.product.selectedPlan)} — ${payload.proposer.name || "Client"} (incl. 2% card fee)`,
         callbackUrl: `${origin}/api/billplz-callback`,
         redirectUrl: `${origin}/?payment=success`,
         reference1: String(payload.proposer.name || "Client")
       });
 
-      return json({ ok: true, billplzUrl: bill.url, billId: bill.id });
+      return json({ ok: true, billplzUrl: bill.url, billId: bill.id, convenienceFee, totalWithFee });
     }
 
     // ── Non-Billplz: return success ─────────────────────────────────────────
