@@ -1624,6 +1624,10 @@ async function submitForm(event) {
     const response = await fetch("/api/submit", { method: "POST", body });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Submission failed.");
+    if (data.billplzUrl) {
+      window.location.href = data.billplzUrl;
+      return;
+    }
     clearDraft();
     getField("successWhatsAppButton").href = buildSuccessWhatsAppLink(payload);
     form.hidden = true;
