@@ -143,10 +143,10 @@ const PAYMENT_CONTENT = {
   duitnow: '<strong>DuitNow QR</strong><p>Scan Henry\'s QR and upload the payment screenshot before submit. Henry can verify and follow up faster when the slip is included.</p><img src="/duitnow-qr.png" alt="DuitNow QR">',
   tng: "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>. Upload the payment screenshot once done.</p>",
   bank: "<strong>RHB Bank Transfer</strong><p>Account name <b>LEE MOU YEN</b><br>Account number <b>1040 2700 307120</b><br>Include the payment slip to speed up follow-up.</p>",
-  billplz: "<strong>Billplz card request</strong><p>Henry will send the payment link after submission. A 1.8% card processing fee applies and no payment slip is needed at this stage.</p>"
+  billplz: "<strong>Billplz card request</strong><p>Henry will send the payment link after submission. A 2% card convenience fee applies and no payment slip is needed at this stage.</p>"
 };
 
-const BILLPLZ_CARD_FEE_RATE = 0.018;
+const BILLPLZ_CARD_FEE_RATE = 0.02;
 const DRAFT_STORAGE_KEY = "travel-insurance-draft-v1";
 
 const MALAYSIAN_BANKS = [
