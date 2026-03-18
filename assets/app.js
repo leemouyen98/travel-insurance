@@ -1298,7 +1298,7 @@ function renderFlightSummary(flights) {
                 ["Departure Date", flight.departureDate],
                 ["Arrival Flight", flight.arrivalFlightNumber],
                 ["Arrival Date", flight.arrivalDate]
-              ].map(([label, value]) => summaryItem(label, value)).join("")}
+              ].filter(([, value]) => value && String(value).trim() !== "").map(([label, value]) => summaryItem(label, value)).join("")}
             </dl>
           </article>
         `).join("")}
