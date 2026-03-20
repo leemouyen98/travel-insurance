@@ -487,6 +487,15 @@ function getDefaultFlightDraft() {
   };
 }
 
+function ensureFlightDraftsReady() {
+  if (!flightList) return;
+  if (!flightList.querySelector("[data-flight-card]")) {
+    renderFlights([getDefaultFlightDraft()]);
+    return;
+  }
+  syncFlightDatesWithTravelDates();
+}
+
 function syncFlightDatesWithTravelDates() {
   if (!flightList?.querySelector("[data-flight-card]")) return;
   const { departureDate, returnDate } = getTravelDateDefaults();
@@ -1140,7 +1149,7 @@ function bindFlightActions() {
   });
 }
 
-function renderFlights(drafts = [getDefaultFlightDraft()]) {
+function renderFlights(drafts = []) {
   flightList.innerHTML = drafts.map((_, index) => buildFlightCard(index)).join("");
   drafts.forEach((draft, index) => {
     if (form.elements[`departureFlightNumber_${index}`]) {
@@ -1694,7 +1703,7 @@ function resetForm() {
   getField("seniorCount").value = 0;
   getField("successCard").hidden = true;
   form.hidden = false;
-  renderFlights();
+  renderFlights([]);
   renderNominees();
   renderBankDetails();
   setLogicAlert("");
@@ -1709,6 +1718,9 @@ function bindOptionalSections() {
       const sectionId = button.dataset.toggleOptional;
       const body = getField(sectionId);
       const expanded = button.getAttribute("aria-expanded") === "true";
+      if (!expanded && sectionId === "flightSectionBody") {
+        ensureFlightDraftsReady();
+      }
       body.hidden = expanded;
       button.setAttribute("aria-expanded", expanded ? "false" : "true");
       button.querySelector("em").textContent = expanded ? "Add" : "Hide";
