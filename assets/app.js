@@ -139,6 +139,34 @@ const PLAN_COMPARE = {
   }
 };
 
+const NOMINEE_RELATIONSHIPS = [
+  "Aunty",
+  "Brother",
+  "Brother-in-law",
+  "Cousin",
+  "Daughter",
+  "Daughter-in-law",
+  "Father",
+  "Father-in-law",
+  "Fiancée",
+  "Granddaughter",
+  "Grandfather",
+  "Grandmother",
+  "Grandson",
+  "Mother",
+  "Mother-in-law",
+  "Nephew",
+  "Niece",
+  "Sister",
+  "Sister-in-law",
+  "Son",
+  "Son-in-law",
+  "Spouse",
+  "Stepdaughter",
+  "Stepson",
+  "Uncle"
+];
+
 const PAYMENT_CONTENT = {
   duitnow: '<strong>DuitNow QR</strong><p>Scan Henry\'s QR and upload the payment screenshot before submit. Henry can verify and follow up faster when the slip is included.</p><img src="/duitnow-qr.png" alt="DuitNow QR">',
   tng: "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>. Upload the payment screenshot once done.</p>",
@@ -1023,10 +1051,7 @@ function buildNomineeCard(index) {
           <span>Relationship *</span>
           <select name="nomineeRelationship_${index}" required>
             <option value="">Select relationship</option>
-            <option value="Child">Child</option>
-            <option value="Parent">Parent</option>
-            <option value="Sibling">Sibling</option>
-            <option value="Spouse">Spouse</option>
+            ${NOMINEE_RELATIONSHIPS.map((relationship) => `<option value="${relationship}">${relationship}</option>`).join("")}
           </select>
         </label>
       </div>

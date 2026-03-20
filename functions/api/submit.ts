@@ -284,7 +284,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           </td></tr>
           ${renderDefinitionList([
             ["Name", String(nominee.name || "-")],
-            ["Relationship", nominee.relationship ? titleCase(String(nominee.relationship)) : "-"],
+            ["Relationship", String(nominee.relationship || "-")],
             ["NRIC / Passport", String(nominee.idNumber || "-")],
             ["Contact", String(nominee.contact || "-")],
             ["Share", `${Number(nominee.share || 0)}%`]
