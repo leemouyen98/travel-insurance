@@ -1,3 +1,6 @@
+/* i18n bridge — window.t is provided by i18n.js (loaded before this module) */
+const t = (key, ...args) => (typeof window.t === 'function' ? window.t(key, ...args) : key);
+
 const PREMIUMS = {
   international: {
     area1: {
@@ -167,12 +170,9 @@ const NOMINEE_RELATIONSHIPS = [
   "Uncle"
 ];
 
-const PAYMENT_CONTENT = {
-  duitnow: '<strong>DuitNow QR</strong><p>Scan Henry\'s QR and upload the payment screenshot before submit. Henry can verify and follow up faster when the slip is included.</p><img src="/duitnow-qr.png" alt="DuitNow QR">',
-  tng: "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>. Upload the payment screenshot once done.</p>",
-  bank: "<strong>RHB Bank Transfer</strong><p>Account name <b>LEE MOU YEN</b><br>Account number <b>1040 2700 307120</b><br>Include the payment slip to speed up follow-up.</p>",
-  billplz: "<strong>Billplz card request</strong><p>Henry will send the payment link after submission. A 2% card convenience fee applies and no payment slip is needed at this stage.</p>"
-};
+function getPaymentContent(method) {
+  return t(`paymentContent.${method}`);
+}
 
 const BILLPLZ_CARD_FEE_RATE = 0.02;
 const DRAFT_STORAGE_KEY = "travel-insurance-draft-v1";
@@ -536,9 +536,10 @@ function buildBankDraftList(existingDrafts = []) {
 function buildBankCard(index) {
   const travellerNames = getTravellerDisplayNames();
   const multipleTravellers = travellerNames.length > 1;
+  const travellerName = travellerNames[index] || `Traveller ${index + 1}`;
   const cardTitle = multipleTravellers
-    ? `#${index + 1} ${travellerNames[index] || `Traveller ${index + 1}`}'s Bank`
-    : "Bank Details";
+    ? t("bank.multiCardTitle", index + 1, travellerName)
+    : t("bank.singleTitle");
   return `
     <article class="traveller-card" data-bank-card="${index}">
       <div class="card-header">
@@ -546,18 +547,18 @@ function buildBankCard(index) {
       </div>
       <div class="field-grid three">
         <label class="field">
-          <span>Bank Name (For Claim Purpose)</span>
+          <span>${t("bank.name")}</span>
           <select name="bankName_${index}">${bankOptionsMarkup()}</select>
         </label>
         <label class="field">
-          <span>Account Number</span>
+          <span>${t("bank.accountNumber")}</span>
           <input type="text" name="bankAccountNumber_${index}">
         </label>
         <label class="field">
-          <span>Account Type</span>
+          <span>${t("bank.accountType")}</span>
           <select name="bankAccountType_${index}">
-            <option value="Savings">Savings</option>
-            <option value="Current">Current</option>
+            <option value="Savings">${t("bank.savings")}</option>
+            <option value="Current">${t("bank.current")}</option>
           </select>
         </label>
       </div>
@@ -619,13 +620,14 @@ function buildNomineeDraftList(existingDrafts = []) {
 }
 
 function renderAreaGuidance() {
-  const data = AREA_GUIDANCE[getSelectedArea()];
+  const area = getSelectedArea();
+  const data = AREA_GUIDANCE[area];
   const node = getField("areaGuidance");
   if (!data || !node) return;
   node.innerHTML = `
     <strong>${data.title}</strong>
-    <p>${data.summary}</p>
-    <small>${data.detail}</small>
+    <p>${t(`area.${area}.summary`)}</p>
+    <small>${t(`area.${area}.detail`)}</small>
   `;
 }
 
@@ -637,14 +639,14 @@ function getPolicyOptions() {
   const { under70, senior } = getTravellerCounts();
   const total = under70 + senior;
   if (total <= 1) {
-    return [{ value: "individual", label: "Individual", note: "Exactly one traveller." }];
+    return [{ value: "individual", label: t("policy.individual.label"), note: t("policy.individual.note") }];
   }
   if (senior > 0) {
-    return [{ value: "group", label: "Group", note: "Required when any traveller is aged 71 to 85." }];
+    return [{ value: "group", label: t("policy.group.label"), note: t("policy.group.note.senior") }];
   }
   return [
-    { value: "family", label: "Family", note: "Husband + wife + unlimited children." },
-    { value: "group", label: "Group", note: "Minimum 2 travellers with 5% discount." }
+    { value: "family", label: t("policy.family.label"), note: t("policy.family.note") },
+    { value: "group", label: t("policy.group.label"), note: t("policy.group.note") }
   ];
 }
 
@@ -663,24 +665,24 @@ function renderPolicyChoices() {
   container.querySelectorAll('input[name="policyType"]').forEach((input) => {
     input.addEventListener("change", () => {
       state.policyType = input.value;
-      getField("policyTypePill").textContent = `Policy Type: ${input.value[0].toUpperCase()}${input.value.slice(1)}`;
+      getField("policyTypePill").textContent = t("policyType.pill", input.value);
       syncTravellerCards();
       refreshQuote();
     });
   });
 
-  getField("policyTypePill").textContent = `Policy Type: ${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}`;
+  getField("policyTypePill").textContent = t("policyType.pill", state.policyType);
 }
 
 function renderPlanChoices() {
   const container = getField("planChoices");
   const isDomestic = getSelectedArea() === "domestic";
   const plans = isDomestic
-    ? [{ value: "domestic", label: "Domestic", note: "Malaysia only accidents-only cover.", tag: "" }]
+    ? [{ value: "domestic", label: t("plan.domestic.label"), note: t("plan.domestic.note"), tag: "" }]
     : [
-        { value: "basic", label: "Basic", note: "Entry tier Explorer cover.", tag: "" },
-        { value: "essential", label: "Essential", note: "Recommended balance of cover.", tag: "Popular" },
-        { value: "deluxe", label: "Deluxe", note: "Highest benefits and CFAR.", tag: "Best" }
+        { value: "basic", label: t("plan.basic.label"), note: t("plan.basic.note"), tag: "" },
+        { value: "essential", label: t("plan.essential.label"), note: t("plan.essential.note"), tag: t("plan.tag.popular") },
+        { value: "deluxe", label: t("plan.deluxe.label"), note: t("plan.deluxe.note"), tag: t("plan.tag.best") }
       ];
   if (!plans.some((plan) => plan.value === state.selectedPlan)) {
     state.selectedPlan = isDomestic ? "domestic" : "essential";
@@ -705,14 +707,16 @@ function renderPlanChoices() {
 }
 
 function renderPlanGuidance() {
-  const data = PLAN_GUIDANCE[state.selectedPlan];
+  const plan = state.selectedPlan;
+  const data = PLAN_GUIDANCE[plan];
   const node = getField("planGuidance");
   if (!data || !node) return;
+  const bullets = [t(`plan.${plan}.bullet1`), t(`plan.${plan}.bullet2`), t(`plan.${plan}.bullet3`)];
   node.innerHTML = `
     <strong>${data.title}</strong>
-    <p>${data.summary}</p>
+    <p>${t(`plan.${plan}.summary`)}</p>
     <ul>
-      ${data.bullets.map((item) => `<li>${item}</li>`).join("")}
+      ${bullets.map((item) => `<li>${item}</li>`).join("")}
     </ul>
   `;
 }
@@ -722,7 +726,7 @@ function renderMarketingPlanCards() {
   if (coverageSelectedTitle && coverageSelectedText) {
     const selectedPlan = PLAN_GUIDANCE[state.selectedPlan];
     coverageSelectedTitle.textContent = selectedPlan?.title || "Essential";
-    coverageSelectedText.textContent = selectedPlan?.summary || "";
+    coverageSelectedText.textContent = t(`plan.${state.selectedPlan}.summary`) || selectedPlan?.summary || "";
   }
   updateStickyQuoteBar();
   marketingPlanCards.querySelectorAll("[data-marketing-plan]").forEach((card) => {
@@ -756,17 +760,17 @@ function calculateQuote() {
   if (area === "domestic") {
     if (state.policyType === "family") {
       base = getBracketValue(PREMIUMS.domestic.family, days, annual);
-      items.push({ label: "Domestic family premium", value: base });
+      items.push({ label: t("quote.domesticFamilyPremium"), value: base });
     } else if (state.policyType === "group") {
       base = getBracketValue(PREMIUMS.domestic.under70, days, annual) * counts.under70
         + getBracketValue(PREMIUMS.domestic.senior, days, annual) * counts.senior;
       discount = base * 0.05;
-      items.push({ label: "Domestic group base", value: base });
-      items.push({ label: "Group discount (5%)", value: -discount });
+      items.push({ label: t("quote.domesticGroupBase"), value: base });
+      items.push({ label: t("quote.groupDiscount"), value: -discount });
     } else {
       const bucket = counts.senior > 0 ? "senior" : "under70";
       base = getBracketValue(PREMIUMS.domestic[bucket], days, annual);
-      items.push({ label: `Domestic ${bucket === "senior" ? "senior" : "individual"} premium`, value: base });
+      items.push({ label: bucket === "senior" ? t("quote.domesticSeniorPremium") : t("quote.domesticIndividualPremium"), value: base });
     }
     const premium = base - discount;
     const serviceTax = premium * 0.08;
@@ -783,9 +787,9 @@ function calculateQuote() {
       cardFee,
       items: [
         ...items,
-        { label: "Service tax (8%)", value: serviceTax },
-        ...(stampDuty ? [{ label: "Stamp duty", value: stampDuty }] : []),
-        ...(cardFee ? [{ label: "Card convenience fee", value: cardFee }] : [])
+        { label: t("quote.serviceTax"), value: serviceTax },
+        ...(stampDuty ? [{ label: t("quote.stampDuty"), value: stampDuty }] : []),
+        ...(cardFee ? [{ label: t("quote.cardFee"), value: cardFee }] : [])
       ]
     };
   }
@@ -793,17 +797,17 @@ function calculateQuote() {
   const areaTable = PREMIUMS.international[area];
   if (state.policyType === "family") {
     base = getBracketValue(areaTable.family[state.selectedPlan], days, annual);
-    items.push({ label: `${state.selectedPlan} family premium`, value: base });
+    items.push({ label: t("quote.familyPremium", state.selectedPlan), value: base });
   } else if (state.policyType === "group") {
     base = getBracketValue(areaTable.under70[state.selectedPlan], days, annual) * counts.under70
       + getBracketValue(areaTable.senior[state.selectedPlan], days, annual) * counts.senior;
     discount = base * 0.05;
-    items.push({ label: "Group base premium", value: base });
-    items.push({ label: "Group discount (5%)", value: -discount });
+    items.push({ label: t("quote.groupBase"), value: base });
+    items.push({ label: t("quote.groupDiscount"), value: -discount });
   } else {
     const bucket = counts.senior > 0 ? "senior" : "under70";
     base = getBracketValue(areaTable[bucket][state.selectedPlan], days, annual);
-    items.push({ label: `${state.selectedPlan} ${bucket === "senior" ? "senior" : "individual"} premium`, value: base });
+    items.push({ label: bucket === "senior" ? t("quote.seniorPremium", state.selectedPlan) : t("quote.individualPremium", state.selectedPlan), value: base });
   }
   const premiumSubtotal = base - discount;
   const stampDuty = premiumSubtotal >= 150 ? 10 : 0;
@@ -818,8 +822,8 @@ function calculateQuote() {
     cardFee,
     items: [
       ...items,
-      ...(stampDuty ? [{ label: "Stamp duty", value: stampDuty }] : []),
-      ...(cardFee ? [{ label: "Card convenience fee", value: cardFee }] : [])
+      ...(stampDuty ? [{ label: t("quote.stampDuty"), value: stampDuty }] : []),
+      ...(cardFee ? [{ label: t("quote.cardFee"), value: cardFee }] : [])
     ]
   };
 }
@@ -843,12 +847,12 @@ function openOptionalSection(sectionId) {
   if (!body || !toggle) return;
   body.hidden = false;
   toggle.setAttribute("aria-expanded", "true");
-  toggle.querySelector("em").textContent = "Hide";
+  toggle.querySelector("em").textContent = t("optional.hide");
 }
 
 function updateStickyQuoteBar() {
   getField("stickyQuotePlan").textContent = formatSelectedPlanLabel();
-  getField("stickyQuoteTravellers").textContent = `${getTotalTravellers()} traveller${getTotalTravellers() === 1 ? "" : "s"}`;
+  getField("stickyQuoteTravellers").textContent = t("quoteBar.travellers", getTotalTravellers());
   getField("stickyQuoteTotal").textContent = formatMoney(state.quote?.total || 0);
 }
 
@@ -863,79 +867,81 @@ function updatePaymentMethodTotals() {
       return;
     }
     const total = method === "billplz" ? baseTotal + getBillplzCardFee(baseTotal) : baseTotal;
-    totalNode.textContent = `Pay ${formatMoney(total)}`;
+    totalNode.textContent = `${t("pay")} ${formatMoney(total)}`;
   });
 }
 
 function buildTravellerCard(index, category) {
   const extraRole = state.policyType === "family" ? `
     <label class="field">
-      <span>Family role *</span>
+      <span>${t("travellerCard.familyRole")}</span>
       <select name="insuredRole_${index}" required>
-        <option value="">Select role</option>
-        <option value="Husband">Husband</option>
-        <option value="Wife">Wife</option>
-        <option value="Child">Child</option>
+        <option value="">${t("travellerCard.selectRole")}</option>
+        <option value="Husband">${t("travellerCard.husband")}</option>
+        <option value="Wife">${t("travellerCard.wife")}</option>
+        <option value="Child">${t("travellerCard.child")}</option>
       </select>
     </label>
   ` : "";
 
+  const alsoProposerLabel = index === 0 && !getField("buyingForSomeoneElse").checked ? t("travellerCard.alsoProposer") : "";
+
   return `
     <article class="traveller-card ${index === 0 ? "" : "is-collapsed"}" data-traveller-card="${index}">
       <div class="card-header">
-        <h5>Traveller ${index + 1}${index === 0 && !getField("buyingForSomeoneElse").checked ? " (also proposer)" : ""}</h5>
+        <h5>Traveller ${index + 1}${alsoProposerLabel}</h5>
         <div class="card-header-meta">
-          <span class="badge">${category === "senior" ? "Age 71-85" : "Aged up to 70 years old"}</span>
-          <button type="button" class="toggle-card" data-toggle-traveller="${index}">${index === 0 ? "Hide" : "Edit"}</button>
+          <span class="badge">${category === "senior" ? t("travellerCard.senior") : t("travellerCard.adult")}</span>
+          <button type="button" class="toggle-card" data-toggle-traveller="${index}">${index === 0 ? t("travellerCard.hide") : t("travellerCard.edit")}</button>
         </div>
       </div>
       <div class="traveller-card-body">
       <div class="field-grid two">
         <label class="field">
-          <span>Full Name (Follow NRIC/ Passport) *</span>
+          <span>${t("travellerCard.name")}</span>
           <input type="text" name="insuredName_${index}" required>
         </label>
         <label class="field">
-          <span>Nationality *</span>
+          <span>${t("travellerCard.nationality")}</span>
           <select name="insuredNationality_${index}" required>${nationalityOptions()}</select>
         </label>
       </div>
       <div class="field-grid two">
         <label class="field">
-          <span>NRIC/Passport *</span>
+          <span>${t("travellerCard.nric")}</span>
           <input type="text" name="insuredId_${index}" data-nric-input="${index}" required>
-          <small class="hint">For Malaysian NRIC, DOB and gender are filled automatically.</small>
+          <small class="hint">${t("insured.nricHint")}</small>
         </label>
         <label class="field">
-          <span>Date of Birth *</span>
+          <span>${t("travellerCard.dob")}</span>
           <input type="text" name="insuredDob_${index}" placeholder="YY/MM/DD" inputmode="numeric" required>
         </label>
       </div>
       <div class="field-grid three">
         <label class="field">
-          <span>Gender *</span>
+          <span>${t("travellerCard.gender")}</span>
           <select name="insuredGender_${index}" required>
-            <option value="">Select gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
+            <option value="">${t("travellerCard.genderSelect")}</option>
+            <option value="Male">${t("travellerCard.male")}</option>
+            <option value="Female">${t("travellerCard.female")}</option>
           </select>
         </label>
         <label class="field">
-          <span>Mobile Number *</span>
+          <span>${t("travellerCard.mobile")}</span>
           <input type="tel" name="insuredMobile_${index}" required>
         </label>
         <label class="field">
-          <span>Email Address *</span>
+          <span>${t("travellerCard.email")}</span>
           <input type="email" name="insuredEmail_${index}" required>
         </label>
       </div>
       <div class="field-grid ${state.policyType === "family" ? "three" : "two"}">
         <label class="field">
-          <span>Occupation *</span>
+          <span>${t("travellerCard.occupation")}</span>
           <input type="text" name="insuredOccupation_${index}" required>
         </label>
         <label class="field">
-          <span>Home Address *</span>
+          <span>${t("travellerCard.address")}</span>
           <input type="text" name="insuredAddress_${index}" required>
         </label>
         ${extraRole}
@@ -996,7 +1002,7 @@ function syncTravellerCards() {
   const counts = getTravellerCounts();
   const travellers = [...Array.from({ length: counts.under70 }, () => "under70"), ...Array.from({ length: counts.senior }, () => "senior")];
   const signature = `${travellers.join("|")}:${state.policyType}:${getField("buyingForSomeoneElse").checked}`;
-  getField("travellerSummaryText").textContent = `${travellers.length} traveller${travellers.length === 1 ? "" : "s"} to complete.`;
+  getField("travellerSummaryText").textContent = t("travellerSummary", travellers.length);
   if (signature === state.travellerSignature) return;
   state.travellerSignature = signature;
   insuredList.innerHTML = travellers.map((type, index) => buildTravellerCard(index, type)).join("");
@@ -1036,45 +1042,44 @@ function collectTravellers() {
 
 function buildNomineeCard(index) {
   const travellerNames = getTravellerDisplayNames();
-  const cardTitle = `Nominee ${index + 1}`;
   return `
     <article class="traveller-card" data-nominee-card="${index}">
       <div class="card-header">
-        <h5>${cardTitle}</h5>
-        ${index === 0 ? "" : `<button type="button" class="button button-secondary" data-remove-nominee="${index}">Remove</button>`}
+        <h5>${t("nominee.header", index + 1)}</h5>
+        ${index === 0 ? "" : `<button type="button" class="button button-secondary" data-remove-nominee="${index}">${t("nominee.remove")}</button>`}
       </div>
       <div class="field-grid two">
         <label class="field">
-          <span>Traveller *</span>
+          <span>${t("nominee.traveller")}</span>
           <select name="nomineeTraveller_${index}" required>
             ${travellerNames.map((name, travellerIndex) => `<option value="${travellerIndex}">#${travellerIndex + 1} ${name}</option>`).join("")}
           </select>
         </label>
         <label class="field">
-          <span>Nominee's Full Name *</span>
+          <span>${t("nominee.name")}</span>
           <input type="text" name="nomineeName_${index}" required>
         </label>
       </div>
       <div class="field-grid two">
         <label class="field">
-          <span>Relationship *</span>
+          <span>${t("nominee.relationship")}</span>
           <select name="nomineeRelationship_${index}" required>
-            <option value="">Select relationship</option>
+            <option value="">${t("nominee.selectRelationship")}</option>
             ${NOMINEE_RELATIONSHIPS.map((relationship) => `<option value="${relationship}">${relationship}</option>`).join("")}
           </select>
         </label>
       </div>
       <div class="field-grid three">
         <label class="field">
-          <span>NRIC/Passport *</span>
+          <span>${t("nominee.nric")}</span>
           <input type="text" name="nomineeId_${index}" required>
         </label>
         <label class="field">
-          <span>Contact Number *</span>
+          <span>${t("nominee.contact")}</span>
           <input type="tel" name="nomineeContact_${index}" required>
         </label>
         <label class="field">
-          <span>Allocation (%) *</span>
+          <span>${t("nominee.share")}</span>
           <input type="number" name="nomineeShare_${index}" min="1" max="100" value="" required>
         </label>
       </div>
@@ -1086,26 +1091,26 @@ function buildFlightCard(index) {
   return `
     <article class="traveller-card" data-flight-card="${index}">
       <div class="card-header">
-        <h5>Flight ${index + 1}</h5>
-        ${index === 0 ? "" : `<button type="button" class="button button-secondary" data-remove-flight="${index}">Remove</button>`}
+        <h5>${t("flight.header", index + 1)}</h5>
+        ${index === 0 ? "" : `<button type="button" class="button button-secondary" data-remove-flight="${index}">${t("flight.remove")}</button>`}
       </div>
       <div class="field-grid two">
         <label class="field">
-          <span>Departure Flight No</span>
+          <span>${t("flight.depFlightNo")}</span>
           <input type="text" name="departureFlightNumber_${index}">
         </label>
         <label class="field">
-          <span>Departure Date</span>
+          <span>${t("flight.depDate")}</span>
           <input type="text" name="departureFlightDate_${index}" placeholder="DD/MM/YYYY" autocomplete="off" readonly>
         </label>
       </div>
       <div class="field-grid two">
         <label class="field">
-          <span>Return Flight No</span>
+          <span>${t("flight.retFlightNo")}</span>
           <input type="text" name="arrivalFlightNumber_${index}">
         </label>
         <label class="field">
-          <span>Return Date</span>
+          <span>${t("flight.retDate")}</span>
           <input type="text" name="arrivalFlightDate_${index}" placeholder="DD/MM/YYYY" autocomplete="off" readonly>
         </label>
       </div>
@@ -1263,7 +1268,7 @@ function renderSummarySection(title, items, options = {}) {
   if (!rows.length && !options.showWhenEmpty) return "";
   const content = rows.length
     ? `<dl class="summary-list">${rows.map(([label, value]) => summaryItem(label, value)).join("")}</dl>`
-    : `<p class="review-empty">${escapeHtml(options.emptyText || "No details added.")}</p>`;
+    : `<p class="review-empty">${escapeHtml(options.emptyText || t("summary.noDetails"))}</p>`;
   return `
     <section class="review-section">
       <div class="review-section-head">
@@ -1279,9 +1284,9 @@ function renderTravellerSummary(travellers) {
     return `
       <section class="review-section">
         <div class="review-section-head">
-          <h5>Traveller Details</h5>
+          <h5>${t("summary.travellerDetails")}</h5>
         </div>
-        <p class="review-empty">Traveller details will appear here once completed.</p>
+        <p class="review-empty">${t("summary.emptyTraveller")}</p>
       </section>
     `;
   }
@@ -1289,17 +1294,17 @@ function renderTravellerSummary(travellers) {
   return `
     <section class="review-section">
       <div class="review-section-head">
-        <h5>Traveller Details</h5>
+        <h5>${t("summary.travellerDetails")}</h5>
       </div>
       <div class="review-traveller-grid">
         ${travellers.map((traveller, index) => {
           const heading = traveller.fullName || `Traveller ${index + 1}`;
           const items = [
-            ["Name", traveller.fullName],
-            ["IC / Passport", traveller.idNumber],
-            ["Mobile", traveller.mobile],
-            ["Email", traveller.email],
-            ...(state.policyType === "family" ? [["Role", traveller.category]] : [])
+            [t("summary.name"), traveller.fullName],
+            [t("summary.icPassport"), traveller.idNumber],
+            [t("summary.mobile"), traveller.mobile],
+            [t("summary.email"), traveller.email],
+            ...(state.policyType === "family" ? [[t("summary.role"), traveller.category]] : [])
           ].filter(([, value]) => value && String(value).trim() !== "");
           return `
             <article class="review-mini-card">
@@ -1320,18 +1325,18 @@ function renderFlightSummary(flights) {
   return `
     <section class="review-section">
       <div class="review-section-head">
-        <h5>Flight Details</h5>
+        <h5>${t("summary.flightDetails")}</h5>
       </div>
       <div class="review-traveller-grid">
         ${flights.map((flight, index) => `
           <article class="review-mini-card">
-            <h6>Flight ${index + 1}</h6>
+            <h6>${t("summary.flight", index + 1)}</h6>
             <dl class="summary-list compact">
               ${[
-                ["Departure Flight", flight.departureFlightNumber],
-                ["Departure Date", flight.departureDate],
-                ["Arrival Flight", flight.arrivalFlightNumber],
-                ["Arrival Date", flight.arrivalDate]
+                [t("summary.depFlight"), flight.departureFlightNumber],
+                [t("summary.depDate"), flight.departureDate],
+                [t("summary.arrFlight"), flight.arrivalFlightNumber],
+                [t("summary.arrDate"), flight.arrivalDate]
               ].filter(([, value]) => value && String(value).trim() !== "").map(([label, value]) => summaryItem(label, value)).join("")}
             </dl>
           </article>
@@ -1348,17 +1353,19 @@ function refreshQuote() {
   if (!quote) {
     getField("quoteTotal").textContent = formatMoney(0);
     getField("quoteNote").textContent = "";
-    getField("quoteMeta").textContent = "Your total updates automatically when trip details, plan, or payment method changes.";
+    getField("quoteMeta").textContent = t("quote.metaDefault");
     breakdown.innerHTML = "";
     updateStickyQuoteBar();
     updatePaymentMethodTotals();
     return;
   }
   getField("quoteTotal").textContent = formatMoney(quote.total);
-  getField("quoteNote").textContent = `${quote.days} day${quote.days > 1 ? "s" : ""} • ${AREA_LABELS[quote.area]} • ${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}`;
-  getField("quoteMeta").textContent = quote.items.some((item) => item.label.includes("Stamp duty") || item.label.includes("Card convenience fee"))
-    ? "The payable amount already includes any applicable stamp duty and payment fee shown below."
-    : "The payable amount already includes the applicable taxes shown below.";
+  const policyTypeLabel = t("policyType.pill", state.policyType).replace(/^.*[:：]\s*/, "");
+  getField("quoteNote").textContent = t("quote.noteFormat", t("quote.days", quote.days), AREA_LABELS[quote.area], policyTypeLabel);
+  const hasStampOrCard = quote.stampDuty > 0 || quote.cardFee > 0;
+  getField("quoteMeta").textContent = hasStampOrCard
+    ? t("quote.metaTaxStamp")
+    : t("quote.metaTaxOnly");
   breakdown.innerHTML = quote.items.map((item) => `<div><dt>${item.label}</dt><dd>${item.value < 0 ? "-" : ""}${formatMoney(Math.abs(item.value))}</dd></div>`).join("");
   updateStickyQuoteBar();
   updatePaymentMethodTotals();
@@ -1376,21 +1383,23 @@ function populateSummary() {
     ? formatDate(addDays(parseDate(getField("departureDate").value), 364))
     : getField("returnDate").value;
 
+  const policyTypeDisplay = t("policyType.pill", state.policyType).replace(/^.*[:：]\s*/, "");
+  const planDisplay = `${state.selectedPlan[0].toUpperCase()}${state.selectedPlan.slice(1)}`;
   summaryList.innerHTML = [
-    renderSummarySection("Trip & Cover", [
-      ["Insurance Type", getField("insuranceType").value === "annual" ? "Annual" : "Single Trip"],
-      ["Area", AREA_LABELS[state.quote.area]],
-      ["Destination", getField("destination").value.trim()],
-      ["Policy Type", `${state.policyType[0].toUpperCase()}${state.policyType.slice(1)}`],
-      ["Plan Selected", `${state.selectedPlan[0].toUpperCase()}${state.selectedPlan.slice(1)}`],
-      ["No. of Travellers", String(getTotalTravellers())],
-      ["Travel Period", `${getField("departureDate").value} to ${returnDate}`]
+    renderSummarySection(t("summary.tripCover"), [
+      [t("summary.insuranceType"), getField("insuranceType").value === "annual" ? t("insuranceType.annualLabel") : t("insuranceType.singleLabel")],
+      [t("summary.area"), AREA_LABELS[state.quote.area]],
+      [t("summary.destination"), getField("destination").value.trim()],
+      [t("summary.policyType"), policyTypeDisplay],
+      [t("summary.plan"), planDisplay],
+      [t("summary.numTravellers"), String(getTotalTravellers())],
+      [t("summary.travelPeriod"), `${getField("departureDate").value} to ${returnDate}`]
     ]),
-    renderSummarySection("Contact Details", [
-      ["Name", proposer.name],
-      ["Mobile", proposer.mobile],
-      ["Email", proposer.email],
-      ["Address", proposer.address]
+    renderSummarySection(t("summary.contactDetails"), [
+      [t("summary.name"), proposer.name],
+      [t("summary.mobile"), proposer.mobile],
+      [t("summary.email"), proposer.email],
+      [t("summary.address"), proposer.address]
     ]),
     renderTravellerSummary(travellers),
     renderFlightSummary(flights)
@@ -1400,7 +1409,7 @@ function populateSummary() {
 }
 
 function setPaymentContent() {
-  paymentDetailBox.innerHTML = PAYMENT_CONTENT[document.querySelector('input[name="paymentMethod"]:checked').value];
+  paymentDetailBox.innerHTML = getPaymentContent(document.querySelector('input[name="paymentMethod"]:checked').value);
   populateSummary();
 }
 
@@ -1449,25 +1458,25 @@ function validateStep(step) {
   if (step === 1) {
     ["travelDates", "policyType", "selectedPlan"].forEach(clearError);
     if (!departureDate) {
-      showError("travelDates", "Select your travel dates or policy start date.");
+      showError("travelDates", t("error.selectDates"));
       valid = false;
     }
     if (departureDate && departureDate < today) {
-      showError("travelDates", "Backdating is not allowed.");
+      showError("travelDates", t("error.backdate"));
       valid = false;
     }
     if (departureDate) {
       const twentyFourMonths = new Date(today);
       twentyFourMonths.setMonth(twentyFourMonths.getMonth() + 24);
       if (departureDate > twentyFourMonths) {
-        showError("travelDates", "Inception date cannot be more than 24 months from today.");
+        showError("travelDates", t("error.tooFarAhead"));
         valid = false;
       }
       if (getField("insuranceType").value === "annual") {
         const sixMonths = new Date(today);
         sixMonths.setMonth(sixMonths.getMonth() + 6);
         if (departureDate > sixMonths) {
-          showError("travelDates", "Annual plan cannot be issued more than 6 months in advance.");
+          showError("travelDates", t("error.annualTooFar"));
           valid = false;
         }
       }
@@ -1475,23 +1484,23 @@ function validateStep(step) {
     if (getField("insuranceType").value === "single") {
       const days = getTripDays();
       if (!returnDate || !departureDate || returnDate <= departureDate) {
-        showError("travelDates", "Select both departure and return dates in the same calendar.");
+        showError("travelDates", t("error.singleTripDates"));
         valid = false;
       } else if (days > 180) {
-        showError("travelDates", "Single trip maximum cover is 180 days.");
+        showError("travelDates", t("error.maxDays"));
         valid = false;
       }
     }
     if (total === 0 || total > 20) {
-      showError("policyType", "Traveller count must be between 1 and 20.");
+      showError("policyType", t("error.travellerCount"));
       valid = false;
     }
     if (!state.quote) {
-      showError("selectedPlan", "Quote could not be calculated.");
+      showError("selectedPlan", t("error.quoteCalc"));
       valid = false;
     }
     if (!valid) {
-      setLogicAlert("Please complete the travel details correctly before continuing.");
+      setLogicAlert(t("error.travelDetails"));
     }
   }
 
@@ -1511,16 +1520,16 @@ function validateStep(step) {
     });
     if (travellerIncomplete) {
       insuredList.closest(".subsection")?.classList.add("has-error");
-      showError("insuredList", "Complete all required traveller details before continuing.");
+      showError("insuredList", t("error.travellerIncomplete"));
     }
     if (!validateFamilyRoles(travellers)) {
-      showError("selectedPlan", "Family must contain exactly one Husband, one Wife and any number of Children.");
+      showError("selectedPlan", t("error.familyRoles"));
       valid = false;
     }
     if (getField("buyingForSomeoneElse").checked) {
       ["proposerName", "proposerMobile", "proposerEmail", "proposerOccupation", "proposerAddress"].forEach((id) => {
         if (!getField(id).value.trim()) {
-          showError(id, "This field is required.");
+          showError(id, t("error.requiredField"));
           valid = false;
         }
       });
@@ -1531,13 +1540,13 @@ function validateStep(step) {
     flights.forEach((flight) => {
       if (!flight.departureFlightNumber || !flight.departureDate || !flight.arrivalFlightNumber || !flight.arrivalDate) {
         openOptionalSection("flightSectionBody");
-        showError("flights", "Complete all flight fields for each added flight.");
+        showError("flights", t("error.flightComplete"));
         valid = false;
         return;
       }
       if (!parseDate(flight.departureDate) || !parseDate(flight.arrivalDate)) {
         openOptionalSection("flightSectionBody");
-        showError("flights", "Use valid flight dates in DD/MM/YYYY format.");
+        showError("flights", t("error.flightDates"));
         valid = false;
       }
     });
@@ -1547,7 +1556,7 @@ function validateStep(step) {
     nominees.forEach((nominee) => {
       if (!nominee.name || !nominee.relationship || !nominee.idNumber || !nominee.contact || !nominee.share) {
         openOptionalSection("nomineeSectionBody");
-        showError("nominees", "Complete all nominee fields for each nominee card.");
+        showError("nominees", t("error.nomineeComplete"));
         valid = false;
       }
     });
@@ -1559,12 +1568,12 @@ function validateStep(step) {
     nomineeTotals.forEach((totalShare) => {
       if (totalShare !== 100) {
         openOptionalSection("nomineeSectionBody");
-        showError("nominees", "Each traveller's nominee allocation must total exactly 100%.");
+        showError("nominees", t("error.nomineeTotal"));
         valid = false;
       }
     });
     if (!valid) {
-      setLogicAlert("Some required details still need attention before you can continue.");
+      setLogicAlert(t("error.detailsIncomplete"));
     }
   }
 
@@ -1573,11 +1582,11 @@ function validateStep(step) {
     clearError("consent");
     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
     if (!getField("consent").checked) {
-      showError("consent", "Consent is required before submit.");
+      showError("consent", t("error.consent"));
       valid = false;
     }
     if (!valid) {
-      setLogicAlert("Please resolve the highlighted confirmation issues before submitting.");
+      setLogicAlert(t("error.confirmIssues"));
     }
   }
 
@@ -1610,7 +1619,7 @@ async function submitForm(event) {
 
   const submitButton = getField("submitButton");
   submitButton.disabled = true;
-  submitButton.textContent = "Submitting...";
+  submitButton.textContent = t("submitting");
 
   const travellers = collectTravellers();
   const proposer = getProposerData(travellers);
@@ -1670,14 +1679,14 @@ async function submitForm(event) {
     showError("consent", error.message);
   } finally {
     submitButton.disabled = false;
-    submitButton.textContent = "Submit application";
+    submitButton.textContent = t("submit");
   }
 }
 
 function refreshVisibility() {
   const isAnnual = getField("insuranceType").value === "annual";
-  getField("travelDatesLabel").textContent = isAnnual ? "Policy Start Date *" : "Travel Dates *";
-  getField("travelDates").placeholder = isAnnual ? "DD/MM/YYYY" : "DD/MM/YYYY to DD/MM/YYYY";
+  getField("travelDatesLabel").textContent = isAnnual ? t("travelDates.labelAnnual") : t("travelDates.label");
+  getField("travelDates").placeholder = isAnnual ? t("travelDates.placeholderAnnual") : t("travelDates.placeholder");
   getField("proposerSection").hidden = !getField("buyingForSomeoneElse").checked;
   if (isAnnual) {
     getField("returnDate").value = "";
@@ -1723,7 +1732,7 @@ function bindOptionalSections() {
       }
       body.hidden = expanded;
       button.setAttribute("aria-expanded", expanded ? "false" : "true");
-      button.querySelector("em").textContent = expanded ? "Add" : "Hide";
+      button.querySelector("em").textContent = expanded ? t("optional.add") : t("optional.hide");
     });
   });
 }
@@ -1859,3 +1868,24 @@ setPaymentContent();
 bindOptionalSections();
 renderMarketingPlanCards();
 restoreDraft();
+
+/* Re-render dynamic UI whenever the user switches language */
+document.addEventListener("languagechange", () => {
+  refreshVisibility();
+  setPaymentContent();
+  renderMarketingPlanCards();
+  updateStickyQuoteBar();
+  updatePaymentMethodTotals();
+  refreshQuote();
+  populateSummary();
+  /* Re-label optional section toggles that are currently visible */
+  document.querySelectorAll("[data-toggle-optional]").forEach((button) => {
+    const expanded = button.getAttribute("aria-expanded") === "true";
+    button.querySelector("em").textContent = expanded ? t("optional.hide") : t("optional.add");
+  });
+  /* Re-label submit button */
+  const submitButton = getField("submitButton");
+  if (submitButton && !submitButton.disabled) {
+    submitButton.textContent = t("submit");
+  }
+});
