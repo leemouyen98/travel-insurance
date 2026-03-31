@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Travel Insurance">
-  <rect width="64" height="64" rx="16" fill="#08254d"/>
-  <path d="M18 41h28v5H18z" fill="#0cc1cf"/>
-  <path d="M21 38l11-19 11 19h-7l-4-7-4 7z" fill="#fbfaf7"/>
-  <circle cx="46" cy="20" r="6" fill="#d7b24c"/>
-</svg>
