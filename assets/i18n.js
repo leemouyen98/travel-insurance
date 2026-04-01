@@ -12,24 +12,32 @@
   const style = document.createElement('style');
   style.textContent = `
     .lang-toggle {
-      background: none;
-      border: 1.5px solid currentColor;
-      border-radius: 6px;
-      padding: 5px 11px;
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(16, 18, 20, 0.08);
+      backdrop-filter: blur(20px);
+      border-radius: 999px;
+      padding: 0.88rem 1.2rem;
       cursor: pointer;
       font-family: inherit;
-      font-size: 0.82rem;
-      color: inherit;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #101214;
       letter-spacing: 0.03em;
       display: flex;
       align-items: center;
       gap: 5px;
-      opacity: 0.65;
-      transition: opacity 0.15s;
-      flex-shrink: 0;
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
+      transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
     }
-    .lang-toggle:hover { opacity: 1; }
-    .lang-toggle .lang-active { font-weight: 700; opacity: 1; }
+    .lang-toggle:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+    }
+    .lang-toggle .lang-active { font-weight: 800; }
     .lang-toggle .lang-sep { opacity: 0.35; }
   `;
   document.head.appendChild(style);
@@ -856,8 +864,7 @@
   currentLang = detectLang();
 
   function injectToggle() {
-    var actions = document.querySelector('.topbar-actions');
-    if (!actions || document.getElementById('langToggle')) return;
+    if (document.getElementById('langToggle')) return;
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.id = 'langToggle';
@@ -869,7 +876,7 @@
     btn.addEventListener('click', function () {
       setLanguage(currentLang === 'en' ? 'zh' : 'en');
     });
-    actions.insertBefore(btn, actions.firstChild);
+    document.body.appendChild(btn);
   }
 
   function init() {
