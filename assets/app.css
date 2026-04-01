@@ -1626,7 +1626,8 @@ textarea {
 
   .hero-text {
     max-width: none;
-    font-size: 0.92rem;
+    font-size: 1.05rem;
+    line-height: 1.65;
   }
 
   .hero-actions {
@@ -1640,8 +1641,8 @@ textarea {
   .hero-actions .button {
     width: auto;
     text-align: center;
-    padding: 0.82rem 0.9rem;
-    font-size: 0.88rem;
+    padding: 0.88rem 0.9rem;
+    font-size: 0.95rem;
   }
 
   .coverage-showcase {
@@ -1655,7 +1656,7 @@ textarea {
 
   .coverage-copy-card .section-copy,
   .coverage-selected-card p {
-    font-size: 0.98rem;
+    font-size: 1.02rem;
     line-height: 1.72;
   }
 
@@ -1675,7 +1676,7 @@ textarea {
   }
 
   .coverage-head h3 {
-    font-size: 0.92rem;
+    font-size: 1rem;
   }
 
   .coverage-tag {
@@ -1689,7 +1690,8 @@ textarea {
   }
 
   .section-copy {
-    font-size: 0.9rem;
+    font-size: 1rem;
+    line-height: 1.68;
   }
 
   .coverage-body,
@@ -1713,7 +1715,7 @@ textarea {
 
   .summary-list dd {
     text-align: right;
-    font-size: 0.88rem;
+    font-size: 0.92rem;
   }
 
   .summary-total {
@@ -1767,12 +1769,12 @@ textarea {
 
   .coverage-price {
     margin-bottom: 0.55rem;
-    font-size: 1.12rem;
+    font-size: 1.2rem;
   }
 
   .coverage-list {
     gap: 0.38rem;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
   }
 
   .coverage-list div {
@@ -1785,7 +1787,7 @@ textarea {
   }
 
   .step {
-    font-size: 0.76rem;
+    font-size: 0.82rem;
     padding: 0.58rem 0.7rem;
   }
 
@@ -1799,14 +1801,14 @@ textarea {
   }
 
   .form-section-head h3 {
-    font-size: 1.25rem;
+    font-size: 1.45rem;
   }
 
   .field input,
   .field select,
   .field textarea,
   .choice span {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 
   .area-grid .choice span {
@@ -1822,6 +1824,6 @@ textarea {
   .area-guidance small,
   .plan-guidance ul,
   .feature-list {
-    font-size: 0.78rem;
+    font-size: 0.875rem;
   }
 }
