@@ -95,6 +95,21 @@
   </header>
 
   <main>
+    <section class="section section-video shell" id="productVideo">
+      <div class="video-facade" id="videoFacade" role="button" tabindex="0" aria-label="Play: All-New Tokio Marine Explorer">
+        <img class="video-thumb" src="https://img.youtube.com/vi/Rrm4uBH7mvk/maxresdefault.jpg" alt="All-New Tokio Marine Explorer" loading="lazy">
+        <div class="video-play">
+          <div class="video-play-btn" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="video-meta">
+          <p class="mini-label">Product Overview</p>
+          <strong>All-New Tokio Marine Explorer</strong>
+        </div>
+      </div>
+    </section>
+
     <section class="section shell section-quiet" id="coverageSummary">
       <div class="section-head compact">
         <p class="eyebrow" data-i18n="coverage.eyebrow">Coverage Summary</p>
@@ -559,5 +574,25 @@
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script type="module" src="/assets/app.js"></script>
+  <script>
+    (function () {
+      var facade = document.getElementById('videoFacade');
+      if (!facade) return;
+      function activate() {
+        var iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube.com/embed/Rrm4uBH7mvk?autoplay=1&rel=0&modestbranding=1';
+        iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+        iframe.allowFullscreen = true;
+        iframe.title = 'All-New Tokio Marine Explorer';
+        facade.innerHTML = '';
+        facade.style.cursor = 'default';
+        facade.appendChild(iframe);
+      }
+      facade.addEventListener('click', activate);
+      facade.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+      });
+    })();
+  </script>
 </body>
 </html>

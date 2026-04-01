@@ -1483,6 +1483,100 @@ textarea {
   line-height: 1.65;
 }
 
+/* ---- Video Section ---- */
+.section-video {
+  padding-top: 0;
+}
+
+.video-facade {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 30px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #08254d;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.09);
+}
+
+.video-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms ease, filter 500ms ease;
+}
+
+.video-facade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(8, 37, 77, 0.55) 0%, rgba(8, 37, 77, 0.1) 40%, transparent 70%);
+  pointer-events: none;
+}
+
+.video-facade:hover .video-thumb {
+  transform: scale(1.02);
+  filter: brightness(0.88);
+}
+
+.video-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.video-play-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #08254d;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.22);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.video-facade:hover .video-play-btn {
+  transform: scale(1.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.video-meta {
+  position: absolute;
+  bottom: 1.4rem;
+  left: 1.6rem;
+  z-index: 1;
+  color: white;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.video-meta .mini-label {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.video-meta strong {
+  font-size: 1.15rem;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+.video-facade iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 @media (max-width: 1080px) {
   .hero-layout {
     grid-template-columns: 1fr;
@@ -1825,5 +1919,23 @@ textarea {
   .plan-guidance ul,
   .feature-list {
     font-size: 0.875rem;
+  }
+
+  .video-facade {
+    border-radius: 22px;
+  }
+
+  .video-play-btn {
+    width: 52px;
+    height: 52px;
+  }
+
+  .video-meta {
+    bottom: 1rem;
+    left: 1rem;
+  }
+
+  .video-meta strong {
+    font-size: 1rem;
   }
 }
