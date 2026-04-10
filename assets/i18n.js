@@ -52,33 +52,33 @@
     ====================================================== */
     en: {
       /* Navigation */
-      'nav.brand.title': 'Online Intake Form',
+      'nav.brand.title': 'Travel Insurance Form',
       'nav.brand.subtitle': 'By Henry Lee',
       'nav.startQuote': 'Start Quote',
 
       /* Hero */
-      'hero.headline': 'Travel With Confidence, Wherever You Go',
-      'hero.subtext': 'Get your premium instantly, compare the right plan, and submit everything in one calm, guided flow.',
-      'hero.step1': '1. Pick Your Trip',
-      'hero.step2': '2. Choose Your Plan',
-      'hero.step3': '3. Submit With Confidence',
+      'hero.headline': 'Sort Out Your Travel Insurance Before You Go',
+      'hero.subtext': 'Check the premium, pick a plan, and send your details in one go.',
+      'hero.step1': '1. Enter Trip Details',
+      'hero.step2': '2. Pick a Plan',
+      'hero.step3': '3. Review and Submit',
       'hero.startApplication': 'Start Application',
       'hero.comparePlans': 'Compare Plans',
 
       /* Hero panel */
       'hero.allNew': 'All-New',
-      'hero.cfar': 'Now comes with CFAR on Deluxe',
-      'hero.cfarDesc': 'Best-in-Class Cancellation for Any Reasons (CFAR) Coverage',
+      'hero.cfar': 'Deluxe now includes CFAR',
+      'hero.cfarDesc': 'Cancellation for Any Reason cover before departure',
       'hero.cashless': 'Cashless Overseas Hospital Admission',
       'hero.mastercard': 'Complimentary Mastercard®\u202fFlight Delay Pass',
-      'hero.groupDiscount': '5% Group Discount for all Group Travellers',
-      'hero.covid': 'Comprehensive COVID-19 Coverage at No Extra Cost',
+      'hero.groupDiscount': '5% group discount',
+      'hero.covid': 'COVID-19 cover at no extra cost',
 
       /* Coverage section */
       'coverage.eyebrow': 'Coverage Summary',
       'coverage.h2': "What's Covered?",
-      'coverage.sectionCopy': 'Tap a plan to select it before you start the application.',
-      'coverage.introCopy': "Whether you're exploring new destinations or revisiting favourite spots anywhere in the world, our comprehensive coverage ensures you're protected every step of the way.",
+      'coverage.sectionCopy': "Pick a plan here and it'll carry into the form below.",
+      'coverage.introCopy': "If you're not sure where to start, Essential is the middle-ground pick. Basic keeps the premium lower, while Deluxe gives you stronger cover and CFAR.",
       'coverage.currentlySelected': 'Currently selected',
       'coverage.continueWithPlan': 'Continue With This Plan',
 
@@ -98,8 +98,8 @@
 
       /* Application section */
       'app.eyebrow': 'Apply Online',
-      'app.h2': 'Get Covered in Minutes',
-      'app.sectionCopy': 'A guided three-step application that keeps the important information clear and the rest out of the way.',
+      'app.h2': 'Apply in a Few Minutes',
+      'app.sectionCopy': "Three short steps. We'll work out the premium as you go.",
 
       /* Quote bar */
       'quoteBar.label': 'Current Quote',
@@ -114,7 +114,7 @@
 
       /* Step 1 form */
       's1.h3': 'Travel Details',
-      's1.desc': 'Start with travel dates, destination area and who will be covered. You can review everything before submit.',
+      's1.desc': 'Start with the trip dates, destination, and number of travellers. You can review everything before sending it in.',
       'insuranceType.label': 'Insurance Type *',
       'insuranceType.single': 'Single Trip',
       'insuranceType.annual': 'Annual',
@@ -150,16 +150,16 @@
       'eligibility.maxBenefitDesc': 'For Family plans, the maximum benefit amount per family is 3 times of the individual limits stated in the Table of Coverages.',
 
       'quote.label': 'Estimated Premium',
-      'quote.metaDefault': 'Your total updates automatically when trip details, plan, or payment method changes.',
+      'quote.metaDefault': 'Your total updates automatically when you change the trip, plan, or payment method.',
       'quote.metaTaxStamp': 'The payable amount already includes any applicable stamp duty and payment fee shown below.',
       'quote.metaTaxOnly': 'The payable amount already includes the applicable taxes shown below.',
       'continue': 'Continue',
 
       /* Step 2 */
       's2.h3': 'Choose Plan',
-      's2.desc': 'Choose the plan and complete the traveller details.',
+      's2.desc': 'Pick the plan that fits, then fill in the traveller details.',
       'planSelect.label': 'Plan selection *',
-      'planSelect.hint': 'Essential is pre-selected so clients can move forward faster.',
+      'planSelect.hint': "We start with Essential selected because it's the most common choice.",
       'buyingForSomeoneElse': 'Buying for Someone Else?',
 
       'proposer.h4': 'Proposer Details',
@@ -237,9 +237,9 @@
 
       /* Step 3 */
       's3.h3': 'Confirm & Pay',
-      's3.desc': 'Check the premium, choose how to pay, and submit when ready. Most clients finish this in about 2 minutes.',
+      's3.desc': "Check the premium, choose how you'd like to pay, and submit when ready. It usually takes about 2 minutes.",
       'review.h4': 'Review Your Details',
-      'review.desc': 'Double-check the trip and contact details before payment. Nominee and bank details are not shown here.',
+      'review.desc': 'Give the trip and contact details one last look before payment. Nominee and bank details are left out here.',
       'review.editDetails': 'Edit details',
       'payment.h4': 'Choose Payment Method',
       'duitnow.small': 'Scan the QR shared by Henry',
@@ -268,27 +268,27 @@
       /* Success screen */
       'success.eyebrow': 'Submission sent',
       'success.h3': 'Submission received.',
-      'success.desc': 'The application details have been sent to Henry for review and follow-up.',
+      'success.desc': "Your details have been sent to Henry. He'll review them and follow up.",
       'success.nextSteps': 'What Happens Next',
-      'success.step1': 'Henry reviews the travel information and premium details',
-      'success.step2': 'If payment proof is included, it will be checked before policy follow-up',
-      'success.step3': 'If anything needs correction, clients can WhatsApp Henry directly',
+      'success.step1': 'Henry checks the trip details and premium',
+      'success.step2': "If you uploaded payment proof, he'll verify it before the next step",
+      'success.step3': 'If anything needs fixing, you can message Henry on WhatsApp',
       'success.startNew': 'Start Another Submission',
       'success.whatsapp': 'WhatsApp Henry',
 
       /* Footer */
-      'footer.title': 'Travel Insurance Intake',
-      'footer.desc': 'This is a custom online intake flow for Henry Lee and not an official Tokio Marine issuance portal.',
+      'footer.title': 'Travel Insurance Form',
+      'footer.desc': "This form is managed by Henry Lee. It is not Tokio Marine's official policy portal.",
 
       /* Dynamic — plan choices */
       'plan.basic.label': 'Basic',
       'plan.essential.label': 'Essential',
       'plan.deluxe.label': 'Deluxe',
       'plan.domestic.label': 'Domestic',
-      'plan.basic.note': 'Entry tier Explorer cover.',
-      'plan.essential.note': 'Recommended balance of cover.',
-      'plan.deluxe.note': 'Highest benefits and CFAR.',
-      'plan.domestic.note': 'Malaysia only accidents-only cover.',
+      'plan.basic.note': 'Basic Explorer cover.',
+      'plan.essential.note': 'Best balance of cover and price.',
+      'plan.deluxe.note': 'Highest cover with CFAR.',
+      'plan.domestic.note': 'For trips within Malaysia only.',
 
       /* Dynamic — policy options */
       'policy.individual.label': 'Individual',
@@ -310,19 +310,19 @@
       'area.domestic.detail': 'Within Malaysia.',
 
       /* Dynamic — plan guidance */
-      'plan.basic.summary': 'A lower-premium option for travellers who want core Explorer protection.',
+      'plan.basic.summary': 'A lower-cost option if you mainly want the core cover.',
       'plan.basic.bullet1': 'Lower starting premium',
       'plan.basic.bullet2': 'Core medical and travel inconvenience benefits',
       'plan.basic.bullet3': 'No lounge access or CFAR',
-      'plan.essential.summary': 'The easiest recommendation for most clients because it balances price and protection well.',
+      'plan.essential.summary': 'A solid middle-ground plan for most trips.',
       'plan.essential.bullet1': 'Most popular option',
       'plan.essential.bullet2': 'Includes lounge access on qualifying delays',
       'plan.essential.bullet3': 'Higher limits than Basic',
-      'plan.deluxe.summary': 'Best for clients who want the strongest cover and the most flexibility before departure.',
+      'plan.deluxe.summary': 'Best if you want fuller cover and CFAR before departure.',
       'plan.deluxe.bullet1': 'Highest protection level',
       'plan.deluxe.bullet2': 'Includes lounge access',
       'plan.deluxe.bullet3': 'Includes CFAR, subject to policy wording',
-      'plan.domestic.summary': 'For Malaysia-only trips with domestic cover logic and pricing.',
+      'plan.domestic.summary': 'For trips within Malaysia only.',
       'plan.domestic.bullet1': 'For travel within Malaysia',
       'plan.domestic.bullet2': 'Domestic rating applies',
       'plan.domestic.bullet3': 'Medical illness cover does not apply like international plans',
@@ -408,10 +408,10 @@
       'error.confirmIssues': 'Please resolve the highlighted confirmation issues before submitting.',
 
       /* Payment content HTML */
-      'paymentContent.duitnow': "<strong>DuitNow QR</strong><p>Scan Henry's QR and upload the payment screenshot before submit. Henry can verify and follow up faster when the slip is included.</p><img src=\"/duitnow-qr.png\" alt=\"DuitNow QR\">",
-      'paymentContent.tng': "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>. Upload the payment screenshot once done.</p>",
-      'paymentContent.bank': "<strong>RHB Bank Transfer</strong><p>Account name <b>LEE MOU YEN</b><br>Account number <b>1040 2700 307120</b><br>Include the payment slip to speed up follow-up.</p>",
-      'paymentContent.billplz': "<strong>Billplz card request</strong><p>Henry will send the payment link after submission. A 2% card convenience fee applies and no payment slip is needed at this stage.</p>",
+      'paymentContent.duitnow': "<strong>DuitNow QR</strong><p>Scan Henry's QR and upload the payment screenshot before you submit. It helps him verify the payment faster.</p><img src=\"/duitnow-qr.png\" alt=\"DuitNow QR\">",
+      'paymentContent.tng': "<strong>Touch 'n Go</strong><p>Transfer to <b>LEE MOU YEN</b> at <b>012 612 3540</b>. Upload the payment screenshot after payment.</p>",
+      'paymentContent.bank': "<strong>RHB Bank Transfer</strong><p>Account name <b>LEE MOU YEN</b><br>Account number <b>1040 2700 307120</b><br>Please include the payment slip so Henry can follow up faster.</p>",
+      'paymentContent.billplz': "<strong>Billplz card request</strong><p>Henry will send you the payment link after you submit. A 2% card fee applies, and no payment slip is needed at this stage.</p>",
     },
 
     /* ======================================================
@@ -419,33 +419,33 @@
     ====================================================== */
     zh: {
       /* Navigation */
-      'nav.brand.title': '网上投保表格',
+      'nav.brand.title': '旅游保险表格',
       'nav.brand.subtitle': 'Henry Lee 专属',
       'nav.startQuote': '立即报价',
 
       /* Hero */
-      'hero.headline': '出行无忧，随时随地有保障',
-      'hero.subtext': '即时获取保费报价，比较合适方案，轻松完成整个投保流程。',
-      'hero.step1': '1. 填写行程',
+      'hero.headline': '先把旅游保险办好，再安心出发',
+      'hero.subtext': '先看保费，再选方案，然后一次过提交资料。',
+      'hero.step1': '1. 填写行程资料',
       'hero.step2': '2. 选择方案',
-      'hero.step3': '3. 安心提交',
+      'hero.step3': '3. 核对后提交',
       'hero.startApplication': '开始投保',
       'hero.comparePlans': '比较方案',
 
       /* Hero panel */
       'hero.allNew': '全新',
-      'hero.cfar': 'Deluxe 方案新增 CFAR 保障',
-      'hero.cfarDesc': '同类最佳意外取消（CFAR）保障覆盖范围',
+      'hero.cfar': 'Deluxe 现已包含 CFAR',
+      'hero.cfarDesc': '出发前可享 CFAR 取消保障',
       'hero.cashless': '海外住院免付现金',
       'hero.mastercard': '免费 Mastercard® 航班延误贵宾室通行证',
-      'hero.groupDiscount': '团体旅客享有 5% 团体折扣',
-      'hero.covid': '全面 COVID-19 保障，无需额外付费',
+      'hero.groupDiscount': '团体旅客享 5% 折扣',
+      'hero.covid': 'COVID-19 保障无需额外付费',
 
       /* Coverage section */
       'coverage.eyebrow': '保障摘要',
       'coverage.h2': '保障内容',
-      'coverage.sectionCopy': '选择方案后再开始填写投保资料。',
-      'coverage.introCopy': '无论您是探索新目的地还是重游心水旅游地，我们的全面保障确保您全程得到周全保护。',
+      'coverage.sectionCopy': '先在这里选方案，下面表格会自动带入。',
+      'coverage.introCopy': '如果您还没决定，Essential 通常最均衡。Basic 保费较低，Deluxe 则有更高保障和 CFAR。',
       'coverage.currentlySelected': '已选方案',
       'coverage.continueWithPlan': '以此方案继续',
 
@@ -465,8 +465,8 @@
 
       /* Application section */
       'app.eyebrow': '网上投保',
-      'app.h2': '数分钟内完成投保',
-      'app.sectionCopy': '三步引导式投保，让您专注于旅行本身，其余交给我们。',
+      'app.h2': '几分钟内完成投保',
+      'app.sectionCopy': '全程只有三步，保费也会边填边更新。',
 
       /* Quote bar */
       'quoteBar.label': '当前报价',
@@ -481,7 +481,7 @@
 
       /* Step 1 form */
       's1.h3': '行程资料',
-      's1.desc': '填写旅行日期、目的地及受保人数。提交前可再次确认。',
+      's1.desc': '先填写日期、目的地和旅行人数，提交前还可以再检查一次。',
       'insuranceType.label': '保险类型 *',
       'insuranceType.single': '单次行程',
       'insuranceType.annual': '全年计划',
@@ -517,16 +517,16 @@
       'eligibility.maxBenefitDesc': '家庭计划的每个家庭最高保障金额为个人限额的3倍。',
 
       'quote.label': '预估保费',
-      'quote.metaDefault': '行程、方案或付款方式变更时，金额将自动更新。',
+      'quote.metaDefault': '行程、方案或付款方式一改，金额会自动更新。',
       'quote.metaTaxStamp': '应付金额已包含适用的印花税及付款手续费。',
       'quote.metaTaxOnly': '应付金额已包含适用税项。',
       'continue': '继续',
 
       /* Step 2 */
       's2.h3': '选择方案',
-      's2.desc': '选择方案并填写旅行者资料。',
+      's2.desc': '先选合适方案，再填写旅行者资料。',
       'planSelect.label': '方案选择 *',
-      'planSelect.hint': 'Essential 方案已预先选定，方便快速继续。',
+      'planSelect.hint': '预设为 Essential，因为这是最多人选择的方案。',
       'buyingForSomeoneElse': '代他人投保？',
 
       'proposer.h4': '投保人资料',
@@ -604,9 +604,9 @@
 
       /* Step 3 */
       's3.h3': '确认与付款',
-      's3.desc': '核对保费，选择付款方式，准备好后提交。大多数客户约2分钟内完成。',
+      's3.desc': '确认保费、选择付款方式，准备好就能提交，通常约 2 分钟可完成。',
       'review.h4': '核对您的资料',
-      'review.desc': '付款前请再次确认行程与联系资料。受益人及银行资料不显示于此。',
+      'review.desc': '付款前再看一次行程和联系资料。这里不会显示受益人和银行资料。',
       'review.editDetails': '修改资料',
       'payment.h4': '选择付款方式',
       'duitnow.small': '扫描 Henry 分享的 QR 码',
@@ -635,27 +635,27 @@
       /* Success screen */
       'success.eyebrow': '提交成功',
       'success.h3': '申请已收到。',
-      'success.desc': '投保资料已发送给 Henry，他将跟进处理。',
+      'success.desc': '资料已发送给 Henry，他会查看后再跟进。',
       'success.nextSteps': '接下来的步骤',
-      'success.step1': 'Henry 将核对行程资料及保费详情',
-      'success.step2': '如已附上付款收据，将在保单跟进前进行核实',
-      'success.step3': '如有任何资料需要更正，客户可直接 WhatsApp Henry',
+      'success.step1': 'Henry 会检查行程资料和保费',
+      'success.step2': '如果您已上传付款收据，他会先核实再继续处理',
+      'success.step3': '如果有资料要修改，可直接 WhatsApp Henry',
       'success.startNew': '重新提交',
       'success.whatsapp': 'WhatsApp Henry',
 
       /* Footer */
-      'footer.title': '旅游保险投保表格',
-      'footer.desc': '这是专为 Henry Lee 设计的网上投保流程，并非 Tokio Marine 的官方投保平台。',
+      'footer.title': '旅游保险表格',
+      'footer.desc': '此表格由 Henry Lee 处理，并非 Tokio Marine 官方投保平台。',
 
       /* Dynamic — plan choices */
       'plan.basic.label': 'Basic',
       'plan.essential.label': 'Essential',
       'plan.deluxe.label': 'Deluxe',
       'plan.domestic.label': '国内',
-      'plan.basic.note': '基础 Explorer 保障。',
-      'plan.essential.note': '推荐方案，保障与价格兼顾。',
-      'plan.deluxe.note': '最高保障及 CFAR。',
-      'plan.domestic.note': '马来西亚境内意外保障。',
+      'plan.basic.note': '基础保障，保费较低。',
+      'plan.essential.note': '保障和保费较平衡。',
+      'plan.deluxe.note': '保障最高，并包含 CFAR。',
+      'plan.domestic.note': '仅限马来西亚境内旅行。',
 
       /* Dynamic — policy options */
       'policy.individual.label': '个人',
@@ -677,19 +677,19 @@
       'area.domestic.detail': '马来西亚境内。',
 
       /* Dynamic — plan guidance */
-      'plan.basic.summary': '适合只需基本 Explorer 保障的旅客，保费较低。',
+      'plan.basic.summary': '适合想先买好基本保障的旅客，保费也较低。',
       'plan.basic.bullet1': '较低起始保费',
       'plan.basic.bullet2': '涵盖基本医疗及旅行不便保障',
       'plan.basic.bullet3': '不含贵宾室使用权及 CFAR',
-      'plan.essential.summary': '大多数旅客的首选，兼顾价格与保障。',
+      'plan.essential.summary': '大多数旅客都会先看这个，保障和价格比较平衡。',
       'plan.essential.bullet1': '最受欢迎方案',
       'plan.essential.bullet2': '航班延误可享贵宾室',
       'plan.essential.bullet3': '保障额高于 Basic 方案',
-      'plan.deluxe.summary': '适合希望获得最全面保障和出发前最大灵活性的旅客。',
+      'plan.deluxe.summary': '适合想要更完整保障，以及出发前更大弹性的旅客。',
       'plan.deluxe.bullet1': '最高保障级别',
       'plan.deluxe.bullet2': '含贵宾室使用权',
       'plan.deluxe.bullet3': '含 CFAR，须符合保单条款',
-      'plan.domestic.summary': '适合国内旅行，按国内保障逻辑及保费计算。',
+      'plan.domestic.summary': '只适用于马来西亚境内旅行。',
       'plan.domestic.bullet1': '仅限马来西亚境内旅行',
       'plan.domestic.bullet2': '适用国内保费',
       'plan.domestic.bullet3': '不含国际计划的疾病医疗保障',
@@ -776,10 +776,10 @@
       'error.confirmIssues': '请先解决标示的确认问题后再提交。',
 
       /* Payment content HTML */
-      'paymentContent.duitnow': "<strong>DuitNow QR</strong><p>扫描 Henry 的 QR 码并在提交前上传付款截图，可帮助 Henry 更快核实及跟进。</p><img src=\"/duitnow-qr.png\" alt=\"DuitNow QR\">",
-      'paymentContent.tng': "<strong>Touch 'n Go</strong><p>转账至 <b>LEE MOU YEN</b>，号码为 <b>012 612 3540</b>。完成后请上传付款截图。</p>",
-      'paymentContent.bank': "<strong>RHB 银行转账</strong><p>账户名称 <b>LEE MOU YEN</b><br>账户号码 <b>1040 2700 307120</b><br>附上付款收据可加快跟进。</p>",
-      'paymentContent.billplz': "<strong>Billplz 信用卡付款</strong><p>Henry 将在收到申请后发送付款链接。信用卡手续费为2%，此阶段无需附上付款收据。</p>",
+      'paymentContent.duitnow': "<strong>DuitNow QR</strong><p>扫描 Henry 的 QR 码，并在提交前上传付款截图，方便他更快核实付款。</p><img src=\"/duitnow-qr.png\" alt=\"DuitNow QR\">",
+      'paymentContent.tng': "<strong>Touch 'n Go</strong><p>转账至 <b>LEE MOU YEN</b>，号码 <b>012 612 3540</b>。付款后请上传截图。</p>",
+      'paymentContent.bank': "<strong>RHB 银行转账</strong><p>账户名称 <b>LEE MOU YEN</b><br>账户号码 <b>1040 2700 307120</b><br>请附上付款收据，方便 Henry 更快跟进。</p>",
+      'paymentContent.billplz': "<strong>Billplz 信用卡付款</strong><p>提交后 Henry 会发送付款链接。信用卡手续费为 2%，此阶段无需上传付款收据。</p>",
     }
   };
 

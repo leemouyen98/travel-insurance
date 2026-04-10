@@ -59,22 +59,22 @@ const AREA_GUIDANCE = {
 const PLAN_GUIDANCE = {
   basic: {
     title: "Basic Plan",
-    summary: "A lower-premium option for travellers who want core Explorer protection.",
+    summary: "A lower-cost option if you mainly want the core cover.",
     bullets: ["Lower starting premium", "Core medical and travel inconvenience benefits", "No lounge access or CFAR"]
   },
   essential: {
     title: "Essential Plan",
-    summary: "The easiest recommendation for most clients because it balances price and protection well.",
+    summary: "A solid middle-ground plan for most trips.",
     bullets: ["Most popular option", "Includes lounge access on qualifying delays", "Higher limits than Basic"]
   },
   deluxe: {
     title: "Deluxe Plan",
-    summary: "Best for clients who want the strongest cover and the most flexibility before departure.",
+    summary: "Best if you want fuller cover and CFAR before departure.",
     bullets: ["Highest protection level", "Includes lounge access", "Includes CFAR, subject to policy wording"]
   },
   domestic: {
     title: "Domestic",
-    summary: "For Malaysia-only trips with domestic cover logic and pricing.",
+    summary: "For trips within Malaysia only.",
     bullets: ["For travel within Malaysia", "Domestic rating applies", "Medical illness cover does not apply like international plans"]
   }
 };
