@@ -176,6 +176,8 @@ function getPaymentContent(method) {
 
 const BILLPLZ_CARD_FEE_RATE = 0.02;
 const DRAFT_STORAGE_KEY = "travel-insurance-draft-v1";
+const DRAFT_MAX_AGE_MS = 30 * 60 * 1000;
+let draftExpiryTimeoutId = null;
 
 const MALAYSIAN_BANKS = [
   "Affin Bank", "Agrobank", "Alliance Bank", "AmBank", "Bank Islam", "Bank Muamalat",
@@ -247,9 +249,27 @@ function getBillplzCardFee(baseTotal) {
   return roundMoney(baseTotal * BILLPLZ_CARD_FEE_RATE);
 }
 
+function scheduleDraftExpiry(savedAt) {
+  if (draftExpiryTimeoutId) {
+    window.clearTimeout(draftExpiryTimeoutId);
+    draftExpiryTimeoutId = null;
+  }
+  const remaining = savedAt + DRAFT_MAX_AGE_MS - Date.now();
+  if (remaining <= 0) {
+    clearDraft();
+    return;
+  }
+  draftExpiryTimeoutId = window.setTimeout(() => {
+    draftExpiryTimeoutId = null;
+    clearDraft();
+  }, remaining);
+}
+
 function saveDraft() {
   try {
+    const savedAt = Date.now();
     const draft = {
+      savedAt,
       insuranceType: getField("insuranceType").value,
       travelArea: getSelectedArea(),
       departureDate: getField("departureDate").value,
@@ -285,6 +305,7 @@ function saveDraft() {
       bankDetails: getBankDrafts()
     };
     window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    scheduleDraftExpiry(savedAt);
   } catch (error) {
     console.warn("Draft save skipped.", error);
   }
@@ -292,6 +313,10 @@ function saveDraft() {
 
 function clearDraft() {
   try {
+    if (draftExpiryTimeoutId) {
+      window.clearTimeout(draftExpiryTimeoutId);
+      draftExpiryTimeoutId = null;
+    }
     window.localStorage.removeItem(DRAFT_STORAGE_KEY);
   } catch (error) {
     console.warn("Draft clear skipped.", error);
@@ -319,7 +344,16 @@ function restoreDraft() {
     const raw = window.localStorage.getItem(DRAFT_STORAGE_KEY);
     if (!raw) return;
     const draft = JSON.parse(raw);
-    if (!draft || typeof draft !== "object") return;
+    if (!draft || typeof draft !== "object") {
+      clearDraft();
+      return;
+    }
+    const savedAt = Number(draft.savedAt);
+    if (!Number.isFinite(savedAt) || savedAt + DRAFT_MAX_AGE_MS <= Date.now()) {
+      clearDraft();
+      return;
+    }
+    scheduleDraftExpiry(savedAt);
 
     getField("insuranceType").value = draft.insuranceType || "single";
     const areaInput = document.querySelector(`input[name="travelArea"][value="${draft.travelArea || "area1"}"]`);
