@@ -1572,7 +1572,7 @@ function validateStep(step) {
       flight.departureFlightNumber || flight.departureDate || flight.arrivalFlightNumber || flight.arrivalDate
     );
     flights.forEach((flight) => {
-      if (!flight.departureFlightNumber || !flight.departureDate || !flight.arrivalFlightNumber || !flight.arrivalDate) {
+      if (!flight.departureDate || !flight.arrivalDate) {
         openOptionalSection("flightSectionBody");
         showError("flights", t("error.flightComplete"));
         valid = false;
