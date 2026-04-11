@@ -57,7 +57,7 @@
       'nav.startQuote': 'Start Quote',
 
       /* Hero */
-      'hero.headline': 'Sort Out Your Travel Insurance Before You Go',
+      'hero.headline': 'Travel With Confidence, Wherever You Go',
       'hero.subtext': 'Check the premium, pick a plan, and send your details in one go.',
       'hero.step1': '1. Enter Trip Details',
       'hero.step2': '2. Pick a Plan',
