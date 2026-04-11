@@ -1,6 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Travel Insurance">
+  <!-- Navy background — matches travel.henrylee.cc -->
   <rect width="64" height="64" rx="16" fill="#08254d"/>
+  <!-- Cyan bottom bar — same as PA Insurance -->
   <path d="M18 41h28v5H18z" fill="#0cc1cf"/>
-  <path d="M21 38l11-19 11 19h-7l-4-7-4 7z" fill="#fbfaf7"/>
-  <circle cx="46" cy="20" r="6" fill="#d7b24c"/>
+  <!-- Shield body in teal (matches PA Insurance style) -->
+  <path d="M32 10 L47 18 V31 Q47 40 32 40 Q17 40 17 31 V18 Z" fill="#0d9488"/>
+  <!-- White airplane — top-down view, pointing up (travel = plane, shield = protection) -->
+  <!-- Fuselage -->
+  <ellipse cx="32" cy="24" rx="2.5" ry="10.5" fill="#fbfaf7"/>
+  <!-- Main wings -->
+  <path d="M32 21 L43.5 30 L42 31.5 L32 27 L22 31.5 L20.5 30 Z" fill="#fbfaf7"/>
+  <!-- Tail fins -->
+  <path d="M32 32 L37.5 37.5 L36 38 L32 35.5 L28 38 L26.5 37.5 Z" fill="#fbfaf7"/>
 </svg>
