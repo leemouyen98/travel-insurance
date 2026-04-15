@@ -82,10 +82,7 @@ function formatInsuranceType(value: string) {
 
 function formatNric(value: string): string {
   const digits = value.replace(/\D/g, "");
-  if (digits.length === 12) {
-    return `${digits.slice(0, 6)}-${digits.slice(6, 8)}-${digits.slice(8)}`;
-  }
-  return value; // passports and non-standard ICs returned as-is
+  return digits || value; // strip dashes/spaces; passports pass through if no digits found
 }
 
 function dobFromNric(nric: string): string {
@@ -296,6 +293,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       ["Slip",   hasSlip ? "Attached" : "Not provided"],
     ]);
 
+    const allNominees: Array<Record<string, string | number>> = payload.nominees || [];
+    const allBankDetails: Array<Record<string, string>> = payload.bankDetails || [];
+
     const travellerRows = payload.insuredTravellers
       .map(
         (traveller: Record<string, string>, index: number) => {
@@ -304,6 +304,38 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           // Use the submitted DOB; fall back to deriving it from the NRIC if blank
           const dob = String(traveller.dob || traveller.dateOfBirth || "").trim()
             || (traveller.idNumber ? dobFromNric(String(traveller.idNumber)) : "");
+
+          // Bank details for this traveller (match by index or name)
+          const travellerBanks = allBankDetails.filter(
+            b => String(b.travellerIndex) === String(index) || b.travellerName === displayName
+          );
+          const bankBlock = travellerBanks.length > 0
+            ? travellerBanks.map(bank => `
+                ${sectionHeader(`Bank — ${escapeHtml(bank.travellerName || displayName || `Traveller ${index + 1}`)}`)}
+                ${renderDefinitionList([
+                  ["Bank",           String(bank.bankName ? `${bank.bankName}${bank.bankAccountType ? ` (${bank.bankAccountType})` : ""}` : "—")],
+                  ["Account Number", String(bank.bankAccountNumber || "—")],
+                ])}
+              `).join("")
+            : "";
+
+          // Nominees for this traveller (match by travellerIndex)
+          const travellerNominees = allNominees.filter(
+            n => String(n.travellerIndex) === String(index)
+          );
+          const nomineeBlock = travellerNominees.length > 0
+            ? travellerNominees.map(nominee => `
+                ${sectionHeader(`Nominee — ${escapeHtml(String(nominee.travellerName || displayName || `Traveller ${index + 1}`))}`)}
+                ${renderDefinitionList([
+                  ["Name",            String(nominee.name         || "—")],
+                  ["Relationship",    String(nominee.relationship || "—")],
+                  ["NRIC / Passport", String(nominee.idNumber     || "—")],
+                  ["Contact",         String(nominee.contact      || "—")],
+                  ["Share",           `${Number(nominee.share || 0)}%`],
+                ])}
+              `).join("")
+            : "";
+
           return `
             ${sectionHeader(`Traveller ${index + 1}${displayName ? ` — ${displayName}` : ""}`)}
             ${renderDefinitionList([
@@ -317,6 +349,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
               ["Email",           String(traveller.email      || "—")],
               ["Address",         String(traveller.address    || "—")],
             ])}
+            ${bankBlock}
+            ${nomineeBlock}
           `;
         }
       )
@@ -336,48 +370,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       )
       .join("");
 
-    const nomineeRows = (payload.nominees || [])
-      .map(
-        (nominee: Record<string, string | number>, index: number) => `
-          ${sectionHeader(nominee.travellerName ? `Nominee — ${String(nominee.travellerName)}` : `Nominee ${index + 1}`)}
-          ${renderDefinitionList([
-            ["Name",            String(nominee.name         || "—")],
-            ["Relationship",    String(nominee.relationship || "—")],
-            ["NRIC / Passport", String(nominee.idNumber     || "—")],
-            ["Contact",         String(nominee.contact      || "—")],
-            ["Share",           `${Number(nominee.share || 0)}%`],
-          ])}
-        `
-      )
-      .join("");
-
-    const proposerBankRows = payload.proposer.bankAccountNumber
-      ? renderDefinitionList([
-          [
-            "Bank (Proposer)",
-            payload.proposer.bankName
-              ? `${payload.proposer.bankName}${payload.proposer.bankAccountType ? ` (${payload.proposer.bankAccountType})` : ""}`
-              : "—",
-          ],
-          ["Account Number", payload.proposer.bankAccountNumber],
-        ])
-      : "";
-
-    const bankRows = (payload.bankDetails || [])
-      .map(
-        (bank: Record<string, string>, index: number) => `
-          ${sectionHeader(bank.travellerName ? `Bank — ${bank.travellerName}` : `Bank ${index + 1}`)}
-          ${renderDefinitionList([
-            ["Bank",           String(bank.bankName ? `${bank.bankName}${bank.bankAccountType ? ` (${bank.bankAccountType})` : ""}` : "—")],
-            ["Account Number", String(bank.bankAccountNumber || "—")],
-          ])}
-        `
-      )
-      .join("");
-
-    const hasBankInfo  = !!(proposerBankRows || bankRows);
-    const hasFlights   = (payload.flights  || []).length > 0;
-    const hasNominees  = (payload.nominees || []).length > 0;
+    const hasFlights = (payload.flights || []).length > 0;
 
     // ── Email HTML ──────────────────────────────────────────────────────────
 
@@ -415,9 +408,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
           ${travellerRows}
 
-          ${hasFlights  ? flightRows  : ""}
-          ${hasNominees ? nomineeRows : ""}
-          ${hasBankInfo ? `${sectionHeader("Bank Details")}${proposerBankRows}${bankRows}` : ""}
+          ${hasFlights ? flightRows : ""}
 
         </table>
       </div>
