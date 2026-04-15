@@ -70,8 +70,34 @@ function titleCase(value: string) {
 }
 
 function formatInsuranceType(value: string) {
-  const map: Record<string, string> = { individual: "Individual", family: "Family", group: "Group" };
+  const map: Record<string, string> = {
+    single: "Single Trip",
+    annual: "Annual",
+    individual: "Individual",
+    family: "Family",
+    group: "Group"
+  };
   return map[value] || titleCase(value);
+}
+
+function formatNric(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 12) {
+    return `${digits.slice(0, 6)}-${digits.slice(6, 8)}-${digits.slice(8)}`;
+  }
+  return value; // passports and non-standard ICs returned as-is
+}
+
+function dobFromNric(nric: string): string {
+  const digits = nric.replace(/\D/g, "");
+  if (digits.length < 6) return "";
+  const yy = Number(digits.slice(0, 2));
+  const mm = Number(digits.slice(2, 4));
+  const dd = Number(digits.slice(4, 6));
+  if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return "";
+  const currentYear = new Date().getFullYear() % 100;
+  const fullYear = yy > currentYear ? 1900 + yy : 2000 + yy;
+  return `${dd.toString().padStart(2, "0")}/${mm.toString().padStart(2, "0")}/${fullYear}`;
 }
 
 function formatCoverageArea(value: string) {
@@ -204,6 +230,17 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     }
 
     const payload = JSON.parse(submissionText);
+
+    // Validate: every traveller must have a name
+    const travellersRaw: Array<Record<string, string>> = payload.insuredTravellers || [];
+    const missingNames = travellersRaw.filter(t => !String(t.fullName || "").trim());
+    if (missingNames.length > 0) {
+      return json(
+        { error: `Traveller name is required for all insured travellers. ${missingNames.length} traveller(s) are missing a name.` },
+        400
+      );
+    }
+
     const attachment = formData.get("paymentSlip");
 
     let attachments: Array<{ filename: string; content: string }> = [];
@@ -218,6 +255,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     // ── Build email rows ────────────────────────────────────────────────────
 
     const hasSlip = attachments.length > 0;
+    const totalPax = (payload.insuredTravellers || []).length;
+
+    // Only show the CONTACT section when the proposer is someone other than
+    // Traveller 1 (i.e. "Buying for someone else" was ticked). Otherwise it
+    // duplicates Traveller 1's data verbatim.
+    const showContactSection = payload.proposer.sameAsFirstTraveller === false;
 
     const contactRows = renderDefinitionList([
       ["Name",       payload.proposer.name       || "—"],
@@ -255,20 +298,27 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     const travellerRows = payload.insuredTravellers
       .map(
-        (traveller: Record<string, string>, index: number) => `
-          ${sectionHeader(`Traveller ${index + 1}${traveller.name ? ` — ${String(traveller.name)}` : ""}`)}
-          ${renderDefinitionList([
-            ["Name",            String(traveller.name       || "—")],
-            ["NRIC / Passport", String(traveller.idNumber   || "—")],
-            ["Date of Birth",   String(traveller.dob        || "—")],
-            ["Gender",          titleCase(String(traveller.gender || "—"))],
-            ["Age Band",        formatAgeBand(String(traveller.ageBand || ""))],
-            ["Occupation",      String(traveller.occupation || "—")],
-            ["Mobile",          String(traveller.mobile     || "—")],
-            ["Email",           String(traveller.email      || "—")],
-            ["Address",         String(traveller.address    || "—")],
-          ])}
-        `
+        (traveller: Record<string, string>, index: number) => {
+          const displayName = String(traveller.fullName || traveller.name || "");
+          const nricFormatted = traveller.idNumber ? formatNric(String(traveller.idNumber)) : "—";
+          // Use the submitted DOB; fall back to deriving it from the NRIC if blank
+          const dob = String(traveller.dob || traveller.dateOfBirth || "").trim()
+            || (traveller.idNumber ? dobFromNric(String(traveller.idNumber)) : "");
+          return `
+            ${sectionHeader(`Traveller ${index + 1}${displayName ? ` — ${displayName}` : ""}`)}
+            ${renderDefinitionList([
+              ["Name",            displayName || "—"],
+              ["NRIC / Passport", nricFormatted],
+              ["Date of Birth",   dob || "—"],
+              ["Gender",          titleCase(String(traveller.gender || "—"))],
+              ["Age Band",        formatAgeBand(String(traveller.ageBand || ""))],
+              ["Occupation",      String(traveller.occupation || "—")],
+              ["Mobile",          String(traveller.mobile     || "—")],
+              ["Email",           String(traveller.email      || "—")],
+              ["Address",         String(traveller.address    || "—")],
+            ])}
+          `;
+        }
       )
       .join("");
 
@@ -351,8 +401,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             </td>
           </tr>
 
-          ${sectionHeader("Contact")}
-          ${contactRows}
+          ${showContactSection ? `${sectionHeader("Contact")}${contactRows}` : ""}
 
           ${sectionHeader("Trip")}
           ${tripRows}
@@ -379,7 +428,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     const resendPayload: Record<string, unknown> = {
       from: env.FROM_EMAIL,
       to: [env.NOTIFICATION_EMAIL],
-      subject: `TM Explorer — ${payload.proposer.name || "Client"} — ${formatPlan(payload.product.selectedPlan)} — RM ${Number(payload.quote.total).toFixed(2)} — Dep ${payload.product.departureDate || ""}`,
+      subject: `TM Explorer — ${payload.proposer.name || "Client"} — ${formatPlan(payload.product.selectedPlan)} — RM ${Number(payload.quote.total).toFixed(2)} — ${totalPax} Pax — Dep ${payload.product.departureDate || ""}`,
       html,
       attachments
     };

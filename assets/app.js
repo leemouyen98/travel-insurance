@@ -948,7 +948,7 @@ function buildTravellerCard(index, category) {
         </label>
         <label class="field">
           <span>${t("travellerCard.dob")}</span>
-          <input type="text" name="insuredDob_${index}" placeholder="YY/MM/DD" inputmode="numeric" required>
+          <input type="text" name="insuredDob_${index}" placeholder="YYYY/MM/DD" inputmode="numeric" required>
         </label>
       </div>
       <div class="field-grid three">
