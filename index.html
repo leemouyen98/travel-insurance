@@ -461,6 +461,10 @@
                 <p data-i18n="s3.desc">Check the premium, choose how you'd like to pay, and submit when ready. It usually takes about 2 minutes.</p>
               </div>
 
+              <div class="issuance-note">
+                ⏱️ Policy emailed within 2 working hours of payment confirmation.
+              </div>
+
               <div class="review-layout">
                 <div class="summary-card review-card">
                   <div class="review-card-head">
@@ -471,7 +475,7 @@
                     <button type="button" class="button button-secondary button-compact" data-prev-step="2" data-i18n="review.editDetails">Edit details</button>
                   </div>
                   <div id="summaryList" class="review-summary"></div>
-                  <div class="summary-total">
+                  <div class="summary-total summary-total-accent">
                     <span data-i18n="totalPayable">Total payable</span>
                     <strong id="summaryTotal">RM0.00</strong>
                   </div>
@@ -480,56 +484,69 @@
                 <div class="payment-card">
                   <h4 data-i18n="payment.h4">Choose Payment Method</h4>
                   <div class="choice-grid two payment-methods">
-                    <label class="choice">
+                    <label class="choice pay-method-choice">
                       <input type="radio" name="paymentMethod" value="duitnow" checked>
-                      <span><strong>DuitNow QR</strong><small data-i18n="duitnow.small">Scan the QR shared by Henry</small><em class="payment-total" data-payment-total="duitnow"></em></span>
+                      <span>
+                        <strong>DuitNow QR</strong>
+                        <small data-i18n="duitnow.small">Scan the QR shared by Henry</small>
+                        <em class="payment-total" data-payment-total="duitnow"></em>
+                      </span>
                     </label>
-                    <label class="choice">
+                    <label class="choice pay-method-choice">
                       <input type="radio" name="paymentMethod" value="tng">
-                      <span><strong>Touch 'n Go</strong><small data-i18n="tng.small">012 612 3540</small><em class="payment-total" data-payment-total="tng"></em></span>
+                      <span>
+                        <strong>Touch 'n Go</strong>
+                        <small data-i18n="tng.small">012 612 3540</small>
+                        <em class="payment-total" data-payment-total="tng"></em>
+                      </span>
                     </label>
-                    <label class="choice">
+                    <label class="choice pay-method-choice">
                       <input type="radio" name="paymentMethod" value="bank">
-                      <span><strong>Bank transfer</strong><small data-i18n="bank.transfer.small">RHB 1040 2700 307120</small><em class="payment-total" data-payment-total="bank"></em></span>
+                      <span>
+                        <strong>Bank transfer</strong>
+                        <small data-i18n="bank.transfer.small">RHB 1040 2700 307120</small>
+                        <em class="payment-total" data-payment-total="bank"></em>
+                      </span>
                     </label>
-                    <label class="choice">
+                    <label class="choice pay-method-choice">
                       <input type="radio" name="paymentMethod" value="billplz">
-                      <span><strong>Card via Billplz</strong><small data-i18n="billplz.small">Henry sends the payment link</small><em class="payment-total" data-payment-total="billplz"></em></span>
+                      <span>
+                        <span class="pay-method-name-row">
+                          <strong>Card via Billplz</strong>
+                          <span class="pay-rec-tag" data-i18n="pay.recommended">Recommended</span>
+                        </span>
+                        <small data-i18n="billplz.small">Henry sends the payment link</small>
+                        <em class="payment-total" data-payment-total="billplz"></em>
+                      </span>
                     </label>
                   </div>
 
                   <div class="payment-detail-box" id="paymentDetailBox"></div>
 
-                  <div class="payment-instructions-card">
-                    <p class="mini-label" data-i18n="payInstructions.label">Payment Instructions</p>
-                    <div class="payment-summary-block">
-                      <strong>LEE MOU YEN</strong>
-                      <span data-i18n="payInstructions.tng">Touch 'n Go: 012 612 3540</span>
-                      <span data-i18n="payInstructions.rhb">RHB Bank: 1040 2700 307120</span>
-                      <span data-i18n="payInstructions.sendSlip">Send the payment slip once done.</span>
-                    </div>
-                  </div>
-
-                  <div class="review-assurance">
-                    <p class="mini-label" data-i18n="assurance.label">Before You Submit</p>
-                    <ul class="feature-list compact">
-                      <li data-i18n="assurance.item1">You will see the final payable amount before submission.</li>
-                      <li data-i18n="assurance.item2">Payment is checked before policy follow-up.</li>
-                      <li data-i18n="assurance.item3">Henry reviews your details if anything looks incomplete.</li>
-                    </ul>
-                  </div>
-
-                  <label class="field">
+                  <div class="field">
                     <span data-i18n="uploadSlip.label">Upload Payment Slip</span>
-                    <input type="file" id="paymentSlip" name="paymentSlip" accept="image/*,.pdf">
+                    <div class="upload-zone" id="uploadZone" role="button" tabindex="0"
+                      onclick="document.getElementById('paymentSlip').click()"
+                      onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('paymentSlip').click()">
+                      <div class="upload-zone-icon">📎</div>
+                      <p class="upload-zone-text">Tap to attach payment slip</p>
+                      <p class="upload-zone-hint">JPG, PNG or PDF · Max 5MB</p>
+                    </div>
+                    <input type="file" id="paymentSlip" name="paymentSlip" accept="image/*,.pdf"
+                      class="upload-input-hidden"
+                      onchange="(function(el){var p=document.getElementById('uploadPreview');var n=document.getElementById('uploadFileName');if(el.files.length){p.style.display='flex';n.textContent=el.files[0].name;}else{p.style.display='none';}})(this)">
+                    <div class="upload-preview" id="uploadPreview" style="display:none">
+                      <span class="upload-check">✓</span>
+                      <span id="uploadFileName"></span>
+                    </div>
                     <small class="hint" data-i18n="uploadSlip.hint">Required for DuitNow, Touch 'n Go and bank transfer.</small>
                     <small class="error-text" data-error-for="paymentSlip"></small>
-                  </label>
+                  </div>
 
-                  <label class="checkbox-field">
+                  <div class="declaration-card">
                     <input type="checkbox" id="consent" name="consent" required>
-                    <span data-i18n="consent.text">I confirm the information provided is accurate and understand policy issuance is subject to Tokio Marine acceptance and payment clearance.</span>
-                  </label>
+                    <div class="declaration-text" data-i18n="consent.text">I confirm the information provided is accurate and understand policy issuance is subject to Tokio Marine acceptance and payment clearance.</div>
+                  </div>
                   <small class="error-text" data-error-for="consent"></small>
                 </div>
               </div>
