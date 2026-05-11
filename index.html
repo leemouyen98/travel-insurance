@@ -1,616 +1,1416 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a">
-  <title>Tokio Marine Explorer | Travel Insurance by Henry Lee</title>
-  <meta name="description" content="Check your premium, choose a plan, and submit your travel insurance details online.">
-  <meta property="og:title" content="Tokio Marine Explorer | Henry Lee">
-  <meta property="og:description" content="Check your premium, choose a plan, and submit your travel insurance details online.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://travel.henrylee.cc/">
-  <meta property="og:image" content="https://travel.henrylee.cc/assets/explorer.jpg">
-  <meta property="og:image:alt" content="Traveller with backpack at the airport">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Tokio Marine Explorer | Henry Lee">
-  <meta name="twitter:description" content="Check your premium, choose a plan, and submit your travel insurance details online.">
-  <meta name="twitter:image" content="https://travel.henrylee.cc/assets/explorer.jpg">
-  <meta name="twitter:image:alt" content="Traveller with backpack at the airport">
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="TM Explorer">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="/assets/app.css">
-  <script src="/assets/i18n.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#090e1b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TM Explorer">
+<title>Tokio Marine Explorer | Travel Insurance by Henry Lee</title>
+<meta name="description" content="Check your premium, pick a plan, and submit your travel insurance details in minutes.">
+<meta property="og:title" content="Tokio Marine Explorer | Henry Lee">
+<meta property="og:description" content="Check your premium, choose a plan, and submit your travel insurance details online.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://travel.henrylee.cc/">
+<meta property="og:image" content="https://travel.henrylee.cc/assets/explorer.jpg">
+<meta property="og:image:alt" content="Traveller with backpack at the airport">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tokio Marine Explorer | Henry Lee">
+<meta name="twitter:description" content="Check your premium, choose a plan, and submit your travel insurance details online.">
+<meta name="twitter:image" content="https://travel.henrylee.cc/assets/explorer.jpg">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#090e1b;
+  --surface:#0f1729;
+  --surface-2:#152033;
+  --border:#1d2d44;
+  --border-light:#263a54;
+  --text:#e8edf5;
+  --text-2:#8da0bb;
+  --text-3:#4e6278;
+  --gold:#c9953a;
+  --gold-light:#e2b05a;
+  --gold-dim:rgba(201,149,58,.12);
+  --gold-border:rgba(201,149,58,.28);
+  --green:#2dd4a0;
+  --green-dim:rgba(45,212,160,.1);
+  --green-border:rgba(45,212,160,.2);
+  --red:#f87171;
+  --red-dim:rgba(248,113,113,.1);
+  --r:12px;
+  --r-sm:8px;
+  --ease:.2s ease;
+}
+
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  font-weight:400;
+  line-height:1.6;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 70% 45% at 15% -5%,rgba(201,149,58,.055) 0%,transparent 60%),
+    radial-gradient(ellipse 55% 40% at 85% 105%,rgba(45,100,200,.07) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Layout ── */
+.wrap{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:0 1.25rem 5rem}
+
+/* ── Header ── */
+.site-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.5rem 0 2.75rem;
+}
+.logo-name{
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem;font-weight:600;color:var(--text);letter-spacing:.01em;display:block;
+}
+.logo-sub{
+  font-size:.68rem;font-weight:600;color:var(--gold);
+  letter-spacing:.13em;text-transform:uppercase;display:block;margin-top:1px;
+}
+.wa-btn{
+  display:flex;align-items:center;gap:.4rem;
+  padding:.5rem 1rem;background:transparent;
+  border:1px solid var(--border-light);border-radius:50px;
+  color:var(--text-2);font-size:.8rem;font-weight:500;
+  text-decoration:none;transition:all var(--ease);white-space:nowrap;
+}
+.wa-btn:hover{border-color:var(--gold);color:var(--gold)}
+.wa-btn svg{width:15px;height:15px;fill:currentColor;flex-shrink:0}
+
+/* ── Step track ── */
+.step-track{display:flex;align-items:flex-start;margin-bottom:2.5rem}
+.step-item{display:flex;align-items:flex-start;flex:1}
+.step-item-inner{display:flex;flex-direction:column;align-items:center;gap:5px}
+.step-dot{
+  width:28px;height:28px;border-radius:50%;border:2px solid var(--border-light);
+  background:var(--surface);color:var(--text-3);font-size:.72rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .35s ease;flex-shrink:0;
+}
+.step-dot.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);box-shadow:0 0 0 4px rgba(201,149,58,.1)}
+.step-dot.done{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.step-label{font-size:.62rem;color:var(--text-3);letter-spacing:.07em;text-transform:uppercase;font-weight:600;white-space:nowrap}
+.step-dot.active~.step-label,.step-dot.done~.step-label{color:var(--text-2)}
+.step-line{flex:1;height:1px;background:var(--border);margin:14px 5px 0;transition:background .35s ease}
+.step-line.done{background:rgba(45,212,160,.35)}
+
+/* ── Sticky pill ── */
+.premium-pill{
+  position:sticky;top:.75rem;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(9,14,27,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border-light);border-radius:50px;
+  padding:.55rem 1.1rem;margin-bottom:1.75rem;gap:1rem;
+  opacity:0;transform:translateY(-6px);transition:all .3s ease;pointer-events:none;
+}
+.premium-pill.visible{opacity:1;transform:none;pointer-events:auto}
+.pill-left{display:flex;flex-direction:column;gap:1px}
+.pill-plan{font-size:.75rem;color:var(--text-2);font-weight:500}
+.pill-pax{font-size:.68rem;color:var(--text-3)}
+.pill-amount{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--gold);font-weight:600}
+
+/* ── Panels ── */
+.step-panel{display:none}
+.step-panel.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── Panel heading ── */
+.panel-heading{margin-bottom:1.75rem}
+.panel-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:500;line-height:1.3}
+.panel-sub{font-size:.85rem;color:var(--text-2);margin-top:.35rem}
+
+/* ── Card ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.4rem;margin-bottom:1rem}
+.card-label{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:.9rem}
+
+/* ── Toggle group ── */
+.toggle-group{display:flex;background:var(--surface-2);border-radius:50px;padding:3px;gap:2px;width:fit-content;margin-bottom:1.5rem}
+.tgl-btn{
+  padding:.42rem 1.1rem;border-radius:50px;border:none;background:transparent;
+  color:var(--text-2);font-size:.85rem;font-weight:500;cursor:pointer;
+  transition:all var(--ease);font-family:inherit;
+}
+.tgl-btn.active{background:var(--gold);color:#090e1b;font-weight:600}
+
+/* ── Field ── */
+.field{margin-bottom:1.2rem}
+.field:last-child{margin-bottom:0}
+.label{display:block;font-size:.72rem;font-weight:700;color:var(--text-2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.45rem}
+.label .req{color:var(--gold);margin-left:1px}
+.input{
+  width:100%;background:var(--surface-2);border:1.5px solid var(--border);
+  border-radius:var(--r-sm);padding:.72rem .95rem;color:var(--text);
+  font-size:.925rem;font-family:inherit;transition:border-color var(--ease);outline:none;
+  -webkit-appearance:none;appearance:none;
+}
+.input:focus{border-color:var(--gold)}
+.input::placeholder{color:var(--text-3)}
+.input.err{border-color:var(--red)}
+.hint{font-size:.72rem;color:var(--text-3);margin-top:.3rem}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media(max-width:460px){.two-col{grid-template-columns:1fr}}
+
+/* ── Autocomplete ── */
+.ac-wrap{position:relative}
+.ac-results{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;
+  background:var(--surface-2);border:1px solid var(--border-light);
+  border-radius:var(--r-sm);max-height:210px;overflow-y:auto;z-index:50;display:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+.ac-results.open{display:block}
+.ac-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.6rem .95rem;cursor:pointer;font-size:.9rem;transition:background var(--ease);
+}
+.ac-item:hover{background:var(--surface)}
+.area-pill{font-size:.62rem;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.05em;flex-shrink:0}
+.a-D{background:var(--gold-dim);color:var(--gold)}
+.a-1{background:rgba(45,212,160,.12);color:#2dd4a0}
+.a-2{background:rgba(99,155,255,.12);color:#639bff}
+.a-3{background:rgba(248,113,113,.12);color:#f87171}
+
+/* ── Area display ── */
+.area-display{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.72rem .95rem;background:var(--surface-2);
+  border:1.5px solid var(--border);border-radius:var(--r-sm);min-height:46px;
+}
+.area-display-text{font-size:.875rem;color:var(--text-3);font-style:italic}
+.area-display-text.filled{color:var(--text);font-style:normal}
+
+/* ── Stepper ── */
+.stepper-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.8rem 0;border-bottom:1px solid var(--border);
+}
+.stepper-row:last-child{border-bottom:none;padding-bottom:0}
+.stepper-row:first-child{padding-top:0}
+.stepper-name{font-size:.9rem;font-weight:500;color:var(--text)}
+.stepper-desc{font-size:.72rem;color:var(--text-3);margin-top:1px}
+.stepper-ctrl{display:flex;align-items:center;gap:.7rem;flex-shrink:0}
+.stp-btn{
+  width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border-light);
+  background:transparent;color:var(--text-2);font-size:1.1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--ease);font-family:inherit;line-height:1;
+}
+.stp-btn:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+.stp-btn:disabled{opacity:.25;cursor:not-allowed}
+.stp-val{font-size:1rem;font-weight:700;min-width:18px;text-align:center;color:var(--text)}
+
+/* ── Premium box ── */
+.premium-box{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--gold-dim);border:1px solid var(--gold-border);
+  border-radius:var(--r-sm);padding:.95rem 1.1rem;margin-top:1.2rem;gap:1rem;
+}
+.pbox-label{font-size:.7rem;font-weight:700;color:var(--gold);letter-spacing:.09em;text-transform:uppercase}
+.pbox-note{font-size:.7rem;color:var(--text-3);margin-top:2px}
+.pbox-amount{font-family:'Playfair Display',serif;font-size:1.45rem;color:var(--gold-light);text-align:right}
+.pbox-sub{font-size:.68rem;color:var(--text-3);margin-top:1px;text-align:right}
+
+/* ── Plan cards ── */
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:1.2rem}
+@media(max-width:480px){.plans-grid{grid-template-columns:1fr}}
+.plan-card{
+  background:var(--surface);border:2px solid var(--border);border-radius:var(--r);
+  padding:1.2rem .95rem;cursor:pointer;transition:all .22s ease;
+  position:relative;text-align:center;
+}
+.plan-card:hover{border-color:var(--border-light);transform:translateY(-2px)}
+.plan-card.sel{border-color:var(--gold);background:var(--gold-dim)}
+.plan-badge{
+  position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+  font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;white-space:nowrap;
+}
+.b-pop{background:var(--gold);color:#090e1b}
+.b-best{background:var(--green);color:#090e1b}
+.plan-name{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:.6rem}
+.plan-price{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:600;color:var(--text);line-height:1}
+.plan-card.sel .plan-price{color:var(--gold-light)}
+.plan-price-note{font-size:.62rem;color:var(--text-3);margin:.25rem 0 .9rem}
+.plan-feats{list-style:none;text-align:left;font-size:.72rem;color:var(--text-2)}
+.plan-feats li{padding:2px 0;display:flex;align-items:flex-start;gap:.35rem;line-height:1.4}
+.fy{color:var(--green);flex-shrink:0;margin-top:1px}
+.fn{color:var(--text-3);flex-shrink:0;margin-top:1px}
+
+/* ── Coverage table ── */
+.cov-table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:.9rem}
+.cov-table th{
+  padding:.45rem .5rem;border-bottom:1px solid var(--border);
+  font-size:.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);
+  text-align:right;
+}
+.cov-table th:first-child{text-align:left}
+.cov-table td{padding:.55rem .5rem;border-bottom:1px solid var(--border);color:var(--text-2);text-align:right}
+.cov-table td:first-child{text-align:left;color:var(--text)}
+.cov-table tr.hl td{background:var(--gold-dim)}
+.cov-na{color:var(--text-3)}
+.cov-link{font-size:.68rem;color:var(--text-3);margin-top:.65rem}
+.cov-link a{color:var(--gold);text-decoration:none}
+.cov-link a:hover{text-decoration:underline}
+
+/* ── Traveller block ── */
+.trav-block{
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:1.1rem;margin-bottom:.75rem;
+}
+.trav-block:last-child{margin-bottom:0}
+.trav-title{font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.85rem}
+.autofill-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-top:.6rem}
+.af-field{
+  padding:.65rem .95rem;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r-sm);font-size:.85rem;color:var(--text-3);font-style:italic;
+  font-family:inherit;
+}
+.af-field.filled{color:var(--text);font-style:normal;border-color:rgba(45,212,160,.35)}
+
+/* ── For-other toggle ── */
+.toggle-switch-row{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.toggle-switch-info{}
+.tsw-name{font-size:.875rem;font-weight:500;color:var(--text)}
+.tsw-desc{font-size:.72rem;color:var(--text-3);margin-top:1px}
+.sw-track{
+  position:relative;width:42px;height:24px;border-radius:12px;
+  background:var(--surface-2);border:1.5px solid var(--border-light);
+  cursor:pointer;transition:all var(--ease);flex-shrink:0;
+}
+.sw-track input{opacity:0;width:0;height:0;position:absolute}
+.sw-thumb{
+  position:absolute;top:3px;left:3px;width:16px;height:16px;
+  border-radius:50%;background:var(--text-3);transition:all .22s ease;
+}
+.sw-track.on{background:var(--gold-dim);border-color:var(--gold)}
+.sw-track.on .sw-thumb{transform:translateX(18px);background:var(--gold)}
+
+/* ── Accordion ── */
+.accordion{border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:.5rem;overflow:hidden}
+.acc-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.8rem 1rem;cursor:pointer;background:var(--surface);
+  transition:background var(--ease);
+}
+.acc-head:hover{background:var(--surface-2)}
+.acc-title{font-size:.85rem;font-weight:500;color:var(--text-2);display:flex;align-items:center;gap:.5rem}
+.opt-tag{font-size:.62rem;color:var(--text-3);background:var(--surface-2);padding:2px 8px;border-radius:20px}
+.acc-arrow{color:var(--text-3);transition:transform .2s;font-size:.85rem}
+.accordion.open .acc-arrow{transform:rotate(180deg)}
+.acc-body{display:none;padding:1rem;background:var(--surface-2);border-top:1px solid var(--border)}
+.accordion.open .acc-body{display:block}
+
+/* ── Review ── */
+.rv-row{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.875rem;gap:1rem;
+}
+.rv-row:last-child{border-bottom:none}
+.rv-label{color:var(--text-2);flex-shrink:0}
+.rv-val{text-align:right;color:var(--text);font-weight:500}
+.rv-total{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.95rem 1.1rem;background:var(--gold-dim);border:1px solid var(--gold-border);
+  border-radius:var(--r-sm);margin-top:1rem;gap:1rem;
+}
+.rv-total-label{font-size:.72rem;font-weight:800;color:var(--gold);letter-spacing:.09em;text-transform:uppercase}
+.rv-total-amount{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold-light)}
+
+/* ── Issuance note ── */
+.issuance-note{
+  display:flex;align-items:center;gap:.65rem;
+  padding:.7rem 1rem;background:var(--green-dim);border:1px solid var(--green-border);
+  border-radius:var(--r-sm);font-size:.8rem;color:var(--green);margin-bottom:1.2rem;
+}
+
+/* ── Payment options ── */
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.2rem}
+@media(max-width:420px){.pay-grid{grid-template-columns:1fr}}
+.pay-opt{
+  display:flex;flex-direction:column;align-items:flex-start;gap:.2rem;
+  padding:.9rem 1rem;background:var(--surface);border:2px solid var(--border);
+  border-radius:var(--r-sm);cursor:pointer;transition:all var(--ease);
+}
+.pay-opt:hover{border-color:var(--border-light)}
+.pay-opt.sel{border-color:var(--gold);background:var(--gold-dim)}
+.pay-name-row{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.pay-name{font-size:.875rem;font-weight:600;color:var(--text)}
+.pay-rec{font-size:.58rem;background:var(--gold);color:#090e1b;padding:2px 7px;border-radius:20px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.pay-detail{font-size:.72rem;color:var(--text-3)}
+.pay-inst{
+  padding:1rem 1.1rem;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--r-sm);font-size:.85rem;color:var(--text-2);line-height:1.6;margin-bottom:1rem;display:none;
+}
+
+/* ── Upload ── */
+.upload-zone{
+  border:2px dashed var(--border-light);border-radius:var(--r-sm);
+  padding:1.5rem;text-align:center;cursor:pointer;transition:all var(--ease);
+}
+.upload-zone:hover{border-color:var(--gold);background:var(--gold-dim)}
+.upload-icon{font-size:1.4rem;margin-bottom:.35rem}
+.upload-text{font-size:.875rem;color:var(--text-2)}
+.upload-hint{font-size:.7rem;color:var(--text-3);margin-top:.2rem}
+#file-input{display:none}
+.upload-preview{
+  display:none;align-items:center;gap:.65rem;
+  padding:.7rem 1rem;background:var(--green-dim);border:1px solid var(--green-border);
+  border-radius:var(--r-sm);font-size:.85rem;color:var(--green);margin-top:.6rem;
+}
+
+/* ── Declaration ── */
+.declaration{
+  display:flex;align-items:flex-start;gap:.75rem;
+  padding:1rem 1.1rem;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--r-sm);margin:1.2rem 0;
+}
+.declaration input[type=checkbox]{flex-shrink:0;width:17px;height:17px;margin-top:2px;accent-color:var(--gold);cursor:pointer}
+.declaration-text{font-size:.78rem;color:var(--text-2);line-height:1.55}
+
+/* ── Buttons ── */
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:.45rem;
+  width:100%;padding:.9rem 1.5rem;background:var(--gold);color:#090e1b;
+  font-size:.95rem;font-weight:700;border:none;border-radius:50px;
+  cursor:pointer;transition:all var(--ease);font-family:inherit;letter-spacing:.01em;
+}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,149,58,.3)}
+.btn-primary:active{transform:none}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-back{
+  display:flex;align-items:center;justify-content:center;gap:.4rem;
+  width:100%;padding:.8rem;background:transparent;color:var(--text-2);
+  font-size:.85rem;font-weight:500;border:1.5px solid var(--border-light);
+  border-radius:50px;cursor:pointer;transition:all var(--ease);font-family:inherit;
+}
+.btn-back:hover{border-color:var(--border-light);color:var(--text)}
+.nav-btns{display:flex;flex-direction:column;gap:.5rem;margin-top:1.5rem}
+
+/* ── Annual note ── */
+.annual-note{
+  padding:.75rem 1rem;background:rgba(99,155,255,.08);border:1px solid rgba(99,155,255,.18);
+  border-radius:var(--r-sm);font-size:.82rem;color:#7ab0ff;margin-bottom:1.2rem;display:none;
+}
+
+/* ── Error banner ── */
+.err-banner{
+  padding:.75rem 1rem;background:var(--red-dim);border:1px solid rgba(248,113,113,.25);
+  border-radius:var(--r-sm);font-size:.82rem;color:var(--red);margin-bottom:1rem;display:none;
+}
+
+/* ── Success ── */
+.success-screen{display:none;text-align:center;padding:3rem 1rem;animation:fadeUp .5s ease}
+.success-screen.active{display:block}
+.success-icon{
+  width:64px;height:64px;background:var(--green-dim);border:2px solid var(--green-border);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:1.75rem;margin:0 auto 1.5rem;
+}
+.success-title{font-family:'Playfair Display',serif;font-size:1.65rem;margin-bottom:.75rem}
+.success-sub{font-size:.9rem;color:var(--text-2);max-width:380px;margin:0 auto 2rem;line-height:1.65}
+.success-wa{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.85rem 2rem;background:#25D366;color:#fff;
+  font-weight:700;font-size:.95rem;border-radius:50px;
+  text-decoration:none;transition:all var(--ease);
+}
+.success-wa:hover{opacity:.9;transform:translateY(-1px)}
+.success-wa svg{width:18px;height:18px;fill:#fff}
+
+/* ── Footer ── */
+.site-footer{
+  margin-top:3rem;padding:1.4rem 0;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem;
+}
+.footer-note,.footer-tm{font-size:.7rem;color:var(--text-3)}
+</style>
 </head>
 <body>
-  <header class="site-header">
-    <nav class="topbar shell">
-      <a href="#hero" class="brand">
-        <span data-i18n="nav.brand.title">Travel Insurance Intake Form</span>
-        <small data-i18n="nav.brand.subtitle">By Henry Lee</small>
-      </a>
-      <div class="topbar-actions">
-        <a href="#application" class="button button-gold" data-i18n="nav.startQuote">Start Quote</a>
-      </div>
-    </nav>
+<div class="wrap">
 
-    <section class="hero shell" id="hero">
-      <div class="hero-layout">
-        <div class="hero-copy">
-          <h1 data-i18n="hero.headline">Travel With Confidence, Wherever You Go</h1>
-          <p class="hero-text" data-i18n="hero.subtext">
-            Check the premium, pick a plan, and send your details in one go.
-          </p>
-          <div class="hero-steps" aria-label="How It Works">
-            <span data-i18n="hero.step1">1. Enter Trip Details</span>
-            <span data-i18n="hero.step2">2. Pick a Plan</span>
-            <span data-i18n="hero.step3">3. Review and Submit</span>
-          </div>
-          <div class="hero-actions">
-            <a href="#application" class="button button-teal button-large" data-i18n="hero.startApplication">Start Application</a>
-            <a href="#coverageSummary" class="button button-secondary button-secondary-light" data-i18n="hero.comparePlans">Compare Plans</a>
-          </div>
-        </div>
-        <div class="hero-visual">
-          <div class="hero-image-card">
-            <img src="/assets/explorer.jpg" alt="Traveller with backpack at the airport" class="hero-image">
-            <a href="/assets/Explorer.pdf" class="hero-image-overlay hero-image-link" target="_blank" rel="noreferrer">
-              <div class="hero-image-copy">
-                <p class="mini-label" data-i18n="hero.allNew">All-New</p>
-                <strong>Tokio Marine Explorer</strong>
-              </div>
-              <span class="hero-image-icon" aria-hidden="true">↗</span>
-            </a>
-          </div>
-          <div class="hero-panel">
-            <div class="hero-panel-card hero-panel-card-primary">
-              <p class="mini-label">Explorer</p>
-              <strong data-i18n="hero.cfar">Deluxe now includes CFAR</strong>
-              <span data-i18n="hero.cfarDesc">Cancellation for Any Reason cover before departure</span>
-            </div>
-            <div class="hero-panel-grid">
-              <div class="hero-panel-card">
-                <strong data-i18n="hero.cashless">Cashless Overseas Hospital Admission</strong>
-              </div>
-              <div class="hero-panel-card">
-                <strong data-i18n="hero.mastercard">Complimentary Mastercard®Flight Delay Pass</strong>
-              </div>
-              <div class="hero-panel-card">
-                <strong data-i18n="hero.groupDiscount">5% group discount</strong>
-              </div>
-              <div class="hero-panel-card">
-                <strong data-i18n="hero.covid">COVID-19 cover at no extra cost</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </header>
+<!-- Header -->
+<header class="site-header">
+  <div class="logo">
+    <span class="logo-name">Henry Lee</span>
+    <span class="logo-sub">Tokio Marine · Travel Insurance</span>
+  </div>
+  <a href="https://wa.me/60126123540" class="wa-btn" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.535 4.07 1.475 5.793L0 24l6.348-1.453A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.791 9.791 0 01-5.013-1.373l-.36-.213-3.727.853.876-3.618-.234-.371A9.778 9.778 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg>
+    WhatsApp Henry
+  </a>
+</header>
 
-  <main>
-    <section class="section section-video shell" id="productVideo">
-      <div class="video-facade" id="videoFacade" role="button" tabindex="0" aria-label="Play: All-New Tokio Marine Explorer">
-        <img class="video-thumb" src="https://img.youtube.com/vi/Rrm4uBH7mvk/maxresdefault.jpg" alt="All-New Tokio Marine Explorer" loading="lazy">
-        <div class="video-play">
-          <div class="video-play-btn" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-        </div>
-        <div class="video-meta">
-          <p class="mini-label">Product Overview</p>
-          <strong>All-New Tokio Marine Explorer</strong>
-        </div>
-      </div>
-    </section>
+<!-- Step track -->
+<div class="step-track" id="stepTrack">
+  <div class="step-item">
+    <div class="step-item-inner">
+      <div class="step-dot active" id="dot-1">1</div>
+      <div class="step-label">Trip</div>
+    </div>
+    <div class="step-line" id="line-1"></div>
+  </div>
+  <div class="step-item">
+    <div class="step-item-inner">
+      <div class="step-dot" id="dot-2">2</div>
+      <div class="step-label">Plan</div>
+    </div>
+    <div class="step-line" id="line-2"></div>
+  </div>
+  <div class="step-item">
+    <div class="step-item-inner">
+      <div class="step-dot" id="dot-3">3</div>
+      <div class="step-label">Details</div>
+    </div>
+    <div class="step-line" id="line-3"></div>
+  </div>
+  <div class="step-item">
+    <div class="step-item-inner">
+      <div class="step-dot" id="dot-4">4</div>
+      <div class="step-label">Pay</div>
+    </div>
+  </div>
+</div>
 
-    <section class="section shell section-quiet" id="coverageSummary">
-      <div class="section-head compact">
-        <p class="eyebrow" data-i18n="coverage.eyebrow">Coverage Summary</p>
-        <h2 data-i18n="coverage.h2">What’s Covered?</h2>
-        <p class="section-copy" data-i18n="coverage.sectionCopy">Pick a plan here and it'll carry into the form below.</p>
-      </div>
-      <div class="coverage-showcase">
-        <div class="coverage-copy-card">
-          <p class="section-copy" data-i18n="coverage.introCopy">If you're not sure where to start, Essential is the middle-ground pick. Basic keeps the premium lower, while Deluxe gives you stronger cover and CFAR.</p>
-          <div class="coverage-selected-card" id="coverageSelectedCard">
-            <p class="mini-label" data-i18n="coverage.currentlySelected">Currently selected</p>
-            <strong id="coverageSelectedTitle">Essential Plan</strong>
-            <p id="coverageSelectedText">A solid middle-ground plan for most trips.</p>
-            <a href="#application" class="button button-secondary" data-i18n="coverage.continueWithPlan">Continue With This Plan</a>
-          </div>
-        </div>
-        <div class="coverage-rail" id="marketingPlanCards">
-        <article class="coverage-card" data-marketing-plan="basic" role="button" tabindex="0" aria-label="Select Basic plan">
-          <div class="coverage-head">
-            <h3>Basic Plan</h3>
-          </div>
-          <div class="coverage-body">
-            <p class="coverage-price">From RM47 <span data-i18n="plan.suffix">/ pax</span></p>
-            <dl class="coverage-list">
-              <div><dt data-i18n="benefit.accidentalDeath">Accidental Death</dt><dd>RM350k</dd></div>
-              <div><dt data-i18n="benefit.medicalExpenses">Medical Expenses</dt><dd>RM750k</dd></div>
-              <div><dt data-i18n="benefit.emergencyEvacuation">Emergency Evacuation</dt><dd>RM1M</dd></div>
-              <div><dt data-i18n="benefit.travelInconvenience">Travel Inconvenience</dt><dd>RM5k</dd></div>
-              <div><dt data-i18n="benefit.personalLiability">Personal Liability</dt><dd>RM1M</dd></div>
-              <div><dt data-i18n="benefit.loungeAccess">Lounge Access</dt><dd>x</dd></div>
-              <div><dt>CFAR</dt><dd>x</dd></div>
-            </dl>
-          </div>
-        </article>
-        <article class="coverage-card coverage-card-featured" data-marketing-plan="essential" role="button" tabindex="0" aria-label="Select Essential plan">
-          <div class="coverage-head">
-            <h3>Essential Plan</h3>
-            <span class="coverage-tag" data-i18n="plan.tag.popular">Popular</span>
-          </div>
-          <div class="coverage-body">
-            <p class="coverage-price">From RM58 <span data-i18n="plan.suffix">/ pax</span></p>
-            <dl class="coverage-list">
-              <div><dt data-i18n="benefit.accidentalDeath">Accidental Death</dt><dd>RM550k</dd></div>
-              <div><dt data-i18n="benefit.medicalExpenses">Medical Expenses</dt><dd>RM1M</dd></div>
-              <div><dt data-i18n="benefit.emergencyEvacuation">Emergency Evacuation</dt><dd data-i18n="benefit.unlimited">Unlimited</dd></div>
-              <div><dt data-i18n="benefit.travelInconvenience">Travel Inconvenience</dt><dd>RM10k</dd></div>
-              <div><dt data-i18n="benefit.personalLiability">Personal Liability</dt><dd>RM1.5M</dd></div>
-              <div><dt data-i18n="benefit.loungeAccess">Lounge Access</dt><dd>Yes</dd></div>
-              <div><dt>CFAR</dt><dd>x</dd></div>
-            </dl>
-          </div>
-        </article>
-        <article class="coverage-card" data-marketing-plan="deluxe" role="button" tabindex="0" aria-label="Select Deluxe plan">
-          <div class="coverage-head">
-            <h3>Deluxe Plan</h3>
-            <span class="coverage-tag" data-i18n="plan.tag.best">Best</span>
-          </div>
-          <div class="coverage-body">
-            <p class="coverage-price">From RM86 <span data-i18n="plan.suffix">/ pax</span></p>
-            <dl class="coverage-list">
-              <div><dt data-i18n="benefit.accidentalDeath">Accidental Death</dt><dd>RM550k</dd></div>
-              <div><dt data-i18n="benefit.medicalExpenses">Medical Expenses</dt><dd>RM1M</dd></div>
-              <div><dt data-i18n="benefit.emergencyEvacuation">Emergency Evacuation</dt><dd data-i18n="benefit.unlimited">Unlimited</dd></div>
-              <div><dt data-i18n="benefit.travelInconvenience">Travel Inconvenience</dt><dd>RM10k</dd></div>
-              <div><dt data-i18n="benefit.personalLiability">Personal Liability</dt><dd>RM1.5M</dd></div>
-              <div><dt data-i18n="benefit.loungeAccess">Lounge Access</dt><dd>Yes</dd></div>
-              <div><dt>CFAR (up to RM5k)</dt><dd>Yes</dd></div>
-            </dl>
-          </div>
-        </article>
-        </div>
-      </div>
-    </section>
+<!-- Sticky premium pill -->
+<div class="premium-pill" id="premiumPill">
+  <div class="pill-left">
+    <div class="pill-plan" id="pillPlan">Essential Plan</div>
+    <div class="pill-pax" id="pillPax"></div>
+  </div>
+  <div class="pill-amount" id="pillAmount">RM —</div>
+</div>
 
-    <section class="section shell" id="application">
-      <div class="section-head">
-        <p class="eyebrow" data-i18n="app.eyebrow">Apply Online</p>
-        <h2 data-i18n="app.h2">Apply in a Few Minutes</h2>
-        <p class="section-copy section-copy-light" data-i18n="app.sectionCopy">Three short steps. We'll work out the premium as you go.</p>
-      </div>
+<!-- ═══════════ STEP 1: TRIP ═══════════ -->
+<div class="step-panel active" id="step-1">
+  <div class="panel-heading">
+    <h1 class="panel-title">Tell us about your trip</h1>
+    <p class="panel-sub">Destination, dates, and who's travelling. Premium calculates as you go.</p>
+  </div>
 
-      <div class="application-shell">
-        <div>
-          <div class="application-meta-row">
-            <div class="sticky-quote-bar" id="stickyQuoteBar" aria-live="polite">
-              <div>
-                <p class="mini-label" data-i18n="quoteBar.label">Current Quote</p>
-                <strong id="stickyQuotePlan">Selected Plan</strong>
-              </div>
-              <div class="sticky-quote-meta">
-                <span id="stickyQuoteTravellers">1 traveller</span>
-                <strong id="stickyQuoteTotal">RM0.00</strong>
-              </div>
-            </div>
-            <button type="button" class="top-back-button" id="topBackButton" hidden data-i18n="topBack">Back</button>
-          </div>
-          <div class="stepper" id="stepper">
-            <button type="button" class="step is-active" data-step="1" data-i18n="step1.label">1. Travel Details</button>
-            <button type="button" class="step" data-step="2" data-i18n="step2.label">2. Choose Plan</button>
-            <button type="button" class="step" data-step="3" data-i18n="step3.label">3. Confirm &amp; Pay</button>
-          </div>
+  <!-- Trip type -->
+  <div class="field">
+    <label class="label">Insurance Type</label>
+    <div class="toggle-group">
+      <button class="tgl-btn active" onclick="setTripType('single',this)">Single Trip</button>
+      <button class="tgl-btn" onclick="setTripType('annual',this)">Annual</button>
+    </div>
+  </div>
 
-          <form id="applicationForm" class="application-card" novalidate>
-            <div class="logic-alert" id="logicAlert" hidden role="alert" aria-live="assertive"></div>
-            <section class="form-step is-active" data-step-panel="1">
-              <div class="form-section-head">
-                <h3 data-i18n="s1.h3">Travel Details</h3>
-                <p data-i18n="s1.desc">Start with the trip dates, destination, and number of travellers. You can review everything before sending it in.</p>
-              </div>
+  <!-- Policy type -->
+  <div class="field">
+    <label class="label">Policy For</label>
+    <div class="toggle-group">
+      <button class="tgl-btn active" onclick="setPolicyType('individual',this)">Individual / Group</button>
+      <button class="tgl-btn" onclick="setPolicyType('family',this)">Family</button>
+    </div>
+  </div>
 
-              <div class="field-grid two">
-                <label class="field">
-                  <span data-i18n="insuranceType.label">Insurance Type *</span>
-                  <select name="insuranceType" id="insuranceType" required>
-                    <option value="single" selected data-i18n="insuranceType.single">Single Trip</option>
-                    <option value="annual" data-i18n="insuranceType.annual">Annual</option>
-                  </select>
-                </label>
-                <div></div>
-              </div>
-
-              <div class="field" id="areaField">
-                <span class="field-label" data-i18n="area.label">Travel Area *</span>
-                <div class="choice-grid two area-grid" id="areaChoices">
-                  <label class="choice">
-                    <input type="radio" name="travelArea" value="area1" checked>
-                    <span><strong data-i18n="area.area1.title">Area 1</strong><small data-i18n="area.area1.desc">Asia-Pacific favourites like Japan, China, Singapore, Thailand, Australia, and New Zealand</small></span>
-                  </label>
-                  <label class="choice">
-                    <input type="radio" name="travelArea" value="area2">
-                    <span><strong data-i18n="area.area2.title">Area 2</strong><small data-i18n="area.area2.desc">Worldwide excluding Malaysia, USA, Canada, Nepal, and Tibet</small></span>
-                  </label>
-                  <label class="choice">
-                    <input type="radio" name="travelArea" value="area3">
-                    <span><strong data-i18n="area.area3.title">Area 3</strong><small data-i18n="area.area3.desc">Worldwide excluding Malaysia, including USA and Canada</small></span>
-                  </label>
-                  <label class="choice">
-                    <input type="radio" name="travelArea" value="domestic">
-                    <span><strong data-i18n="area.domestic.title">Domestic</strong><small data-i18n="area.domestic.desc">Travel within Malaysia only</small></span>
-                  </label>
-                </div>
-                <div class="area-guidance" id="areaGuidance"></div>
-              </div>
-
-              <label class="field">
-                <span id="travelDatesLabel" data-i18n="travelDates.label">Travel Dates *</span>
-                <input type="text" name="travelDates" id="travelDates" data-i18n-placeholder="travelDates.placeholder" placeholder="DD/MM/YYYY to DD/MM/YYYY" autocomplete="off" readonly required>
-                <input type="hidden" name="departureDate" id="departureDate">
-                <input type="hidden" name="returnDate" id="returnDate">
-                <small class="error-text" data-error-for="travelDates"></small>
-              </label>
-
-              <label class="field" id="destinationField">
-                <span data-i18n="destination.label">Destination Country / City</span>
-                <input type="text" name="destination" id="destination" data-i18n-placeholder="destination.placeholder" placeholder="e.g. Japan, Tokyo">
-                <small class="error-text" data-error-for="destination"></small>
-              </label>
-
-              <div class="traveller-box">
-                <div class="traveller-box-head">
-                  <div>
-                    <h4 data-i18n="travellers.h4">How many travellers?</h4>
-                  </div>
-                  <div class="policy-pill" id="policyTypePill">Policy type: Individual</div>
-                </div>
-
-                <div class="field-grid two">
-                  <label class="field">
-                    <span data-i18n="adult.label">Adult</span>
-                    <div class="counter">
-                      <button type="button" data-counter="under70" data-delta="-1">-</button>
-                      <input type="number" min="0" max="20" name="under70Count" id="under70Count" value="1" required>
-                      <button type="button" data-counter="under70" data-delta="1">+</button>
-                    </div>
-                  </label>
-                  <label class="field">
-                    <span data-i18n="senior.label">Senior (&gt;70)</span>
-                    <div class="counter">
-                      <button type="button" data-counter="senior" data-delta="-1">-</button>
-                      <input type="number" min="0" max="20" name="seniorCount" id="seniorCount" value="0" required>
-                      <button type="button" data-counter="senior" data-delta="1">+</button>
-                    </div>
-                  </label>
-                </div>
-
-                <div class="field">
-                  <span class="field-label" data-i18n="policyType.label">Policy Type *</span>
-                  <div class="choice-grid three" id="policyTypeChoices"></div>
-                  <small class="error-text" data-error-for="policyType"></small>
-                </div>
-
-                <details class="info-disclosure">
-                  <summary data-i18n="eligibility.summary">Eligibility &amp; Family Rules</summary>
-                  <div class="info-disclosure-body">
-                    <p><strong data-i18n="eligibility.ageTitle">Age eligibility</strong></p>
-                    <ul>
-                      <li data-i18n="eligibility.ageIndividual">Individual: From 30 days to 70 years old</li>
-                      <li data-i18n="eligibility.ageSenior">Senior: From 71 to 85 years old</li>
-                      <li data-i18n="eligibility.ageFamily">Family: From 18 to 70 years old (for Parent/Legal Guardian) &amp; from 30 days to 23 years old (for Children)</li>
-                    </ul>
-                    <p><strong data-i18n="eligibility.familyTitle">Family plan</strong></p>
-                    <p data-i18n="eligibility.familyDesc">Applicable to legal spouse (limited to 1 legal spouse), legal child(ren), and legally adopted children.</p>
-                    <p><strong data-i18n="eligibility.maxBenefitTitle">Maximum benefit</strong></p>
-                    <p data-i18n="eligibility.maxBenefitDesc">For Family plans, the maximum benefit amount per family is 3 times of the individual limits stated in the Table of Coverages.</p>
-                  </div>
-                </details>
-              </div>
-
-              <div class="quote-panel" id="quotePanel">
-                <div>
-                  <p class="quote-label" data-i18n="quote.label">Estimated Premium</p>
-                  <h3 id="quoteTotal">RM0.00</h3>
-                  <p class="quote-note" id="quoteNote"></p>
-                  <p class="quote-meta" id="quoteMeta">Your total updates automatically when you change the trip, plan, or payment method.</p>
-                </div>
-                <dl class="quote-breakdown" id="quoteBreakdown"></dl>
-              </div>
-
-              <div class="button-row">
-                <button type="button" class="button button-primary" data-next-step="2" data-i18n="continue">Continue</button>
-              </div>
-            </section>
-
-            <section class="form-step" data-step-panel="2">
-              <div class="form-section-head">
-                <h3 data-i18n="s2.h3">Choose Plan</h3>
-                <p data-i18n="s2.desc">Pick the plan that fits, then fill in the traveller details.</p>
-              </div>
-
-              <div class="field" id="planField">
-                <span class="field-label" data-i18n="planSelect.label">Plan selection *</span>
-                <small class="hint" data-i18n="planSelect.hint">We start with Essential selected because it's the most common choice.</small>
-                <div class="choice-grid three" id="planChoices"></div>
-                <div class="plan-guidance" id="planGuidance"></div>
-                <small class="error-text" data-error-for="selectedPlan"></small>
-              </div>
-
-              <label class="checkbox-field">
-                <input type="checkbox" id="buyingForSomeoneElse" name="buyingForSomeoneElse">
-                <span data-i18n="buyingForSomeoneElse">Buying for Someone Else?</span>
-              </label>
-
-              <div class="subsection" id="proposerSection" hidden>
-                <h4 data-i18n="proposer.h4">Proposer Details</h4>
-                <div class="field-grid two">
-                  <label class="field">
-                    <span data-i18n="proposer.name">Full Name</span>
-                    <input type="text" name="proposerName" id="proposerName">
-                    <small class="error-text" data-error-for="proposerName"></small>
-                  </label>
-                  <label class="field">
-                    <span data-i18n="proposer.mobile">Mobile Number</span>
-                    <input type="tel" name="proposerMobile" id="proposerMobile">
-                    <small class="error-text" data-error-for="proposerMobile"></small>
-                  </label>
-                </div>
-                <div class="field-grid two">
-                  <label class="field">
-                    <span data-i18n="proposer.email">Email Address</span>
-                    <input type="email" name="proposerEmail" id="proposerEmail">
-                    <small class="error-text" data-error-for="proposerEmail"></small>
-                  </label>
-                  <label class="field">
-                    <span data-i18n="proposer.occupation">Occupation</span>
-                    <input type="text" name="proposerOccupation" id="proposerOccupation">
-                    <small class="error-text" data-error-for="proposerOccupation"></small>
-                  </label>
-                </div>
-                <label class="field">
-                  <span data-i18n="proposer.address">Home Address</span>
-                  <textarea name="proposerAddress" id="proposerAddress" rows="3"></textarea>
-                  <small class="error-text" data-error-for="proposerAddress"></small>
-                </label>
-              </div>
-
-              <div class="subsection">
-                <div class="subsection-head">
-                  <div>
-                    <h4 data-i18n="insured.h4">Insured details</h4>
-                    <p id="travellerSummaryText">1 traveller to complete.</p>
-                  </div>
-                </div>
-                <p class="hint subsection-hint" data-i18n="insured.nricHint">NRIC auto-fills date of birth and gender when the IC number is entered.</p>
-                <div id="insuredList" class="stack"></div>
-                <small class="error-text" data-error-for="insuredList"></small>
-              </div>
-
-              <div class="subsection optional-subsection">
-                <button type="button" class="subsection-toggle" data-toggle-optional="flightSectionBody" aria-expanded="false">
-                  <span>
-                    <strong data-i18n="flight.title">Flight Details</strong>
-                  </span>
-                  <em data-i18n="optional.add">Add</em>
-                </button>
-                <div class="optional-body" id="flightSectionBody" hidden>
-                  <div class="subsection-head">
-                    <div>
-                      <h4 data-i18n="flight.title">Flight Details</h4>
-                    </div>
-                    <button type="button" class="button button-secondary" id="addFlightButton" data-i18n="flight.add">Add flight</button>
-                  </div>
-                  <div id="flightList" class="stack"></div>
-                  <small class="error-text" data-error-for="flights"></small>
-                </div>
-              </div>
-
-              <div class="subsection optional-subsection">
-                <button type="button" class="subsection-toggle" data-toggle-optional="bankSectionBody" aria-expanded="false">
-                  <span>
-                    <strong data-i18n="bank.singleTitle">Bank Details</strong>
-                  </span>
-                  <em data-i18n="optional.add">Add</em>
-                </button>
-                <div class="optional-body" id="bankSectionBody" hidden>
-                  <div id="bankList" class="stack"></div>
-                  <small class="error-text" data-error-for="bankDetails"></small>
-                </div>
-              </div>
-
-              <div class="subsection optional-subsection">
-                <button type="button" class="subsection-toggle" data-toggle-optional="nomineeSectionBody" aria-expanded="false">
-                  <span>
-                    <strong data-i18n="nominee.title">Nominee Details</strong>
-                  </span>
-                  <em data-i18n="optional.add">Add</em>
-                </button>
-                <div class="optional-body" id="nomineeSectionBody" hidden>
-                  <div class="subsection-head">
-                    <div>
-                      <h4 data-i18n="nominee.title">Nominee Details</h4>
-                    </div>
-                    <button type="button" class="button button-secondary" id="addNomineeButton" data-i18n="nominee.add">Add nominee</button>
-                  </div>
-                  <div id="nomineeList" class="stack"></div>
-                  <small class="error-text" data-error-for="nominees"></small>
-                </div>
-              </div>
-
-              <div class="button-row">
-                <button type="button" class="button button-secondary" data-prev-step="1" data-i18n="back">Back</button>
-                <button type="button" class="button button-primary" data-next-step="3" data-i18n="continue">Continue</button>
-              </div>
-            </section>
-
-            <section class="form-step" data-step-panel="3">
-              <div class="form-section-head">
-                <h3 data-i18n="s3.h3">Confirm &amp; Pay</h3>
-                <p data-i18n="s3.desc">Check the premium, choose how you'd like to pay, and submit when ready. It usually takes about 2 minutes.</p>
-              </div>
-
-              <div class="issuance-note">
-                ⏱️ Policy emailed within 2 working hours of payment confirmation.
-              </div>
-
-              <div class="review-layout">
-                <div class="summary-card review-card">
-                  <div class="review-card-head">
-                    <div>
-                      <h4 data-i18n="review.h4">Review Your Details</h4>
-                      <p data-i18n="review.desc">Give the trip and contact details one last look before payment. Nominee and bank details are left out here.</p>
-                    </div>
-                    <button type="button" class="button button-secondary button-compact" data-prev-step="2" data-i18n="review.editDetails">Edit details</button>
-                  </div>
-                  <div id="summaryList" class="review-summary"></div>
-                  <div class="summary-total summary-total-accent">
-                    <span data-i18n="totalPayable">Total payable</span>
-                    <strong id="summaryTotal">RM0.00</strong>
-                  </div>
-                </div>
-
-                <div class="payment-card">
-                  <h4 data-i18n="payment.h4">Choose Payment Method</h4>
-                  <div class="choice-grid two payment-methods">
-                    <label class="choice pay-method-choice">
-                      <input type="radio" name="paymentMethod" value="duitnow" checked>
-                      <span>
-                        <strong>DuitNow QR</strong>
-                        <small data-i18n="duitnow.small">Scan the QR shared by Henry</small>
-                        <em class="payment-total" data-payment-total="duitnow"></em>
-                      </span>
-                    </label>
-                    <label class="choice pay-method-choice">
-                      <input type="radio" name="paymentMethod" value="tng">
-                      <span>
-                        <strong>Touch 'n Go</strong>
-                        <small data-i18n="tng.small">012 612 3540</small>
-                        <em class="payment-total" data-payment-total="tng"></em>
-                      </span>
-                    </label>
-                    <label class="choice pay-method-choice">
-                      <input type="radio" name="paymentMethod" value="bank">
-                      <span>
-                        <strong>Bank transfer</strong>
-                        <small data-i18n="bank.transfer.small">RHB 1040 2700 307120</small>
-                        <em class="payment-total" data-payment-total="bank"></em>
-                      </span>
-                    </label>
-                    <label class="choice pay-method-choice">
-                      <input type="radio" name="paymentMethod" value="billplz">
-                      <span>
-                        <span class="pay-method-name-row">
-                          <strong>Card via Billplz</strong>
-                          <span class="pay-rec-tag" data-i18n="pay.recommended">Recommended</span>
-                        </span>
-                        <small data-i18n="billplz.small">Henry sends the payment link</small>
-                        <em class="payment-total" data-payment-total="billplz"></em>
-                      </span>
-                    </label>
-                  </div>
-
-                  <div class="payment-detail-box" id="paymentDetailBox"></div>
-
-                  <div class="field">
-                    <span data-i18n="uploadSlip.label">Upload Payment Slip</span>
-                    <div class="upload-zone" id="uploadZone" role="button" tabindex="0"
-                      onclick="document.getElementById('paymentSlip').click()"
-                      onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('paymentSlip').click()">
-                      <div class="upload-zone-icon">📎</div>
-                      <p class="upload-zone-text">Tap to attach payment slip</p>
-                      <p class="upload-zone-hint">JPG, PNG or PDF · Max 5MB</p>
-                    </div>
-                    <input type="file" id="paymentSlip" name="paymentSlip" accept="image/*,.pdf"
-                      class="upload-input-hidden"
-                      onchange="(function(el){var p=document.getElementById('uploadPreview');var n=document.getElementById('uploadFileName');if(el.files.length){p.style.display='flex';n.textContent=el.files[0].name;}else{p.style.display='none';}})(this)">
-                    <div class="upload-preview" id="uploadPreview" style="display:none">
-                      <span class="upload-check">✓</span>
-                      <span id="uploadFileName"></span>
-                    </div>
-                    <small class="hint" data-i18n="uploadSlip.hint">Required for DuitNow, Touch 'n Go and bank transfer.</small>
-                    <small class="error-text" data-error-for="paymentSlip"></small>
-                  </div>
-
-                  <div class="declaration-card">
-                    <input type="checkbox" id="consent" name="consent" required>
-                    <div class="declaration-text" data-i18n="consent.text">I confirm the information provided is accurate and understand policy issuance is subject to Tokio Marine acceptance and payment clearance.</div>
-                  </div>
-                  <small class="error-text" data-error-for="consent"></small>
-                </div>
-              </div>
-
-              <div class="button-row">
-                <button type="button" class="button button-secondary" data-prev-step="2" data-i18n="back">Back</button>
-                <button type="submit" class="button button-primary" id="submitButton" data-i18n="submit">Submit application</button>
-              </div>
-            </section>
-          </form>
-
-          <div class="application-card success-card" id="successCard" hidden>
-            <p class="eyebrow" data-i18n="success.eyebrow">Submission sent</p>
-            <h3 data-i18n="success.h3">Submission received.</h3>
-            <p data-i18n="success.desc">Your details have been sent to Henry. He'll review them and follow up.</p>
-            <div class="next-steps-card">
-              <h4 data-i18n="success.nextSteps">What Happens Next</h4>
-              <ul class="feature-list compact">
-                <li data-i18n="success.step1">Henry checks the trip details and premium</li>
-                <li data-i18n="success.step2">If you uploaded payment proof, he'll verify it before the next step</li>
-                <li data-i18n="success.step3">If anything needs fixing, you can message Henry on WhatsApp</li>
-              </ul>
-            </div>
-            <div class="button-row left">
-              <button type="button" class="button button-secondary" id="startNewButton" data-i18n="success.startNew">Start Another Submission</button>
-              <a href="https://wa.me/60126123540" class="button button-primary" id="successWhatsAppButton" target="_blank" rel="noreferrer" data-i18n="success.whatsapp">WhatsApp Henry</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="site-footer">
-    <div class="shell footer-grid">
+  <!-- Travellers -->
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="stepper-row">
       <div>
-        <p class="footer-title" data-i18n="footer.title">Travel Insurance Form</p>
-        <p data-i18n="footer.desc">This form is managed by Henry Lee. It is not Tokio Marine's official policy portal.</p>
+        <div class="stepper-name">Adults</div>
+        <div class="stepper-desc">Age 30 days – 70 years</div>
+      </div>
+      <div class="stepper-ctrl">
+        <button class="stp-btn" id="adultMinus" onclick="adj('adults',-1)">−</button>
+        <span class="stp-val" id="adultVal">1</span>
+        <button class="stp-btn" onclick="adj('adults',1)">+</button>
       </div>
     </div>
-  </footer>
+    <div class="stepper-row">
+      <div>
+        <div class="stepper-name">Seniors</div>
+        <div class="stepper-desc">Age 71 – 85 years</div>
+      </div>
+      <div class="stepper-ctrl">
+        <button class="stp-btn" id="seniorMinus" onclick="adj('seniors',-1)">−</button>
+        <span class="stp-val" id="seniorVal">0</span>
+        <button class="stp-btn" onclick="adj('seniors',1)">+</button>
+      </div>
+    </div>
+    <div class="stepper-row" id="childRow" style="display:none">
+      <div>
+        <div class="stepper-name">Children</div>
+        <div class="stepper-desc">Age 30 days – 23 years (family plan)</div>
+      </div>
+      <div class="stepper-ctrl">
+        <button class="stp-btn" id="childMinus" onclick="adj('children',-1)">−</button>
+        <span class="stp-val" id="childVal">0</span>
+        <button class="stp-btn" onclick="adj('children',1)">+</button>
+      </div>
+    </div>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script type="module" src="/assets/app.js"></script>
-  <script>
-    (function () {
-      var facade = document.getElementById('videoFacade');
-      if (!facade) return;
-      function activate() {
-        var iframe = document.createElement('iframe');
-        iframe.src = 'https://www.youtube.com/embed/Rrm4uBH7mvk?autoplay=1&rel=0&modestbranding=1';
-        iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
-        iframe.allowFullscreen = true;
-        iframe.title = 'All-New Tokio Marine Explorer';
-        facade.innerHTML = '';
-        facade.style.cursor = 'default';
-        facade.appendChild(iframe);
+  <!-- Destination -->
+  <div class="field">
+    <label class="label">Destination <span class="req">*</span></label>
+    <div class="ac-wrap">
+      <input type="text" class="input" id="destInput" placeholder="e.g. Japan, United Kingdom, USA…" autocomplete="off"
+        oninput="onDestInput(this.value)" onfocus="onDestInput(this.value)">
+      <div class="ac-results" id="acResults"></div>
+    </div>
+  </div>
+
+  <!-- Area (auto) -->
+  <div class="field">
+    <label class="label">Coverage Area <span style="font-size:.68rem;color:var(--text-3);text-transform:none;letter-spacing:0;font-weight:400;">— auto-detected from destination</span></label>
+    <div class="area-display" id="areaDisplay">
+      <span class="area-pill" id="areaBadge" style="display:none"></span>
+      <span class="area-display-text" id="areaText">Enter destination above</span>
+    </div>
+  </div>
+
+  <!-- Dates -->
+  <div class="field" id="dateSection">
+    <label class="label">Travel Dates <span class="req">*</span></label>
+    <div class="two-col">
+      <div>
+        <input type="date" class="input" id="dateFrom" onchange="onDate()">
+        <div class="hint">Departure</div>
+      </div>
+      <div>
+        <input type="date" class="input" id="dateTo" onchange="onDate()">
+        <div class="hint">Return</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annual note -->
+  <div class="annual-note" id="annualNote">
+    📅 Annual plan covers unlimited trips within 12 months, up to 90 days per trip. No need to enter dates.
+  </div>
+
+  <!-- Premium preview -->
+  <div class="premium-box" id="premiumBox" style="display:none">
+    <div>
+      <div class="pbox-label">Estimated Total</div>
+      <div class="pbox-note" id="pboxNote">—</div>
+    </div>
+    <div>
+      <div class="pbox-amount" id="pboxAmount">RM —</div>
+      <div class="pbox-sub" id="pboxSub">Based on Essential plan</div>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn-primary" onclick="goStep(2)">Continue — Choose Your Plan →</button>
+  </div>
+</div>
+
+<!-- ═══════════ STEP 2: PLAN ═══════════ -->
+<div class="step-panel" id="step-2">
+  <div class="panel-heading">
+    <h1 class="panel-title">Choose your plan</h1>
+    <p class="panel-sub">Prices shown are calculated for your specific trip.</p>
+  </div>
+
+  <div class="plans-grid" id="plansGrid"></div>
+
+  <div class="card">
+    <div class="card-label">Full Coverage Comparison</div>
+    <table class="cov-table">
+      <thead>
+        <tr>
+          <th>Benefit</th>
+          <th>Basic</th>
+          <th>Essential</th>
+          <th>Deluxe</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Accidental Death</td><td>RM350k</td><td>RM550k</td><td>RM550k</td></tr>
+        <tr><td>Medical Expenses</td><td>RM750k</td><td>RM1M</td><td>RM1M</td></tr>
+        <tr><td>Emergency Evacuation</td><td>RM1M</td><td>Unlimited</td><td>Unlimited</td></tr>
+        <tr><td>Trip Cancellation</td><td>RM5k</td><td>RM10k</td><td>RM10k</td></tr>
+        <tr><td>Travel Inconvenience</td><td>RM5k</td><td>RM10k</td><td>RM10k</td></tr>
+        <tr><td>Baggage Loss</td><td>RM3k</td><td>RM5k</td><td>RM5k</td></tr>
+        <tr><td>Personal Liability</td><td>RM1M</td><td>RM1.5M</td><td>RM1.5M</td></tr>
+        <tr><td>Lounge Access</td><td class="cov-na">—</td><td>✓</td><td>✓</td></tr>
+        <tr><td>COVID-19 Cover</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr class="hl"><td>Cancel for Any Reason (CFAR)</td><td class="cov-na">—</td><td class="cov-na">—</td><td>up to RM5k</td></tr>
+      </tbody>
+    </table>
+    <div class="cov-link">Full policy terms in the <a href="/assets/Explorer.pdf" target="_blank" rel="noopener">Explorer brochure ↗</a></div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn-primary" onclick="goStep(3)">Continue — Traveller Details →</button>
+    <button class="btn-back" onclick="goStep(1)">← Back</button>
+  </div>
+</div>
+
+<!-- ═══════════ STEP 3: DETAILS ═══════════ -->
+<div class="step-panel" id="step-3">
+  <div class="panel-heading">
+    <h1 class="panel-title">Traveller details</h1>
+    <p class="panel-sub" id="detailsSubnote">Fill in details for each traveller below.</p>
+  </div>
+
+  <!-- Arranging for someone else -->
+  <div class="card" style="margin-bottom:1rem">
+    <div class="toggle-switch-row">
+      <div class="toggle-switch-info">
+        <div class="tsw-name">Arranging for someone else?</div>
+        <div class="tsw-desc">Toggle on if you're buying on behalf of another person.</div>
+      </div>
+      <label class="sw-track" id="swTrack" onclick="toggleForOther()">
+        <input type="checkbox" id="forOtherChk">
+        <div class="sw-thumb" id="swThumb"></div>
+      </label>
+    </div>
+    <div id="policyholderSection" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+      <div class="field">
+        <label class="label">Your (Policyholder) Full Name <span class="req">*</span></label>
+        <input type="text" class="input" id="phName" placeholder="As per NRIC">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="label">Your (Policyholder) NRIC <span class="req">*</span></label>
+        <input type="text" class="input" id="phNRIC" placeholder="000000-00-0000" maxlength="14"
+          oninput="fmtNRIC(this)" onblur="parseNRIC(this,'ph')">
+        <div class="autofill-row">
+          <div class="af-field" id="dob-ph">Date of birth</div>
+          <div class="af-field" id="gender-ph">Gender</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Traveller blocks -->
+  <div id="travBlocks"></div>
+
+  <!-- Contact -->
+  <div class="card">
+    <div class="card-label">Contact & Policy Delivery</div>
+    <div class="field">
+      <label class="label">Email Address <span class="req">*</span></label>
+      <input type="email" class="input" id="emailInput" placeholder="Policy documents sent here">
+      <div class="hint">Policy schedule emailed here within 2 working hours of payment.</div>
+    </div>
+    <div class="field">
+      <label class="label">Mobile Number <span class="req">*</span></label>
+      <input type="tel" class="input" id="phoneInput" placeholder="e.g. 012 345 6789">
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label class="label">Home Address <span class="req">*</span></label>
+      <textarea class="input" rows="2" id="addressInput" placeholder="Street, city, postcode, state"></textarea>
+    </div>
+  </div>
+
+  <!-- Occupation -->
+  <div class="card">
+    <div class="field" style="margin-bottom:0">
+      <label class="label">Occupation <span class="req">*</span></label>
+      <input type="text" class="input" id="occInput" placeholder="e.g. Engineer, Business Owner, Teacher…">
+      <div class="hint">Required for underwriting. High-risk occupations may affect coverage terms.</div>
+    </div>
+  </div>
+
+  <!-- Optional fields -->
+  <div style="margin-bottom:1rem">
+    <div style="font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:.6rem">Optional Details</div>
+
+    <div class="accordion" id="accFlight">
+      <div class="acc-head" onclick="togAcc('accFlight')">
+        <span class="acc-title">✈️ Flight Details <span class="opt-tag">Optional</span></span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="field"><label class="label">Airline & Flight No.</label><input type="text" class="input" id="flightNum" placeholder="e.g. AirAsia D7 521"></div>
+        <div class="two-col">
+          <div class="field" style="margin-bottom:0"><label class="label">From</label><input type="text" class="input" id="flightFrom" placeholder="e.g. KLIA"></div>
+          <div class="field" style="margin-bottom:0"><label class="label">To</label><input type="text" class="input" id="flightTo" placeholder="e.g. NRT"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion" id="accNominee">
+      <div class="acc-head" onclick="togAcc('accNominee')">
+        <span class="acc-title">👤 Nominee <span class="opt-tag">Optional</span></span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="field"><label class="label">Full Name</label><input type="text" class="input" id="nomineeName" placeholder="As per NRIC"></div>
+        <div class="two-col">
+          <div class="field" style="margin-bottom:0"><label class="label">NRIC</label><input type="text" class="input" id="nomineeNRIC" placeholder="000000-00-0000" maxlength="14"></div>
+          <div class="field" style="margin-bottom:0">
+            <label class="label">Relationship</label>
+            <select class="input" id="nomineeRel">
+              <option value="">Select…</option>
+              <option>Spouse</option><option>Parent</option><option>Child</option><option>Sibling</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion" id="accBank">
+      <div class="acc-head" onclick="togAcc('accBank')">
+        <span class="acc-title">🏦 Bank Details <span class="opt-tag">For refunds</span></span>
+        <span class="acc-arrow">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="field"><label class="label">Bank Name</label><input type="text" class="input" id="bankName" placeholder="e.g. Maybank, CIMB, RHB…"></div>
+        <div class="field" style="margin-bottom:0"><label class="label">Account Number</label><input type="text" class="input" id="bankAccNum" placeholder="Account number"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn-primary" onclick="goStep(4)">Continue — Review & Pay →</button>
+    <button class="btn-back" onclick="goStep(2)">← Back</button>
+  </div>
+</div>
+
+<!-- ═══════════ STEP 4: PAY ═══════════ -->
+<div class="step-panel" id="step-4">
+  <div class="panel-heading">
+    <h1 class="panel-title">Review & pay</h1>
+    <p class="panel-sub">One last check, then submit.</p>
+  </div>
+
+  <!-- Summary -->
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-label">Trip Summary</div>
+    <div class="rv-row"><span class="rv-label">Destination</span><span class="rv-val" id="rv-dest">—</span></div>
+    <div class="rv-row"><span class="rv-label">Coverage Area</span><span class="rv-val" id="rv-area">—</span></div>
+    <div class="rv-row"><span class="rv-label">Travel Dates</span><span class="rv-val" id="rv-dates">—</span></div>
+    <div class="rv-row"><span class="rv-label">Travellers</span><span class="rv-val" id="rv-pax">—</span></div>
+    <div class="rv-row"><span class="rv-label">Plan</span><span class="rv-val" id="rv-plan">—</span></div>
+    <div class="rv-row"><span class="rv-label">Type</span><span class="rv-val" id="rv-type">—</span></div>
+    <div class="rv-total">
+      <span class="rv-total-label">Total Payable</span>
+      <span class="rv-total-amount" id="rv-total">RM —</span>
+    </div>
+  </div>
+
+  <div class="issuance-note">⏱️ Policy emailed within 2 working hours of payment confirmation.</div>
+
+  <!-- Payment method -->
+  <div class="field">
+    <label class="label">Payment Method <span class="req">*</span></label>
+    <div class="pay-grid">
+      <div class="pay-opt sel" onclick="selPay('billplz',this)">
+        <div class="pay-name-row"><span class="pay-name">Card via Billplz</span><span class="pay-rec">Recommended</span></div>
+        <span class="pay-detail">Henry sends payment link · +2% card fee</span>
+      </div>
+      <div class="pay-opt" onclick="selPay('duitnow',this)">
+        <span class="pay-name">DuitNow QR</span>
+        <span class="pay-detail">Henry shares QR after submit</span>
+      </div>
+      <div class="pay-opt" onclick="selPay('tng',this)">
+        <span class="pay-name">Touch 'n Go</span>
+        <span class="pay-detail">012 612 3540</span>
+      </div>
+      <div class="pay-opt" onclick="selPay('bank',this)">
+        <span class="pay-name">Bank Transfer</span>
+        <span class="pay-detail">RHB 1040 2700 307120</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment instructions (contextual) -->
+  <div class="pay-inst" id="payInst"></div>
+
+  <!-- Upload slip -->
+  <div id="uploadSection" style="display:none" class="field">
+    <label class="label">Payment Slip <span class="req">*</span></label>
+    <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+      <div class="upload-icon">📎</div>
+      <div class="upload-text">Tap to upload payment slip</div>
+      <div class="upload-hint">JPG, PNG or PDF · Max 5MB</div>
+    </div>
+    <input type="file" id="file-input" accept="image/*,.pdf" onchange="onUpload(this)">
+    <div class="upload-preview" id="uploadPreview">
+      <span>✓</span><span id="uploadName"></span>
+    </div>
+  </div>
+
+  <!-- Declaration -->
+  <div class="declaration">
+    <input type="checkbox" id="declaration">
+    <div class="declaration-text">
+      I confirm the information provided is accurate and complete. I understand that policy issuance is subject to Tokio Marine's acceptance and payment clearance. Henry Lee is my appointed insurance advisor for this application.
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  <div class="err-banner" id="errBanner"></div>
+
+  <div class="nav-btns">
+    <button class="btn-primary" id="submitBtn" onclick="doSubmit()">Submit Application</button>
+    <button class="btn-back" onclick="goStep(3)">← Back</button>
+  </div>
+</div>
+
+<!-- ═══════════ SUCCESS ═══════════ -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✓</div>
+  <h2 class="success-title">Application Submitted</h2>
+  <p class="success-sub">Henry will review your details and follow up shortly. Your policy will be emailed once payment is confirmed — usually within 2 working hours.</p>
+  <a href="https://wa.me/60126123540" class="success-wa" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.535 4.07 1.475 5.793L0 24l6.348-1.453A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.791 9.791 0 01-5.013-1.373l-.36-.213-3.727.853.876-3.618-.234-.371A9.778 9.778 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg>
+    WhatsApp Henry
+  </a>
+</div>
+
+<footer class="site-footer">
+  <span class="footer-note">Managed by Henry Lee · Licensed General Insurance Advisor</span>
+  <span class="footer-tm">Not Tokio Marine's official policy portal.</span>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══════════ DESTINATION DATA ═══════════
+const DESTS=[
+  {n:'Malaysia (Domestic)',a:'D',al:'Domestic'},
+  {n:'Japan',a:'1',al:'Area 1'},{n:'South Korea',a:'1',al:'Area 1'},
+  {n:'China',a:'1',al:'Area 1'},{n:'Hong Kong',a:'1',al:'Area 1'},
+  {n:'Taiwan',a:'1',al:'Area 1'},{n:'Macau',a:'1',al:'Area 1'},
+  {n:'Singapore',a:'1',al:'Area 1'},{n:'Thailand',a:'1',al:'Area 1'},
+  {n:'Indonesia',a:'1',al:'Area 1'},{n:'Bali',a:'1',al:'Area 1'},
+  {n:'Philippines',a:'1',al:'Area 1'},{n:'Vietnam',a:'1',al:'Area 1'},
+  {n:'Cambodia',a:'1',al:'Area 1'},{n:'Myanmar',a:'1',al:'Area 1'},
+  {n:'Laos',a:'1',al:'Area 1'},{n:'Brunei',a:'1',al:'Area 1'},
+  {n:'India',a:'1',al:'Area 1'},{n:'Sri Lanka',a:'1',al:'Area 1'},
+  {n:'Bangladesh',a:'1',al:'Area 1'},{n:'Maldives',a:'1',al:'Area 1'},
+  {n:'Australia',a:'1',al:'Area 1'},{n:'New Zealand',a:'1',al:'Area 1'},
+  {n:'Fiji',a:'1',al:'Area 1'},{n:'Mongolia',a:'1',al:'Area 1'},
+  {n:'Nepal',a:'1',al:'Area 1'},{n:'East Timor',a:'1',al:'Area 1'},
+  {n:'United Kingdom',a:'2',al:'Area 2'},{n:'France',a:'2',al:'Area 2'},
+  {n:'Germany',a:'2',al:'Area 2'},{n:'Italy',a:'2',al:'Area 2'},
+  {n:'Spain',a:'2',al:'Area 2'},{n:'Portugal',a:'2',al:'Area 2'},
+  {n:'Netherlands',a:'2',al:'Area 2'},{n:'Switzerland',a:'2',al:'Area 2'},
+  {n:'Austria',a:'2',al:'Area 2'},{n:'Belgium',a:'2',al:'Area 2'},
+  {n:'Sweden',a:'2',al:'Area 2'},{n:'Norway',a:'2',al:'Area 2'},
+  {n:'Denmark',a:'2',al:'Area 2'},{n:'Finland',a:'2',al:'Area 2'},
+  {n:'Ireland',a:'2',al:'Area 2'},{n:'Greece',a:'2',al:'Area 2'},
+  {n:'Czech Republic',a:'2',al:'Area 2'},{n:'Poland',a:'2',al:'Area 2'},
+  {n:'Hungary',a:'2',al:'Area 2'},{n:'Croatia',a:'2',al:'Area 2'},
+  {n:'Turkey',a:'2',al:'Area 2'},{n:'UAE',a:'2',al:'Area 2'},
+  {n:'Dubai',a:'2',al:'Area 2'},{n:'Saudi Arabia',a:'2',al:'Area 2'},
+  {n:'Jordan',a:'2',al:'Area 2'},{n:'Egypt',a:'2',al:'Area 2'},
+  {n:'South Africa',a:'2',al:'Area 2'},{n:'Kenya',a:'2',al:'Area 2'},
+  {n:'Morocco',a:'2',al:'Area 2'},{n:'Russia',a:'2',al:'Area 2'},
+  {n:'Mexico',a:'2',al:'Area 2'},{n:'Brazil',a:'2',al:'Area 2'},
+  {n:'Argentina',a:'2',al:'Area 2'},{n:'Peru',a:'2',al:'Area 2'},
+  {n:'Pakistan',a:'2',al:'Area 2'},{n:'Iran',a:'2',al:'Area 2'},
+  {n:'United States',a:'3',al:'Area 3'},{n:'USA',a:'3',al:'Area 3'},
+  {n:'Canada',a:'3',al:'Area 3'},
+];
+
+// ═══════════ PREMIUM RATES ═══════════
+// Brackets: [≤5d, ≤10d, ≤18d, ≤31d, 32+d, annual]
+const PREMIUMS = {
+  '1': {
+    adult:  { basic:[47,68,110,144,34,365],    essential:[58,84,135,179,44,455],    deluxe:[86,130,187,238,58,627]    },
+    senior: { basic:[128,192,300,395,95,1031],  essential:[161,237,368,483,115,1264], deluxe:[185,277,412,531,127,1408] },
+    family: { basic:[120,173,278,365,85,924],   essential:[149,216,343,455,111,1114], deluxe:[219,331,476,605,148,1550] }
+  },
+  '2': {
+    adult:  { basic:[71,102,164,216,50,506],    essential:[83,123,198,265,66,650],    deluxe:[121,176,260,334,83,851]   },
+    senior: { basic:[192,287,449,592,143,1432], essential:[237,353,548,721,173,1747], deluxe:[271,401,601,779,187,1920] },
+    family: { basic:[178,258,415,546,128,1281], essential:[213,314,505,673,166,1525], deluxe:[308,449,660,847,209,2033] }
+  },
+  '3': {
+    adult:  { basic:[175,253,408,538,126,1137],  essential:[215,310,496,705,164,1438],  deluxe:[324,466,671,899,212,2006]  },
+    senior: { basic:[478,716,1121,1478,357,3218], essential:[583,871,1360,1792,432,3907], deluxe:[688,1021,1525,1972,477,4447] },
+    family: { basic:[441,641,1033,1362,319,2875], essential:[502,754,1231,1651,415,3358], deluxe:[779,1149,1674,2140,536,4796] }
+  },
+  D: { // Domestic — single rate regardless of plan
+    adult:  [23,30,45,60,15,230],
+    senior: [62,83,124,165,41,620],
+    family: [57,76,114,152,38,570]
+  }
+};
+
+function getBracket(table, days, annual) {
+  if (annual) return table[5];
+  if (days <= 5)  return table[0];
+  if (days <= 10) return table[1];
+  if (days <= 18) return table[2];
+  if (days <= 31) return table[3];
+  return table[4];
+}
+
+// Area code → API value map
+const AREA_API = { D:'domestic', '1':'area1', '2':'area2', '3':'area3' };
+
+// ═══════════ STATE ═══════════
+const S={
+  tripType:'single',policyType:'individual',
+  adults:1,seniors:0,children:0,
+  dest:'',area:'',
+  dateFrom:'',dateTo:'',days:0,
+  plan:'essential',
+  payMethod:'billplz',
+  premiums:{basic:0,essential:0,deluxe:0},
+};
+
+// ═══════════ NAVIGATION ═══════════
+let cur=1;
+
+function goStep(n){
+  if(n>cur&&!validateStep(cur))return;
+  document.getElementById('step-'+cur).classList.remove('active');
+  cur=n;
+  document.getElementById('step-'+cur).classList.add('active');
+  updateDots();
+  if(n===2)renderPlans();
+  if(n===3)renderTravBlocks();
+  if(n===4)renderReview();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function validateStep(n){
+  if(n===1){
+    if(!S.dest){alert('Please enter your destination.');return false;}
+    if(S.tripType==='single'&&(!S.dateFrom||!S.dateTo)){alert('Please select your travel dates.');return false;}
+    if(S.tripType==='single'&&S.days<1){alert('Return date must be after departure date.');return false;}
+  }
+  return true;
+}
+
+function updateDots(){
+  for(let i=1;i<=4;i++){
+    const d=document.getElementById('dot-'+i);
+    const l=document.getElementById('line-'+i);
+    d.className='step-dot';
+    if(i<cur){d.classList.add('done');d.textContent='✓';}
+    else if(i===cur){d.classList.add('active');d.textContent=i;}
+    else{d.textContent=i;}
+    if(l){l.className='step-line';if(i<cur)l.classList.add('done');}
+  }
+  const pill=document.getElementById('premiumPill');
+  if(cur>=2&&S.premiums.essential>0){
+    pill.classList.add('visible');
+    document.getElementById('pillPlan').textContent=cap(S.plan)+' Plan';
+    document.getElementById('pillPax').textContent=paxStr();
+    document.getElementById('pillAmount').textContent='RM '+S.premiums[S.plan].toFixed(2);
+  }else{pill.classList.remove('visible');}
+}
+
+// ═══════════ TRIP TYPE ═══════════
+function setTripType(type,btn){
+  S.tripType=type;
+  toggleBtns(btn);
+  const ds=document.getElementById('dateSection');
+  const an=document.getElementById('annualNote');
+  if(type==='annual'){ds.style.display='none';an.style.display='block';S.days=365;}
+  else{ds.style.display='block';an.style.display='none';S.days=0;}
+  calcPremium();
+}
+
+function setPolicyType(type,btn){
+  S.policyType=type;
+  toggleBtns(btn);
+  document.getElementById('childRow').style.display=type==='family'?'flex':'none';
+  if(type!=='family'){S.children=0;document.getElementById('childVal').textContent='0';}
+  calcPremium();
+}
+
+function toggleBtns(btn){
+  btn.parentElement.querySelectorAll('.tgl-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ═══════════ COUNTERS ═══════════
+function adj(key,d){
+  const min=key==='adults'?1:0;
+  S[key]=Math.max(min,Math.min(10,S[key]+d));
+  const ids={adults:'adultVal',seniors:'seniorVal',children:'childVal'};
+  const minIds={adults:'adultMinus',seniors:'seniorMinus',children:'childMinus'};
+  document.getElementById(ids[key]).textContent=S[key];
+  document.getElementById(minIds[key]).disabled=S[key]<=min;
+  calcPremium();
+}
+
+// ═══════════ DESTINATION ═══════════
+function onDestInput(val){
+  const res=document.getElementById('acResults');
+  if(!val||val.length<1){res.classList.remove('open');return;}
+  const matches=DESTS.filter(d=>d.n.toLowerCase().includes(val.toLowerCase())).slice(0,8);
+  if(!matches.length){res.classList.remove('open');return;}
+  res.innerHTML=matches.map(d=>`
+    <div class="ac-item" onclick="selDest('${d.n}','${d.a}','${d.al}')">
+      <span>${d.n}</span>
+      <span class="area-pill a-${d.a}">${d.al}</span>
+    </div>`).join('');
+  res.classList.add('open');
+}
+
+function selDest(name,area,label){
+  S.dest=name;S.area=area;
+  document.getElementById('destInput').value=name;
+  document.getElementById('acResults').classList.remove('open');
+  const descs={
+    D:'Domestic — within Malaysia only',
+    '1':'Asia-Pacific — Japan, China, Australia, Singapore & more',
+    '2':'Worldwide excluding USA, Canada, Nepal & Tibet',
+    '3':'Worldwide including USA & Canada',
+  };
+  const badge=document.getElementById('areaBadge');
+  badge.className='area-pill a-'+area;
+  badge.textContent=label;
+  badge.style.display='inline-block';
+  const txt=document.getElementById('areaText');
+  txt.textContent=descs[area]||'';
+  txt.className='area-display-text filled';
+  calcPremium();
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.ac-wrap'))document.getElementById('acResults').classList.remove('open');
+});
+
+// ═══════════ DATES ═══════════
+const todayStr=new Date().toISOString().split('T')[0];
+document.getElementById('dateFrom').min=todayStr;
+document.getElementById('dateTo').min=todayStr;
+
+function onDate(){
+  S.dateFrom=document.getElementById('dateFrom').value;
+  S.dateTo=document.getElementById('dateTo').value;
+  document.getElementById('dateTo').min=S.dateFrom||todayStr;
+  if(S.dateFrom&&S.dateTo){
+    const d1=new Date(S.dateFrom),d2=new Date(S.dateTo);
+    S.days=Math.max(0,Math.ceil((d2-d1)/86400000)+1);
+  }
+  calcPremium();
+}
+
+// ═══════════ PREMIUM (bracket-based) ═══════════
+function calcPremium(){
+  if(!S.area)return;
+  const annual=S.tripType==='annual';
+  if(!annual&&S.days<1)return;
+  const days=annual?365:S.days;
+
+  if(S.area==='D'){
+    // Domestic — same rate for all plans
+    let t;
+    if(S.policyType==='family'){
+      t=getBracket(PREMIUMS.D.family,days,annual);
+    }else{
+      t=getBracket(PREMIUMS.D.adult,days,annual)*S.adults
+       +getBracket(PREMIUMS.D.senior,days,annual)*S.seniors;
+    }
+    const r=Math.round(t*100)/100;
+    ['basic','essential','deluxe'].forEach(p=>{S.premiums[p]=r;});
+  }else{
+    const at=PREMIUMS[S.area];
+    ['basic','essential','deluxe'].forEach(p=>{
+      let t;
+      if(S.policyType==='family'){
+        t=getBracket(at.family[p],days,annual);
+      }else{
+        t=getBracket(at.adult[p],days,annual)*S.adults
+         +getBracket(at.senior[p],days,annual)*S.seniors;
       }
-      facade.addEventListener('click', activate);
-      facade.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
-      });
-    })();
-  </script>
+      S.premiums[p]=Math.round(t*100)/100;
+    });
+  }
+
+  const box=document.getElementById('premiumBox');
+  box.style.display='flex';
+  document.getElementById('pboxAmount').textContent='RM '+S.premiums.essential.toFixed(2);
+  document.getElementById('pboxNote').textContent=paxStr()+(S.tripType==='single'?` · ${S.days} day${S.days!==1?'s':''}`:'  · Annual');
+  document.getElementById('pillAmount').textContent='RM '+S.premiums[S.plan].toFixed(2);
+  document.getElementById('pillPax').textContent=paxStr();
+}
+
+function paxStr(){
+  const p=[];
+  if(S.adults>0)p.push(S.adults+(S.adults>1?' adults':' adult'));
+  if(S.seniors>0)p.push(S.seniors+(S.seniors>1?' seniors':' senior'));
+  if(S.children>0)p.push(S.children+(S.children>1?' children':' child'));
+  return p.join(', ')||'—';
+}
+
+// ═══════════ PLAN CARDS ═══════════
+const PLAN_META=[
+  {key:'basic',name:'Basic',badge:null,feats:['RM350k Accidental Death','RM750k Medical Expenses','RM1M Emergency Evacuation','No Lounge Access','No CFAR cover']},
+  {key:'essential',name:'Essential',badge:{t:'Popular',c:'b-pop'},feats:['RM550k Accidental Death','RM1M Medical Expenses','Unlimited Evacuation','Lounge Access included','No CFAR cover']},
+  {key:'deluxe',name:'Deluxe',badge:{t:'Best Cover',c:'b-best'},feats:['RM550k Accidental Death','RM1M Medical Expenses','Unlimited Evacuation','Lounge Access included','CFAR up to RM5k']},
+];
+
+function renderPlans(){
+  document.getElementById('plansGrid').innerHTML=PLAN_META.map(p=>`
+    <div class="plan-card${S.plan===p.key?' sel':''}" onclick="selPlan('${p.key}',this)">
+      ${p.badge?`<div class="plan-badge ${p.badge.c}">${p.badge.t}</div>`:''}
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-price">RM ${S.premiums[p.key]>0?S.premiums[p.key].toFixed(2):'—'}</div>
+      <div class="plan-price-note">${paxStr()}</div>
+      <ul class="plan-feats">
+        ${p.feats.map(f=>{
+          const yes=!f.startsWith('No ');
+          const txt=yes?f:f.replace('No ','');
+          return `<li><span class="${yes?'fy':'fn'} feat-icon">${yes?'✓':'✗'}</span>${txt}</li>`;
+        }).join('')}
+      </ul>
+    </div>`).join('');
+}
+
+function selPlan(plan,el){
+  S.plan=plan;
+  document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  updateDots();
+}
+
+// ═══════════ TRAVELLER BLOCKS ═══════════
+function renderTravBlocks(){
+  const total=S.adults+S.seniors;
+  document.getElementById('detailsSubnote').textContent=`Fill in details for ${total} traveller${total>1?'s':''}.`;
+  let html='',idx=1;
+  for(let i=0;i<S.adults;i++)html+=travBlock(idx++,i===0?'Adult (Main Insured)':'Adult',`a${i}`);
+  for(let i=0;i<S.seniors;i++)html+=travBlock(idx++,'Senior (71–85)',`s${i}`);
+  document.getElementById('travBlocks').innerHTML=html;
+}
+
+function travBlock(idx,type,id){
+  return`<div class="trav-block">
+    <div class="trav-title">Traveller ${idx} — ${type}</div>
+    <div class="field">
+      <label class="label">NRIC <span class="req">*</span></label>
+      <input type="text" class="input" id="nric-${id}" placeholder="000000-00-0000" maxlength="14"
+        oninput="fmtNRIC(this)" onblur="parseNRIC(this,'${id}')">
+      <div class="hint">Auto-fills date of birth and gender.</div>
+      <div class="autofill-row">
+        <div class="af-field" id="dob-${id}">Date of birth</div>
+        <div class="af-field" id="gender-${id}">Gender</div>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label class="label">Full Name <span class="req">*</span></label>
+      <input type="text" class="input" id="name-${id}" placeholder="As per NRIC / Passport">
+    </div>
+  </div>`;
+}
+
+// ═══════════ NRIC ═══════════
+function fmtNRIC(el){
+  let v=el.value.replace(/\D/g,'').slice(0,12);
+  if(v.length>6)v=v.slice(0,6)+'-'+v.slice(6);
+  if(v.length>9)v=v.slice(0,9)+'-'+v.slice(9);
+  el.value=v;
+}
+
+function parseNRIC(el,pfx){
+  const raw=el.value.replace(/\D/g,'');
+  if(raw.length<12)return;
+  const yy=raw.slice(0,2),mm=raw.slice(2,4),dd=raw.slice(4,6);
+  const yr=(parseInt(yy)<=parseInt(new Date().getFullYear().toString().slice(2))?'20':'19')+yy;
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mi=parseInt(mm)-1;
+  const dob=mi>=0&&mi<12?`${dd} ${months[mi]} ${yr}`:'Invalid';
+  const gender=parseInt(raw[11])%2===1?'Male':'Female';
+  const dobEl=document.getElementById('dob-'+pfx);
+  const gEl=document.getElementById('gender-'+pfx);
+  if(dobEl){dobEl.textContent=dob;dobEl.className='af-field filled';}
+  if(gEl){gEl.textContent=gender;gEl.className='af-field filled';}
+}
+
+// ═══════════ FOR OTHER TOGGLE ═══════════
+function toggleForOther(){
+  const on=!document.getElementById('forOtherChk').checked;
+  document.getElementById('forOtherChk').checked=on;
+  const track=document.getElementById('swTrack');
+  track.className='sw-track'+(on?' on':'');
+  document.getElementById('policyholderSection').style.display=on?'block':'none';
+}
+
+// ═══════════ ACCORDION ═══════════
+function togAcc(id){document.getElementById(id).classList.toggle('open');}
+
+// ═══════════ PAYMENT ═══════════
+function selPay(method,el){
+  S.payMethod=method;
+  document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  const inst={
+    billplz:'',
+    duitnow:"Henry will share a DuitNow QR code via WhatsApp after you submit. Scan, pay, then upload your payment slip below.",
+    tng:"Transfer via Touch 'n Go to <strong>012 612 3540</strong> (Lee Mou Yen). Upload your payment receipt below.",
+    bank:"Transfer to <strong>RHB Bank — 1040 2700 307120</strong> (Lee Mou Yen). Upload your transfer receipt below.",
+  };
+  const pi=document.getElementById('payInst');
+  const us=document.getElementById('uploadSection');
+  if(method==='billplz'){pi.style.display='none';us.style.display='none';}
+  else{pi.style.display='block';pi.innerHTML=inst[method];us.style.display='block';}
+}
+
+// ═══════════ UPLOAD ═══════════
+function onUpload(el){
+  if(!el.files.length)return;
+  document.getElementById('uploadName').textContent=el.files[0].name;
+  document.getElementById('uploadPreview').style.display='flex';
+}
+
+// ═══════════ REVIEW ═══════════
+function renderReview(){
+  const areaNames={D:'Domestic','1':'Area 1 — Asia-Pacific','2':'Area 2 — Worldwide excl. USA/Canada','3':'Area 3 — Worldwide incl. USA/Canada'};
+  document.getElementById('rv-dest').textContent=S.dest||'—';
+  document.getElementById('rv-area').textContent=areaNames[S.area]||'—';
+  if(S.tripType==='annual'){
+    document.getElementById('rv-dates').textContent='Annual (12 months from policy start)';
+  }else{
+    document.getElementById('rv-dates').textContent=
+      S.dateFrom&&S.dateTo?`${fmtDate(S.dateFrom)} – ${fmtDate(S.dateTo)} (${S.days} days)`:'—';
+  }
+  document.getElementById('rv-pax').textContent=paxStr();
+  document.getElementById('rv-plan').textContent=cap(S.plan)+' Plan';
+  document.getElementById('rv-type').textContent=(S.tripType==='annual'?'Annual':'Single Trip')+' · '+cap(S.policyType);
+  document.getElementById('rv-total').textContent='RM '+(S.premiums[S.plan]||0).toFixed(2);
+  document.getElementById('pillAmount').textContent='RM '+(S.premiums[S.plan]||0).toFixed(2);
+  document.getElementById('pillPlan').textContent=cap(S.plan)+' Plan';
+}
+
+function fmtDate(s){
+  const d=new Date(s+'T00:00:00');
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+
+// ═══════════ SUBMIT ═══════════
+async function doSubmit(){
+  if(!document.getElementById('declaration').checked){
+    alert('Please tick the declaration before submitting.');return;
+  }
+  const btn=document.getElementById('submitBtn');
+  const errBanner=document.getElementById('errBanner');
+  errBanner.style.display='none';
+  btn.textContent='Submitting…';btn.disabled=true;
+
+  // Build travellers array
+  const travellers=[];
+  for(let i=0;i<S.adults;i++){
+    const id=`a${i}`;
+    travellers.push({
+      fullName:document.getElementById(`name-${id}`)?.value||'',
+      idNumber:document.getElementById(`nric-${id}`)?.value||'',
+      dateOfBirth:document.getElementById(`dob-${id}`)?.textContent||'',
+      gender:(document.getElementById(`gender-${id}`)?.textContent||'').toLowerCase(),
+      ageBand:'Adult',
+      occupation:i===0?(document.getElementById('occInput')?.value||''):'',
+      address:i===0?(document.getElementById('addressInput')?.value||''):''
+    });
+  }
+  for(let i=0;i<S.seniors;i++){
+    const id=`s${i}`;
+    travellers.push({
+      fullName:document.getElementById(`name-${id}`)?.value||'',
+      idNumber:document.getElementById(`nric-${id}`)?.value||'',
+      dateOfBirth:document.getElementById(`dob-${id}`)?.textContent||'',
+      gender:(document.getElementById(`gender-${id}`)?.textContent||'').toLowerCase(),
+      ageBand:'Senior',
+      occupation:'',
+      address:''
+    });
+  }
+
+  const forOther=document.getElementById('forOtherChk').checked;
+  const proposerName=forOther
+    ?(document.getElementById('phName')?.value||'')
+    :(travellers[0]?.fullName||'');
+
+  // Build optional data
+  const flightNum=document.getElementById('flightNum')?.value||'';
+  const flightFrom=document.getElementById('flightFrom')?.value||'';
+  const flightTo=document.getElementById('flightTo')?.value||'';
+  const flights=flightNum?[{departureFlightNumber:flightNum,departureDate:S.dateFrom?fmtDate(S.dateFrom):'',arrivalFlightNumber:'',arrivalDate:S.dateTo?fmtDate(S.dateTo):''}]:[];
+
+  const nomineeName=document.getElementById('nomineeName')?.value||'';
+  const nominees=nomineeName?[{travellerIndex:0,name:nomineeName,idNumber:document.getElementById('nomineeNRIC')?.value||'',relationship:document.getElementById('nomineeRel')?.value||'',share:100}]:[];
+
+  const bankName=document.getElementById('bankName')?.value||'';
+  const bankDetails=bankName?[{travellerIndex:0,travellerName:travellers[0]?.fullName||'',bankName,bankAccountNumber:document.getElementById('bankAccNum')?.value||'',bankAccountType:'Savings'}]:[];
+
+  const payload={
+    proposer:{
+      name:proposerName,
+      mobile:document.getElementById('phoneInput').value,
+      email:document.getElementById('emailInput').value,
+      occupation:document.getElementById('occInput').value,
+      address:document.getElementById('addressInput').value,
+      sameAsFirstTraveller:!forOther
+    },
+    product:{
+      insuranceType:S.tripType,
+      policyType:S.policyType,
+      coverageArea:AREA_API[S.area]||S.area,
+      departureDate:S.tripType==='annual'?'Annual':S.dateFrom?fmtDate(S.dateFrom):'',
+      returnDate:S.tripType==='annual'?'Annual':S.dateTo?fmtDate(S.dateTo):'',
+      destination:S.dest,
+      selectedPlan:S.plan
+    },
+    quote:{
+      total:S.premiums[S.plan],
+      items:[{label:`${cap(S.plan)} Plan · ${paxStr()}`,value:S.premiums[S.plan]}]
+    },
+    paymentMethod:S.payMethod,
+    insuredTravellers:travellers,
+    nominees,
+    bankDetails,
+    flights
+  };
+
+  const fd=new FormData();
+  fd.append('submission',JSON.stringify(payload));
+  const fileInput=document.getElementById('file-input');
+  if(fileInput.files&&fileInput.files[0])fd.append('paymentSlip',fileInput.files[0]);
+
+  try{
+    const res=await fetch('/api/submit',{method:'POST',body:fd});
+    const data=await res.json();
+    if(!res.ok){
+      errBanner.textContent=data.error||'Submission failed. Please try again.';
+      errBanner.style.display='block';
+      btn.textContent='Submit Application';btn.disabled=false;
+      return;
+    }
+    // Billplz redirect
+    if(data.billplzUrl){window.location.href=data.billplzUrl;return;}
+    // Success
+    document.getElementById('step-4').classList.remove('active');
+    document.getElementById('stepTrack').style.display='none';
+    document.getElementById('premiumPill').classList.remove('visible');
+    document.getElementById('successScreen').classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){
+    errBanner.textContent='Network error. Please check your connection and try again.';
+    errBanner.style.display='block';
+    btn.textContent='Submit Application';btn.disabled=false;
+  }
+}
+
+// ═══════════ HELPERS ═══════════
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+// Init
+document.getElementById('adultMinus').disabled=true;
+document.getElementById('seniorMinus').disabled=true;
+document.getElementById('childMinus').disabled=true;
+</script>
 </body>
 </html>
