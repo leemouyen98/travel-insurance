@@ -295,9 +295,6 @@ body::before{
 .af-input:focus{border-color:var(--gold)}
 .af-input.filled{color:var(--text);border-color:rgba(45,212,160,.35)}
 .af-input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer}
-.date-wrap{position:relative}
-.date-ph{position:absolute;left:.95rem;top:50%;transform:translateY(-50%);font-size:.85rem;color:var(--text-2);pointer-events:none;font-style:italic}
-.af-input.filled+.date-ph{display:none}
 
 /* ── For-other toggle ── */
 .toggle-switch-row{display:flex;align-items:center;justify-content:space-between;gap:1rem}
@@ -690,13 +687,13 @@ body::before{
   <div class="field" id="dateSection">
     <label class="label">Travel Dates <span class="req">*</span></label>
     <div class="two-col">
-      <div class="date-wrap">
+      <div>
+        <label class="label">Departure</label>
         <input type="date" class="af-input" id="dateFrom" onchange="onDate()">
-        <span class="date-ph">Departure</span>
       </div>
-      <div class="date-wrap">
+      <div>
+        <label class="label">Return</label>
         <input type="date" class="af-input" id="dateTo" onchange="onDate()">
-        <span class="date-ph">Return</span>
       </div>
     </div>
   </div>
