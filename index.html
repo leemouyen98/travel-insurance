@@ -279,7 +279,7 @@ body::before{
 }
 .trav-block:last-child{margin-bottom:0}
 .trav-title{font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.85rem}
-.autofill-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-top:.6rem}
+.autofill-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-top:.85rem}
 .af-field{
   padding:.65rem .95rem;background:var(--surface);border:1.5px solid var(--border);
   border-radius:var(--r-sm);font-size:.85rem;color:var(--text-2);font-style:italic;
@@ -791,8 +791,14 @@ body::before{
         <input type="text" class="input" id="phNRIC" placeholder="000000-00-0000" maxlength="14"
           oninput="fmtNRIC(this)" onblur="parseNRIC(this,'ph')">
         <div class="autofill-row">
-          <div class="af-field" id="dob-ph">Date of birth</div>
-          <div class="af-field" id="gender-ph">Gender</div>
+          <div>
+            <label class="label">Date of Birth</label>
+            <div class="af-field" id="dob-ph">—</div>
+          </div>
+          <div>
+            <label class="label">Gender</label>
+            <div class="af-field" id="gender-ph">—</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1536,18 +1542,30 @@ function travBlock(idx,type,id,ti){
         oninput="onIDInput(this,'${id}')" onblur="onIDBlur(this,'${id}')">
       <div class="hint" id="nric-hint-${id}">Auto-fills date of birth and gender.</div>
       <div class="autofill-row" id="autofill-${id}">
-        <div class="af-field" id="dob-${id}">Date of birth</div>
-        <div class="af-field" id="gender-${id}">Gender</div>
+        <div>
+          <label class="label">Date of Birth</label>
+          <div class="af-field" id="dob-${id}">—</div>
+        </div>
+        <div>
+          <label class="label">Gender</label>
+          <div class="af-field" id="gender-${id}">—</div>
+        </div>
       </div>
     </div>
     <div id="manual-dob-gender-${id}" style="display:none">
-      <div class="autofill-row" style="margin-top:.6rem">
-        <input type="date" class="af-input" id="dob-input-${id}" onchange="onManualDOB('${id}')" title="Date of Birth">
-        <select class="af-input" id="gender-select-${id}" onchange="onManualGender('${id}')">
-          <option value="" disabled selected>Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-        </select>
+      <div class="autofill-row">
+        <div>
+          <label class="label">Date of Birth</label>
+          <input type="date" class="af-input" id="dob-input-${id}" onchange="onManualDOB('${id}')">
+        </div>
+        <div>
+          <label class="label">Gender</label>
+          <select class="af-input" id="gender-select-${id}" onchange="onManualGender('${id}')">
+            <option value="" disabled selected>Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>`;
@@ -1582,8 +1600,8 @@ function onCountryChange(id){
     // Clear NRIC-derived values when switching away from MY
     const dobEl=document.getElementById(`dob-${id}`);
     const gEl=document.getElementById(`gender-${id}`);
-    if(dobEl){dobEl.textContent='Date of birth';dobEl.className='af-field';}
-    if(gEl){gEl.textContent='Gender';gEl.className='af-field';}
+    if(dobEl){dobEl.textContent='—';dobEl.className='af-field';}
+    if(gEl){gEl.textContent='—';gEl.className='af-field';}
   }
 }
 
@@ -1597,7 +1615,7 @@ function onManualDOB(id){
     if(dobEl){dobEl.textContent=`${d} ${months[parseInt(m)-1]} ${y}`;}
     if(inp)inp.classList.add('filled');
   }else{
-    if(dobEl){dobEl.textContent='Date of birth';}
+    if(dobEl){dobEl.textContent='—';}
     if(inp)inp.classList.remove('filled');
   }
 }
@@ -1610,7 +1628,7 @@ function onManualGender(id){
     if(gEl){gEl.textContent=val;}
     if(sel)sel.classList.add('filled');
   }else{
-    if(gEl){gEl.textContent='Gender';}
+    if(gEl){gEl.textContent='—';}
     if(sel)sel.classList.remove('filled');
   }
 }
