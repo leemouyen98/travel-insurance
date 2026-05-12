@@ -698,9 +698,20 @@ body::before{
     </div>
   </div>
 
-  <!-- Annual note -->
-  <div class="annual-note" id="annualNote">
-    📅 Annual plan covers unlimited trips within 12 months, up to 90 days per trip. No need to enter dates.
+  <!-- Annual date section -->
+  <div class="field" id="annualDateSection" style="display:none">
+    <label class="label">Policy Period <span class="req">*</span></label>
+    <div class="two-col">
+      <div>
+        <label class="label">Start Date</label>
+        <input type="date" class="af-input" id="annualStart" onchange="onAnnualStart()">
+      </div>
+      <div>
+        <label class="label">End Date</label>
+        <div class="af-field" id="annualEnd">—</div>
+      </div>
+    </div>
+    <div class="hint" style="margin-top:.5rem">Covers unlimited trips within 12 months, up to 90 days per trip.</div>
   </div>
 
   <!-- Premium preview -->
@@ -1086,6 +1097,7 @@ const S={
   adults:1,seniors:0,children:0,
   dest:'',area:'',
   dateFrom:'',dateTo:'',days:0,
+  annualStart:'',annualEnd:'',
   plan:'essential',
   payMethod:'duitnow',
   premiums:{basic:0,essential:0,deluxe:0}, // base (PDF table, shown on plan cards)
@@ -1112,6 +1124,7 @@ function validateStep(n){
     if(!S.dest){alert('Please enter your destination.');return false;}
     if(S.tripType==='single'&&(!S.dateFrom||!S.dateTo)){alert('Please select your travel dates.');return false;}
     if(S.tripType==='single'&&S.days<1){alert('Return date must be after departure date.');return false;}
+    if(S.tripType==='annual'&&!S.annualStart){alert('Please select a policy start date for the Annual plan.');return false;}
   }
   return true;
 }
@@ -1139,10 +1152,11 @@ function updateDots(){
 function setTripType(type,btn){
   S.tripType=type;
   toggleBtns(btn);
-  const ds=document.getElementById('dateSection');
-  const an=document.getElementById('annualNote');
-  if(type==='annual'){ds.style.display='none';an.style.display='block';S.days=365;}
-  else{ds.style.display='block';an.style.display='none';S.days=0;}
+  const isAnnual=type==='annual';
+  document.getElementById('dateSection').style.display=isAnnual?'none':'block';
+  document.getElementById('annualDateSection').style.display=isAnnual?'block':'none';
+  if(isAnnual){S.days=365;}
+  else{S.days=0;S.annualStart='';S.annualEnd='';}
   calcPremium();
 }
 
@@ -1240,6 +1254,33 @@ function onDate(){
   if(S.dateFrom&&S.dateTo){
     const d1=new Date(S.dateFrom),d2=new Date(S.dateTo);
     S.days=Math.max(0,Math.ceil((d2-d1)/86400000)+1);
+  }
+  calcPremium();
+}
+
+function onAnnualStart(){
+  const inp=document.getElementById('annualStart');
+  const val=inp.value;
+  const endEl=document.getElementById('annualEnd');
+  if(val){
+    inp.classList.add('filled');
+    const start=new Date(val);
+    const end=new Date(start);
+    end.setFullYear(end.getFullYear()+1);
+    end.setDate(end.getDate()-1);
+    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const endStr=`${String(end.getDate()).padStart(2,'0')} ${months[end.getMonth()]} ${end.getFullYear()}`;
+    endEl.textContent=endStr;
+    endEl.className='af-field filled';
+    // Store ISO for payload
+    S.annualStart=val;
+    S.annualEnd=end.toISOString().slice(0,10);
+  }else{
+    inp.classList.remove('filled');
+    endEl.textContent='—';
+    endEl.className='af-field';
+    S.annualStart='';
+    S.annualEnd='';
   }
   calcPremium();
 }
@@ -1747,7 +1788,12 @@ function renderReview(){
   document.getElementById('rv-dest').textContent=S.dest||'—';
   document.getElementById('rv-area').textContent=areaNames[S.area]||'—';
   if(S.tripType==='annual'){
-    document.getElementById('rv-dates').textContent='Annual (12 months from policy start)';
+    const datesEl=document.getElementById('rv-dates');
+    if(S.annualStart&&S.annualEnd){
+      datesEl.textContent=`${fmtDate(S.annualStart)} – ${fmtDate(S.annualEnd)} (12 months)`;
+    }else{
+      datesEl.textContent='Annual (select start date)';
+    }
   }else{
     document.getElementById('rv-dates').textContent=
       S.dateFrom&&S.dateTo?`${fmtDate(S.dateFrom)} – ${fmtDate(S.dateTo)} (${S.days} days)`:'—';
@@ -2077,8 +2123,8 @@ async function doSubmit(){
       insuranceType:S.tripType,
       policyType:S.policyType,
       coverageArea:AREA_API[S.area]||S.area,
-      departureDate:S.tripType==='annual'?'Annual':S.dateFrom?fmtDate(S.dateFrom):'',
-      returnDate:S.tripType==='annual'?'Annual':S.dateTo?fmtDate(S.dateTo):'',
+      departureDate:S.tripType==='annual'?fmtDate(S.annualStart):S.dateFrom?fmtDate(S.dateFrom):'',
+      returnDate:S.tripType==='annual'?fmtDate(S.annualEnd):S.dateTo?fmtDate(S.dateTo):'',
       destination:S.dest,
       selectedPlan:S.plan
     },

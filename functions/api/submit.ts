@@ -326,13 +326,18 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     ].join("");
 
     // ── Trip ───────────────────────────────────────────────────────────────
+    const isAnnual = payload.product.insuranceType === "annual";
     const tripRows = [
       row("Trip Type",     fmt(INSURANCE_TYPE_LABELS, payload.product.insuranceType)),
       row("Policy Type",   fmt(POLICY_TYPE_LABELS, payload.product.policyType)),
       row("Coverage Area", fmt(COVERAGE_AREA_LABELS, payload.product.coverageArea)),
       row("Destination",   String(payload.product.destination || "Malaysia")),
-      row("Departure",     String(payload.product.departureDate || "—")),
-      row("Return",        String(payload.product.returnDate    || "—")),
+      isAnnual
+        ? row("Policy Start", String(payload.product.departureDate || "—"))
+        : row("Departure",    String(payload.product.departureDate || "—")),
+      isAnnual
+        ? row("Policy End",   String(payload.product.returnDate    || "—"))
+        : row("Return",       String(payload.product.returnDate    || "—")),
     ].join("");
 
     // ── Plan & premium ─────────────────────────────────────────────────────
