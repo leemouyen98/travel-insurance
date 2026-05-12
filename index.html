@@ -851,21 +851,21 @@ body::before{
   <div class="field">
     <label class="label">Payment Method <span class="req">*</span></label>
     <div class="pay-grid">
-      <div class="pay-opt sel" onclick="selPay('billplz',this)">
-        <div class="pay-name-row"><span class="pay-name">Card via Billplz</span><span class="pay-rec">Recommended</span></div>
-        <span class="pay-detail">Henry sends payment link · +2% card fee</span>
-      </div>
-      <div class="pay-opt" onclick="selPay('duitnow',this)">
-        <span class="pay-name">DuitNow QR</span>
-        <span class="pay-detail">Henry shares QR after submit</span>
+      <div class="pay-opt sel" onclick="selPay('duitnow',this)">
+        <div class="pay-name-row"><span class="pay-name">DuitNow QR</span><span class="pay-rec">Recommended</span></div>
+        <span class="pay-detail">Instant · No fee</span>
       </div>
       <div class="pay-opt" onclick="selPay('tng',this)">
         <span class="pay-name">Touch 'n Go</span>
-        <span class="pay-detail">012 612 3540</span>
+        <span class="pay-detail">eWallet transfer · No fee</span>
       </div>
       <div class="pay-opt" onclick="selPay('bank',this)">
         <span class="pay-name">Bank Transfer</span>
-        <span class="pay-detail">RHB 1040 2700 307120</span>
+        <span class="pay-detail">Online transfer · No fee</span>
+      </div>
+      <div class="pay-opt" onclick="selPay('billplz',this)">
+        <span class="pay-name">Card via Billplz</span>
+        <span class="pay-detail">Visa / Mastercard · +2% fee</span>
       </div>
     </div>
   </div>
@@ -1035,7 +1035,7 @@ const S={
   dest:'',area:'',
   dateFrom:'',dateTo:'',days:0,
   plan:'essential',
-  payMethod:'billplz',
+  payMethod:'duitnow',
   premiums:{basic:0,essential:0,deluxe:0}, // base (PDF table, shown on plan cards)
   totals:{basic:0,essential:0,deluxe:0},   // base + SST + stamp duty (shown everywhere else)
 };
@@ -1587,16 +1587,18 @@ function selPay(method,el){
   document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
   const inst={
-    billplz:'',
-    duitnow:"Scan the QR code below with your banking app, then upload your payment receipt.",
-    tng:"Transfer via Touch 'n Go to <strong>012 612 3540</strong> (Lee Mou Yen). Upload your payment receipt below.",
-    bank:"Transfer to <strong>RHB Bank — 1040 2700 307120</strong> (Lee Mou Yen). Upload your transfer receipt below.",
+    duitnow:"Scan the QR code below with your banking app and upload your payment receipt once done.",
+    tng:"Transfer to <strong>012 612 3540</strong> (Lee Mou Yen) via Touch 'n Go. Screenshot your receipt and upload below.",
+    bank:"Transfer to <strong>RHB Bank · 1040 2700 307120</strong> (Lee Mou Yen). Upload your transfer receipt below.",
+    billplz:"Henry will send you a secure payment link via WhatsApp. Complete payment and your policy will be issued shortly. A <strong>+2% card processing fee</strong> applies.",
   };
   const pi=document.getElementById('payInst');
   const us=document.getElementById('uploadSection');
   const qr=document.getElementById('duitnowQR');
-  if(method==='billplz'){pi.style.display='none';us.style.display='none';qr.style.display='none';}
-  else{pi.style.display='block';pi.innerHTML=inst[method];us.style.display='block';qr.style.display=method==='duitnow'?'block':'none';}
+  pi.style.display='block';
+  pi.innerHTML=inst[method];
+  qr.style.display=method==='duitnow'?'block':'none';
+  us.style.display=method==='billplz'?'none':'block';
 }
 
 // ═══════════ UPLOAD ═══════════
@@ -1608,6 +1610,10 @@ function onUpload(el){
 
 // ═══════════ REVIEW ═══════════
 function renderReview(){
+  // Initialise payment UI to current selection on every step-4 visit
+  const activePay=document.querySelector(`.pay-opt[onclick="selPay('${S.payMethod}',this)"]`);
+  if(activePay)selPay(S.payMethod,activePay);
+
   const areaNames={D:'Domestic','1':'Area 1 — Asia-Pacific','2':'Area 2 — Worldwide excl. USA/Canada','3':'Area 3 — Worldwide incl. USA/Canada'};
   document.getElementById('rv-dest').textContent=S.dest||'—';
   document.getElementById('rv-area').textContent=areaNames[S.area]||'—';
