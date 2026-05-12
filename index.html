@@ -873,6 +873,13 @@ body::before{
   <!-- Payment instructions (contextual) -->
   <div class="pay-inst" id="payInst"></div>
 
+  <!-- DuitNow QR -->
+  <div id="duitnowQR" style="display:none;text-align:center;margin-bottom:1rem">
+    <img src="/duitnow-qr.png" alt="DuitNow QR Code"
+      style="max-width:220px;width:100%;border-radius:var(--r);border:1px solid var(--border)">
+    <div style="font-size:.75rem;color:var(--text-3);margin-top:.5rem">Scan with your banking app to pay</div>
+  </div>
+
   <!-- Upload slip -->
   <div id="uploadSection" style="display:none" class="field">
     <label class="label">Payment Slip <span class="req">*</span></label>
@@ -1581,14 +1588,15 @@ function selPay(method,el){
   el.classList.add('sel');
   const inst={
     billplz:'',
-    duitnow:"Henry will share a DuitNow QR code via WhatsApp after you submit. Scan, pay, then upload your payment slip below.",
+    duitnow:"Scan the QR code below with your banking app, then upload your payment receipt.",
     tng:"Transfer via Touch 'n Go to <strong>012 612 3540</strong> (Lee Mou Yen). Upload your payment receipt below.",
     bank:"Transfer to <strong>RHB Bank — 1040 2700 307120</strong> (Lee Mou Yen). Upload your transfer receipt below.",
   };
   const pi=document.getElementById('payInst');
   const us=document.getElementById('uploadSection');
-  if(method==='billplz'){pi.style.display='none';us.style.display='none';}
-  else{pi.style.display='block';pi.innerHTML=inst[method];us.style.display='block';}
+  const qr=document.getElementById('duitnowQR');
+  if(method==='billplz'){pi.style.display='none';us.style.display='none';qr.style.display='none';}
+  else{pi.style.display='block';pi.innerHTML=inst[method];us.style.display='block';qr.style.display=method==='duitnow'?'block':'none';}
 }
 
 // ═══════════ UPLOAD ═══════════
