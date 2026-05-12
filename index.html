@@ -856,13 +856,11 @@ body::before{
 
     <div class="accordion" id="accBank">
       <div class="acc-head" onclick="togAcc('accBank')">
-        <span class="acc-title">🏦 Bank Details <span class="opt-tag">For refunds</span></span>
+        <span class="acc-title">🏦 Bank Details <span class="opt-tag">For claim payout</span></span>
         <span class="acc-arrow">▾</span>
       </div>
       <div class="acc-body">
-        <div class="hint" id="bankTravLabel" style="margin-bottom:.75rem"></div>
-        <div class="field"><label class="label">Bank Name</label><input type="text" class="input" id="bankName" placeholder="e.g. Maybank, CIMB, RHB…"></div>
-        <div class="field" style="margin-bottom:0"><label class="label">Account Number</label><input type="text" class="input" id="bankAccNum" placeholder="Account number"></div>
+        <div id="bankContainer"></div>
       </div>
     </div>
   </div>
@@ -1100,7 +1098,7 @@ function goStep(n){
   document.getElementById('step-'+cur).classList.add('active');
   updateDots();
   if(n===2)renderPlans();
-  if(n===3){renderTravBlocks();renderNomineeSections();}
+  if(n===3){renderTravBlocks();renderNomineeSections();renderBankSections();}
   if(n===4)renderReview();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -1659,11 +1657,9 @@ function syncTravName(id, ti) {
   // Update nominee section header (only visible when multiple travellers)
   const nomHeader = document.getElementById(`nom-header-${ti}`);
   if (nomHeader) nomHeader.textContent = name || `Traveller ${ti + 1}`;
-  // Update bank details hint (main insured only)
-  if (ti === 0) {
-    const bankHint = document.getElementById('bankTravLabel');
-    if (bankHint) bankHint.textContent = name ? `Account holder: ${name}` : '';
-  }
+  // Update bank section header
+  const bankHeader = document.getElementById(`bank-header-${ti}`);
+  if (bankHeader) bankHeader.textContent = name || `Traveller ${ti + 1}`;
 }
 
 // ═══════════ FOR OTHER TOGGLE ═══════════
@@ -1781,6 +1777,53 @@ function renderNomineeSections() {
     `;
     container.appendChild(sec);
   });
+}
+
+function renderBankSections() {
+  const container = document.getElementById('bankContainer');
+  if (!container) return;
+  const travellers = getTravellerList();
+  const total = travellers.length;
+
+  const existing = container.querySelectorAll('.bank-section');
+  if (existing.length === total) return;
+
+  container.innerHTML = '';
+  travellers.forEach(t => {
+    const sec = document.createElement('div');
+    sec.className = 'bank-section';
+    sec.dataset.ti = t.index;
+    sec.innerHTML = `
+      ${total > 1 ? `<div class="nominee-section-header" id="bank-header-${t.index}">${t.label}</div>` : ''}
+      <div class="field"><label class="label">Bank Name</label>
+        <input type="text" class="input" id="bank-name-${t.index}" placeholder="e.g. Maybank, CIMB, RHB…">
+      </div>
+      <div class="field" style="margin-bottom:${t.index < total - 1 ? '1.25rem' : '0'}">
+        <label class="label">Account Number</label>
+        <input type="text" class="input" id="bank-acc-${t.index}" placeholder="Account number">
+      </div>
+    `;
+    container.appendChild(sec);
+  });
+}
+
+function collectBankDetails() {
+  const travellers = getTravellerList();
+  const result = [];
+  document.querySelectorAll('#bankContainer .bank-section').forEach(sec => {
+    const ti = parseInt(sec.dataset.ti);
+    const bankName = document.getElementById(`bank-name-${ti}`)?.value?.trim() || '';
+    if (!bankName) return;
+    const trav = travellers.find(t => t.index === ti);
+    result.push({
+      travellerIndex: ti,
+      travellerName: document.getElementById(`name-${trav?.id}`)?.value?.trim() || trav?.label || '',
+      bankName,
+      bankAccountNumber: document.getElementById(`bank-acc-${ti}`)?.value || '',
+      bankAccountType: 'Savings'
+    });
+  });
+  return result;
 }
 
 function addNominee(ti) {
@@ -1979,8 +2022,7 @@ async function doSubmit(){
 
   const nominees=collectNominees();
 
-  const bankName=document.getElementById('bankName')?.value||'';
-  const bankDetails=bankName?[{travellerIndex:0,travellerName:travellers[0]?.fullName||'',bankName,bankAccountNumber:document.getElementById('bankAccNum')?.value||'',bankAccountType:'Savings'}]:[];
+  const bankDetails=collectBankDetails();
 
   const payload={
     proposer:{
