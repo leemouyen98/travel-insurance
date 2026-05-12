@@ -282,13 +282,13 @@ body::before{
 .autofill-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-top:.6rem}
 .af-field{
   padding:.65rem .95rem;background:var(--surface);border:1.5px solid var(--border);
-  border-radius:var(--r-sm);font-size:.85rem;color:var(--text-3);font-style:italic;
+  border-radius:var(--r-sm);font-size:.85rem;color:var(--text-2);font-style:italic;
   font-family:inherit;
 }
 .af-field.filled{color:var(--text);font-style:normal;border-color:rgba(45,212,160,.35)}
 .af-input{
   padding:.65rem .95rem;background:var(--surface);border:1.5px solid var(--border);
-  border-radius:var(--r-sm);font-size:.85rem;color:var(--text-3);font-family:inherit;
+  border-radius:var(--r-sm);font-size:.85rem;color:var(--text-2);font-family:inherit;
   cursor:pointer;transition:border-color var(--ease);outline:none;width:100%;
   -webkit-appearance:none;appearance:none;
 }
@@ -1209,9 +1209,13 @@ document.getElementById('dateFrom').min=todayStr;
 document.getElementById('dateTo').min=todayStr;
 
 function onDate(){
-  S.dateFrom=document.getElementById('dateFrom').value;
-  S.dateTo=document.getElementById('dateTo').value;
-  document.getElementById('dateTo').min=S.dateFrom||todayStr;
+  const fromEl=document.getElementById('dateFrom');
+  const toEl=document.getElementById('dateTo');
+  S.dateFrom=fromEl.value;
+  S.dateTo=toEl.value;
+  fromEl.classList.toggle('filled',!!S.dateFrom);
+  toEl.classList.toggle('filled',!!S.dateTo);
+  toEl.min=S.dateFrom||todayStr;
   if(S.dateFrom&&S.dateTo){
     const d1=new Date(S.dateFrom),d2=new Date(S.dateTo);
     S.days=Math.max(0,Math.ceil((d2-d1)/86400000)+1);
@@ -1945,8 +1949,12 @@ function addFlight() {
   list.appendChild(div);
   renumberFlights();
   // Pre-fill dates from trip selection if available
-  if(S.dateFrom) document.getElementById(`flt-dep-${id}`).value = S.dateFrom;
-  if(S.dateTo)   document.getElementById(`flt-arr-${id}`).value = S.dateTo;
+  const depEl=document.getElementById(`flt-dep-${id}`);
+  const arrEl=document.getElementById(`flt-arr-${id}`);
+  if(S.dateFrom){depEl.value=S.dateFrom;depEl.classList.add('filled');}
+  if(S.dateTo){arrEl.value=S.dateTo;arrEl.classList.add('filled');}
+  depEl.addEventListener('change',()=>depEl.classList.toggle('filled',!!depEl.value));
+  arrEl.addEventListener('change',()=>arrEl.classList.toggle('filled',!!arrEl.value));
 }
 
 function removeFlight(id) {
