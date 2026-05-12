@@ -961,7 +961,13 @@ function getBracket(table, days, annual) {
 // International → +RM10 stamp duty only
 function applyTax(base, isDomestic) {
   const afterSST = isDomestic ? Math.round(base * 1.08 * 100) / 100 : base;
-  return Math.round((afterSST + 10) * 100) / 100; // RM10 stamp duty for all policies
+  const stampDuty = afterSST >= 150 ? 10 : 0; // waived if premium < RM150
+  return Math.round((afterSST + stampDuty) * 100) / 100;
+}
+
+function stampDutyAmount(base, isDomestic) {
+  const afterSST = isDomestic ? Math.round(base * 1.08 * 100) / 100 : base;
+  return afterSST >= 150 ? 10 : 0;
 }
 
 // Area code → API value map
@@ -1387,7 +1393,7 @@ async function doSubmit(){
       items:[
         {label:`${cap(S.plan)} Plan · ${paxStr()}`,value:S.premiums[S.plan]},
         ...(S.area==='D'?[{label:'8% Service Tax',value:Math.round(S.premiums[S.plan]*0.08*100)/100}]:[]),
-        {label:'Stamp Duty',value:10}
+        {label:'Stamp Duty',value:stampDutyAmount(S.premiums[S.plan],S.area==='D')}
       ]
     },
     paymentMethod:S.payMethod,
