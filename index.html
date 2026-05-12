@@ -406,6 +406,27 @@ body::before{
 .btn-back:hover{border-color:var(--border-light);color:var(--text)}
 .nav-btns{display:flex;flex-direction:column;gap:.5rem;margin-top:1.5rem}
 
+/* ── Flight block ── */
+.flight-block{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:.9rem;margin-bottom:.65rem;position:relative;
+}
+.flight-block:last-of-type{margin-bottom:.75rem}
+.flight-block-title{font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:.75rem}
+.flight-remove{
+  position:absolute;top:.7rem;right:.7rem;
+  background:none;border:none;color:var(--text-3);font-size:.85rem;cursor:pointer;
+  padding:2px 6px;border-radius:4px;transition:color var(--ease);line-height:1;
+}
+.flight-remove:hover{color:var(--red)}
+.btn-add-flight{
+  width:100%;padding:.55rem;background:transparent;
+  border:1.5px dashed var(--border-light);border-radius:var(--r-sm);
+  color:var(--text-3);font-size:.82rem;font-weight:600;cursor:pointer;
+  transition:all var(--ease);font-family:inherit;margin-top:0;
+}
+.btn-add-flight:hover{border-color:var(--gold);color:var(--gold)}
+
 /* ── Annual note ── */
 .annual-note{
   padding:.75rem 1rem;background:rgba(99,155,255,.08);border:1px solid rgba(99,155,255,.18);
@@ -736,11 +757,8 @@ body::before{
         <span class="acc-arrow">▾</span>
       </div>
       <div class="acc-body">
-        <div class="field"><label class="label">Airline & Flight No.</label><input type="text" class="input" id="flightNum" placeholder="e.g. AirAsia D7 521"></div>
-        <div class="two-col">
-          <div class="field" style="margin-bottom:0"><label class="label">From</label><input type="text" class="input" id="flightFrom" placeholder="e.g. KLIA"></div>
-          <div class="field" style="margin-bottom:0"><label class="label">To</label><input type="text" class="input" id="flightTo" placeholder="e.g. NRT"></div>
-        </div>
+        <div id="flightList"></div>
+        <button type="button" class="btn-add-flight" onclick="addFlight()">+ Add Flight</button>
       </div>
     </div>
 
@@ -1326,6 +1344,63 @@ function fmtDate(s){
   return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 }
 
+// ═══════════ FLIGHT MANAGEMENT ═══════════
+let flightCount = 0;
+
+function addFlight() {
+  flightCount++;
+  const id = flightCount;
+  const list = document.getElementById('flightList');
+  const div = document.createElement('div');
+  div.className = 'flight-block';
+  div.id = `flight-block-${id}`;
+  div.innerHTML = `
+    <div class="flight-block-title">Flight ${list.children.length + 1}</div>
+    <button type="button" class="flight-remove" onclick="removeFlight(${id})" title="Remove">✕</button>
+    <div class="field">
+      <label class="label">Airline & Flight No.</label>
+      <input type="text" class="input" id="flt-num-${id}" placeholder="e.g. AirAsia D7 521">
+    </div>
+    <div class="two-col">
+      <div class="field" style="margin-bottom:0">
+        <label class="label">Departure Date</label>
+        <input type="date" class="input" id="flt-dep-${id}">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="label">Arrival Date</label>
+        <input type="date" class="input" id="flt-arr-${id}">
+      </div>
+    </div>`;
+  list.appendChild(div);
+  renumberFlights();
+  // Pre-fill dates from trip selection if available
+  if(S.dateFrom) document.getElementById(`flt-dep-${id}`).value = S.dateFrom;
+  if(S.dateTo)   document.getElementById(`flt-arr-${id}`).value = S.dateTo;
+}
+
+function removeFlight(id) {
+  const el = document.getElementById(`flight-block-${id}`);
+  if(el) el.remove();
+  renumberFlights();
+}
+
+function renumberFlights() {
+  document.querySelectorAll('#flightList .flight-block').forEach((el, i) => {
+    el.querySelector('.flight-block-title').textContent = `Flight ${i + 1}`;
+  });
+}
+
+function collectFlights() {
+  return Array.from(document.querySelectorAll('#flightList .flight-block')).map(el => {
+    const id = el.id.replace('flight-block-', '');
+    return {
+      departureFlightNumber: document.getElementById(`flt-num-${id}`)?.value || '',
+      departureDate: document.getElementById(`flt-dep-${id}`)?.value ? fmtDate(document.getElementById(`flt-dep-${id}`).value) : '',
+      arrivalDate: document.getElementById(`flt-arr-${id}`)?.value ? fmtDate(document.getElementById(`flt-arr-${id}`).value) : '',
+    };
+  }).filter(f => f.departureFlightNumber || f.departureDate);
+}
+
 // ═══════════ SUBMIT ═══════════
 async function doSubmit(){
   if(!document.getElementById('declaration').checked){
@@ -1369,10 +1444,7 @@ async function doSubmit(){
     :(travellers[0]?.fullName||'');
 
   // Build optional data
-  const flightNum=document.getElementById('flightNum')?.value||'';
-  const flightFrom=document.getElementById('flightFrom')?.value||'';
-  const flightTo=document.getElementById('flightTo')?.value||'';
-  const flights=flightNum?[{departureFlightNumber:flightNum,departureDate:S.dateFrom?fmtDate(S.dateFrom):'',arrivalFlightNumber:'',arrivalDate:S.dateTo?fmtDate(S.dateTo):''}]:[];
+  const flights=collectFlights();
 
   const nomineeName=document.getElementById('nomineeName')?.value||'';
   const nominees=nomineeName?[{travellerIndex:0,name:nomineeName,idNumber:document.getElementById('nomineeNRIC')?.value||'',relationship:document.getElementById('nomineeRel')?.value||'',share:100}]:[];
