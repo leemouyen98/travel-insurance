@@ -1991,8 +1991,8 @@ async function doSubmit(){
       fullName:document.getElementById(`name-${id}`)?.value||'',
       idNumber:document.getElementById(`nric-${id}`)?.value||'',
       nationality:document.getElementById(`country-${id}`)?.value||'MY',
-      dateOfBirth:document.getElementById(`dob-${id}`)?.textContent||'',
-      gender:(document.getElementById(`gender-${id}`)?.textContent||'').toLowerCase(),
+      dateOfBirth:(()=>{const v=document.getElementById(`dob-${id}`)?.textContent||'';return v==='Date of birth'?'':v;})(),
+      gender:(()=>{const v=(document.getElementById(`gender-${id}`)?.textContent||'').toLowerCase();return v==='gender'?'':v;})(),
       ageBand:'Adult',
       occupation:i===0?(document.getElementById('occInput')?.value||''):'',
       address:i===0?(document.getElementById('addressInput')?.value||''):''
@@ -2004,8 +2004,8 @@ async function doSubmit(){
       fullName:document.getElementById(`name-${id}`)?.value||'',
       idNumber:document.getElementById(`nric-${id}`)?.value||'',
       nationality:document.getElementById(`country-${id}`)?.value||'MY',
-      dateOfBirth:document.getElementById(`dob-${id}`)?.textContent||'',
-      gender:(document.getElementById(`gender-${id}`)?.textContent||'').toLowerCase(),
+      dateOfBirth:(()=>{const v=document.getElementById(`dob-${id}`)?.textContent||'';return v==='Date of birth'?'':v;})(),
+      gender:(()=>{const v=(document.getElementById(`gender-${id}`)?.textContent||'').toLowerCase();return v==='gender'?'':v;})(),
       ageBand:'Senior',
       occupation:'',
       address:''

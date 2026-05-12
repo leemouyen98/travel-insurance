@@ -342,12 +342,24 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     ].join("");
 
     const quoteBreakdownRows = (payload.quote.items || [])
-      .map((item: Record<string, string | number>) =>
-        row(
-          `  ${String(item.label || "Item")}`,
-          `RM ${Number(item.value || 0).toFixed(2)}`
-        )
-      )
+      .map((item: Record<string, string | number>) => {
+        const label = String(item.label || "Item");
+        const value = Number(item.value ?? 0);
+        let displayValue: string;
+        if (label === "Stamp Duty" && value === 0) {
+          displayValue = "Waived";
+        } else if (value < 0) {
+          displayValue = `−RM ${Math.abs(value).toFixed(2)}`;
+        } else {
+          displayValue = `RM ${value.toFixed(2)}`;
+        }
+        return `
+          <tr>
+            <td style="padding:5px 0 5px 16px;color:#5b6a7f;vertical-align:top;width:38%;font-size:13px">${escapeHtml(label)}</td>
+            <td style="padding:5px 0;color:${value < 0 ? "#0a8a4a" : "#132941"};font-weight:500;vertical-align:top;font-size:13px">${escapeHtml(displayValue)}</td>
+          </tr>
+        `;
+      })
       .join("");
 
     // ── Payment ────────────────────────────────────────────────────────────
@@ -394,6 +406,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           ].join("")}
         `).join("");
 
+        const genderRaw = String(traveller.gender || "").toLowerCase();
+        const genderDisplay = (genderRaw && genderRaw !== "gender")
+          ? titleCase(genderRaw) : "—";
+
         return `
           ${sectionHeader(`Traveller ${index + 1}${displayName ? ` — ${displayName}` : ""}`)}
           ${[
@@ -401,10 +417,17 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             row("Nationality",     formatCountry(nationality)),
             row("NRIC / Passport", idFormatted),
             row("Date of Birth",   dob || "—"),
-            row("Gender",          titleCase(String(traveller.gender || "—"))),
+            row("Gender",          genderDisplay),
             row("Age Band",        fmt(AGE_BAND_LABELS, String(traveller.ageBand || ""))),
+            // Contact info — shown on traveller 0 when same as proposer; avoids duplication
+            ...(index === 0 && !showContactSection
+              ? [
+                  row("Mobile", String(payload.proposer.mobile || "—")),
+                  row("Email",  String(payload.proposer.email  || "—")),
+                ]
+              : []),
             ...(traveller.occupation ? [row("Occupation", String(traveller.occupation))] : []),
-            ...(traveller.address   ? [row("Address",    String(traveller.address))]   : []),
+            ...(traveller.address    ? [row("Address",    String(traveller.address))]    : []),
           ].join("")}
           ${bankBlock}
           ${nomineeBlock}
@@ -464,17 +487,43 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       <!-- Action prompt -->
       <tr>
         <td colspan="2" style="padding-top:28px">
-          <div style="background:#f0faf5;border:1px solid #b7e4cc;border-radius:10px;padding:14px 18px">
-            <div style="font-size:13px;font-weight:700;color:#0a5c30;margin-bottom:2px">Action Required</div>
-            <div style="font-size:13px;color:#0a5c30">
-              Issue <strong>${escapeHtml(planLabel)}</strong> for <strong>${escapeHtml(payload.proposer.name || "Client")}</strong> — ${escapeHtml(totalFormatted)} ${hasSlip ? "· Receipt attached" : ""}.
-            </div>
-          </div>
+          ${((): string => {
+            const method = String(payload.paymentMethod || "");
+            const name   = escapeHtml(payload.proposer.name || "Client");
+            const plan   = escapeHtml(planLabel);
+            const total  = escapeHtml(totalFormatted);
+
+            if (method === "billplz") {
+              return `
+                <div style="background:#fef9ec;border:1px solid #f0d080;border-radius:10px;padding:14px 18px">
+                  <div style="font-size:13px;font-weight:700;color:#7a5c00;margin-bottom:2px">Awaiting Payment</div>
+                  <div style="font-size:13px;color:#7a5c00">
+                    Payment link created for <strong>${name}</strong> — <strong>${plan}</strong> ${total}. Issue policy once Billplz confirms payment.
+                  </div>
+                </div>`;
+            }
+            if (hasSlip) {
+              return `
+                <div style="background:#f0faf5;border:1px solid #b7e4cc;border-radius:10px;padding:14px 18px">
+                  <div style="font-size:13px;font-weight:700;color:#0a5c30;margin-bottom:2px">Receipt Attached — Issue Policy</div>
+                  <div style="font-size:13px;color:#0a5c30">
+                    <strong>${name}</strong> — <strong>${plan}</strong> ${total}. Receipt attached. Verify and issue.
+                  </div>
+                </div>`;
+            }
+            return `
+              <div style="background:#fef3ec;border:1px solid #f0b880;border-radius:10px;padding:14px 18px">
+                <div style="font-size:13px;font-weight:700;color:#7a3800;margin-bottom:2px">Awaiting Receipt</div>
+                <div style="font-size:13px;color:#7a3800">
+                  <strong>${name}</strong> — <strong>${plan}</strong> ${total}. No receipt uploaded. Chase client before issuing.
+                </div>
+              </div>`;
+          })()}
         </td>
       </tr>
     `;
 
-    const html = emailWrapper("New Submission", emailBody);
+    const html = emailWrapper(`New Application — ${planLabel}`, emailBody);
 
     const subject = [
       "TM Explorer",
