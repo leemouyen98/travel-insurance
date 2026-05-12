@@ -286,6 +286,15 @@ body::before{
   font-family:inherit;
 }
 .af-field.filled{color:var(--text);font-style:normal;border-color:rgba(45,212,160,.35)}
+.af-input{
+  padding:.65rem .95rem;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r-sm);font-size:.85rem;color:var(--text-3);font-family:inherit;
+  cursor:pointer;transition:border-color var(--ease);outline:none;width:100%;
+  -webkit-appearance:none;appearance:none;
+}
+.af-input:focus{border-color:var(--gold)}
+.af-input.filled{color:var(--text);border-color:rgba(45,212,160,.35)}
+.af-input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer}
 
 /* ── For-other toggle ── */
 .toggle-switch-row{display:flex;align-items:center;justify-content:space-between;gap:1rem}
@@ -1531,19 +1540,13 @@ function travBlock(idx,type,id,ti){
       </div>
     </div>
     <div id="manual-dob-gender-${id}" style="display:none">
-      <div class="two-col" style="margin-top:.65rem">
-        <div class="field" style="margin-bottom:0">
-          <label class="label">Date of Birth <span class="req">*</span></label>
-          <input type="date" class="input" id="dob-input-${id}" onchange="onManualDOB('${id}')">
-        </div>
-        <div class="field" style="margin-bottom:0">
-          <label class="label">Gender <span class="req">*</span></label>
-          <select class="input" id="gender-select-${id}" onchange="onManualGender('${id}')">
-            <option value="">Select…</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-        </div>
+      <div class="autofill-row" style="margin-top:.6rem">
+        <input type="date" class="af-input" id="dob-input-${id}" onchange="onManualDOB('${id}')" title="Date of Birth">
+        <select class="af-input" id="gender-select-${id}" onchange="onManualGender('${id}')">
+          <option value="" disabled selected>Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
       </div>
     </div>
   </div>`;
@@ -1584,30 +1587,30 @@ function onCountryChange(id){
 }
 
 function onManualDOB(id){
-  const val=document.getElementById(`dob-input-${id}`)?.value;
+  const inp=document.getElementById(`dob-input-${id}`);
+  const val=inp?.value;
   const dobEl=document.getElementById(`dob-${id}`);
-  if(!dobEl)return;
   if(val){
     const [y,m,d]=val.split('-');
     const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    dobEl.textContent=`${d} ${months[parseInt(m)-1]} ${y}`;
-    dobEl.className='af-field filled';
+    if(dobEl){dobEl.textContent=`${d} ${months[parseInt(m)-1]} ${y}`;}
+    if(inp)inp.classList.add('filled');
   }else{
-    dobEl.textContent='Date of birth';
-    dobEl.className='af-field';
+    if(dobEl){dobEl.textContent='Date of birth';}
+    if(inp)inp.classList.remove('filled');
   }
 }
 
 function onManualGender(id){
-  const val=document.getElementById(`gender-select-${id}`)?.value;
+  const sel=document.getElementById(`gender-select-${id}`);
+  const val=sel?.value;
   const gEl=document.getElementById(`gender-${id}`);
-  if(!gEl)return;
   if(val){
-    gEl.textContent=val;
-    gEl.className='af-field filled';
+    if(gEl){gEl.textContent=val;}
+    if(sel)sel.classList.add('filled');
   }else{
-    gEl.textContent='Gender';
-    gEl.className='af-field';
+    if(gEl){gEl.textContent='Gender';}
+    if(sel)sel.classList.remove('filled');
   }
 }
 
