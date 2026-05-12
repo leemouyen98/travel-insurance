@@ -1268,6 +1268,11 @@ function travBlock(idx,type,id,ti){
   return`<div class="trav-block">
     <div class="trav-title" id="trav-title-${id}" data-num="${idx}" data-type="${type}">Traveller ${idx} — ${type}</div>
     <div class="field">
+      <label class="label">Full Name <span class="req">*</span></label>
+      <input type="text" class="input" id="name-${id}" placeholder="As per NRIC / Passport"
+        oninput="syncTravName('${id}',${ti})">
+    </div>
+    <div class="field" style="margin-bottom:0">
       <label class="label">NRIC <span class="req">*</span></label>
       <input type="text" class="input" id="nric-${id}" placeholder="000000-00-0000" maxlength="14"
         oninput="fmtNRIC(this)" onblur="parseNRIC(this,'${id}')">
@@ -1276,11 +1281,6 @@ function travBlock(idx,type,id,ti){
         <div class="af-field" id="dob-${id}">Date of birth</div>
         <div class="af-field" id="gender-${id}">Gender</div>
       </div>
-    </div>
-    <div class="field" style="margin-bottom:0">
-      <label class="label">Full Name <span class="req">*</span></label>
-      <input type="text" class="input" id="name-${id}" placeholder="As per NRIC / Passport"
-        oninput="syncTravName('${id}',${ti})">
     </div>
   </div>`;
 }
