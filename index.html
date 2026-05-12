@@ -688,11 +688,11 @@ body::before{
     <label class="label">Travel Dates <span class="req">*</span></label>
     <div class="two-col">
       <div>
-        <input type="date" class="input" id="dateFrom" onchange="onDate()">
+        <input type="date" class="af-input" id="dateFrom" onchange="onDate()">
         <div class="hint">Departure</div>
       </div>
       <div>
-        <input type="date" class="input" id="dateTo" onchange="onDate()">
+        <input type="date" class="af-input" id="dateTo" onchange="onDate()">
         <div class="hint">Return</div>
       </div>
     </div>
@@ -1935,11 +1935,11 @@ function addFlight() {
     <div class="two-col">
       <div class="field" style="margin-bottom:0">
         <label class="label">Departure Date</label>
-        <input type="date" class="input" id="flt-dep-${id}">
+        <input type="date" class="af-input" id="flt-dep-${id}">
       </div>
       <div class="field" style="margin-bottom:0">
         <label class="label">Arrival Date</label>
-        <input type="date" class="input" id="flt-arr-${id}">
+        <input type="date" class="af-input" id="flt-arr-${id}">
       </div>
     </div>`;
   list.appendChild(div);
