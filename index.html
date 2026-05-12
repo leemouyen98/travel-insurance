@@ -970,6 +970,13 @@ function stampDutyAmount(base, isDomestic) {
   return afterSST >= 150 ? 10 : 0;
 }
 
+// 5% group discount: 2+ adults, individual/group policy only (not family)
+function applyGroupDiscount(base) {
+  const eligible = S.policyType !== 'family' && S.adults >= 2;
+  if (!eligible) return base;
+  return Math.round(base * 0.95 * 100) / 100;
+}
+
 // Area code → API value map
 const AREA_API = { D:'domestic', '1':'area1', '2':'area2', '3':'area3' };
 
@@ -1134,7 +1141,7 @@ function calcPremium(){
       t=getBracket(PREMIUMS.D.adult,days,annual)*S.adults
        +getBracket(PREMIUMS.D.senior,days,annual)*S.seniors;
     }
-    const base=Math.round(t*100)/100;
+    const base=applyGroupDiscount(Math.round(t*100)/100);
     ['basic','essential','deluxe'].forEach(p=>{
       S.premiums[p]=base;
       S.totals[p]=applyTax(base,true);
@@ -1149,8 +1156,9 @@ function calcPremium(){
         t=getBracket(at.adult[p],days,annual)*S.adults
          +getBracket(at.senior[p],days,annual)*S.seniors;
       }
-      S.premiums[p]=Math.round(t*100)/100;
-      S.totals[p]=applyTax(S.premiums[p],false);
+      const base=applyGroupDiscount(Math.round(t*100)/100);
+      S.premiums[p]=base;
+      S.totals[p]=applyTax(base,false);
     });
   }
 
@@ -1179,13 +1187,15 @@ const PLAN_META=[
 ];
 
 function renderPlans(){
-  const taxNote=S.area==='D'?'+8% SST & stamp duty':'+stamp duty RM10';
+  const groupEligible = S.policyType !== 'family' && S.adults >= 2;
+  const discountNote = groupEligible ? ' · 5% group discount applied' : '';
+  const taxNote = S.area==='D' ? '+8% SST & stamp duty' : '+stamp duty RM10';
   document.getElementById('plansGrid').innerHTML=PLAN_META.map(p=>`
     <div class="plan-card${S.plan===p.key?' sel':''}" onclick="selPlan('${p.key}',this)">
       ${p.badge?`<div class="plan-badge ${p.badge.c}">${p.badge.t}</div>`:''}
       <div class="plan-name">${p.name}</div>
       <div class="plan-price">RM ${S.premiums[p.key]>0?S.premiums[p.key].toFixed(2):'—'}</div>
-      <div class="plan-price-note">${paxStr()} · ${taxNote}</div>
+      <div class="plan-price-note">${paxStr()}${discountNote} · ${taxNote}</div>
       <ul class="plan-feats">
         ${p.feats.map(f=>{
           const yes=!f.startsWith('No ');
@@ -1392,6 +1402,7 @@ async function doSubmit(){
       total:S.totals[S.plan],
       items:[
         {label:`${cap(S.plan)} Plan · ${paxStr()}`,value:S.premiums[S.plan]},
+        ...(S.policyType!=='family'&&S.adults>=2?[{label:'5% Group Discount',value:-Math.round(S.premiums[S.plan]/0.95*0.05*100)/100}]:[]),
         ...(S.area==='D'?[{label:'8% Service Tax',value:Math.round(S.premiums[S.plan]*0.08*100)/100}]:[]),
         {label:'Stamp Duty',value:stampDutyAmount(S.premiums[S.plan],S.area==='D')}
       ]
