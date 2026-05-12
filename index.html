@@ -951,7 +951,17 @@ function getBracket(table, days, annual) {
   if (days <= 10) return table[1];
   if (days <= 18) return table[2];
   if (days <= 31) return table[3];
-  return table[4];
+  // 32+ days: 19–31 day rate + ceil((days − 31) / 7) × weekly rate
+  const extraWeeks = Math.ceil((days - 31) / 7);
+  return table[3] + extraWeeks * table[4];
+}
+
+// Apply taxes per PDF footer:
+// Domestic → +8% SST then +RM10 stamp duty
+// International → +RM10 stamp duty only
+function applyTax(base, isDomestic) {
+  const afterSST = isDomestic ? Math.round(base * 1.08 * 100) / 100 : base;
+  return Math.round((afterSST + 10) * 100) / 100; // RM10 stamp duty for all policies
 }
 
 // Area code → API value map
@@ -965,7 +975,8 @@ const S={
   dateFrom:'',dateTo:'',days:0,
   plan:'essential',
   payMethod:'billplz',
-  premiums:{basic:0,essential:0,deluxe:0},
+  premiums:{basic:0,essential:0,deluxe:0}, // base (PDF table, shown on plan cards)
+  totals:{basic:0,essential:0,deluxe:0},   // base + SST + stamp duty (shown everywhere else)
 };
 
 // ═══════════ NAVIGATION ═══════════
@@ -1003,11 +1014,11 @@ function updateDots(){
     if(l){l.className='step-line';if(i<cur)l.classList.add('done');}
   }
   const pill=document.getElementById('premiumPill');
-  if(cur>=2&&S.premiums.essential>0){
+  if(cur>=2&&S.totals.essential>0){
     pill.classList.add('visible');
     document.getElementById('pillPlan').textContent=cap(S.plan)+' Plan';
     document.getElementById('pillPax').textContent=paxStr();
-    document.getElementById('pillAmount').textContent='RM '+S.premiums[S.plan].toFixed(2);
+    document.getElementById('pillAmount').textContent='RM '+S.totals[S.plan].toFixed(2);
   }else{pill.classList.remove('visible');}
 }
 
@@ -1106,9 +1117,10 @@ function calcPremium(){
   const annual=S.tripType==='annual';
   if(!annual&&S.days<1)return;
   const days=annual?365:S.days;
+  const isDomestic=S.area==='D';
 
-  if(S.area==='D'){
-    // Domestic — same rate for all plans
+  if(isDomestic){
+    // Domestic — single rate regardless of plan, no Basic/Essential/Deluxe split
     let t;
     if(S.policyType==='family'){
       t=getBracket(PREMIUMS.D.family,days,annual);
@@ -1116,8 +1128,11 @@ function calcPremium(){
       t=getBracket(PREMIUMS.D.adult,days,annual)*S.adults
        +getBracket(PREMIUMS.D.senior,days,annual)*S.seniors;
     }
-    const r=Math.round(t*100)/100;
-    ['basic','essential','deluxe'].forEach(p=>{S.premiums[p]=r;});
+    const base=Math.round(t*100)/100;
+    ['basic','essential','deluxe'].forEach(p=>{
+      S.premiums[p]=base;
+      S.totals[p]=applyTax(base,true);
+    });
   }else{
     const at=PREMIUMS[S.area];
     ['basic','essential','deluxe'].forEach(p=>{
@@ -1129,14 +1144,16 @@ function calcPremium(){
          +getBracket(at.senior[p],days,annual)*S.seniors;
       }
       S.premiums[p]=Math.round(t*100)/100;
+      S.totals[p]=applyTax(S.premiums[p],false);
     });
   }
 
   const box=document.getElementById('premiumBox');
   box.style.display='flex';
-  document.getElementById('pboxAmount').textContent='RM '+S.premiums.essential.toFixed(2);
+  document.getElementById('pboxAmount').textContent='RM '+S.totals.essential.toFixed(2);
   document.getElementById('pboxNote').textContent=paxStr()+(S.tripType==='single'?` · ${S.days} day${S.days!==1?'s':''}`:'  · Annual');
-  document.getElementById('pillAmount').textContent='RM '+S.premiums[S.plan].toFixed(2);
+  document.getElementById('pboxSub').textContent=isDomestic?'Essential · incl. 8% SST + stamp duty':'Essential · incl. stamp duty';
+  document.getElementById('pillAmount').textContent='RM '+S.totals[S.plan].toFixed(2);
   document.getElementById('pillPax').textContent=paxStr();
 }
 
@@ -1156,12 +1173,13 @@ const PLAN_META=[
 ];
 
 function renderPlans(){
+  const taxNote=S.area==='D'?'+8% SST & stamp duty':'+stamp duty RM10';
   document.getElementById('plansGrid').innerHTML=PLAN_META.map(p=>`
     <div class="plan-card${S.plan===p.key?' sel':''}" onclick="selPlan('${p.key}',this)">
       ${p.badge?`<div class="plan-badge ${p.badge.c}">${p.badge.t}</div>`:''}
       <div class="plan-name">${p.name}</div>
       <div class="plan-price">RM ${S.premiums[p.key]>0?S.premiums[p.key].toFixed(2):'—'}</div>
-      <div class="plan-price-note">${paxStr()}</div>
+      <div class="plan-price-note">${paxStr()} · ${taxNote}</div>
       <ul class="plan-feats">
         ${p.feats.map(f=>{
           const yes=!f.startsWith('No ');
@@ -1282,8 +1300,8 @@ function renderReview(){
   document.getElementById('rv-pax').textContent=paxStr();
   document.getElementById('rv-plan').textContent=cap(S.plan)+' Plan';
   document.getElementById('rv-type').textContent=(S.tripType==='annual'?'Annual':'Single Trip')+' · '+cap(S.policyType);
-  document.getElementById('rv-total').textContent='RM '+(S.premiums[S.plan]||0).toFixed(2);
-  document.getElementById('pillAmount').textContent='RM '+(S.premiums[S.plan]||0).toFixed(2);
+  document.getElementById('rv-total').textContent='RM '+(S.totals[S.plan]||0).toFixed(2);
+  document.getElementById('pillAmount').textContent='RM '+(S.totals[S.plan]||0).toFixed(2);
   document.getElementById('pillPlan').textContent=cap(S.plan)+' Plan';
 }
 
@@ -1365,8 +1383,12 @@ async function doSubmit(){
       selectedPlan:S.plan
     },
     quote:{
-      total:S.premiums[S.plan],
-      items:[{label:`${cap(S.plan)} Plan · ${paxStr()}`,value:S.premiums[S.plan]}]
+      total:S.totals[S.plan],
+      items:[
+        {label:`${cap(S.plan)} Plan · ${paxStr()}`,value:S.premiums[S.plan]},
+        ...(S.area==='D'?[{label:'8% Service Tax',value:Math.round(S.premiums[S.plan]*0.08*100)/100}]:[]),
+        {label:'Stamp Duty',value:10}
+      ]
     },
     paymentMethod:S.payMethod,
     insuredTravellers:travellers,
