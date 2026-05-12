@@ -640,7 +640,7 @@ body::before{
         <button class="stp-btn" onclick="adj('adults',1)">+</button>
       </div>
     </div>
-    <div class="stepper-row">
+    <div class="stepper-row" id="seniorRow">
       <div>
         <div class="stepper-name">Seniors</div>
         <div class="stepper-desc">Age 71 – 85 years</div>
@@ -1149,8 +1149,21 @@ function setTripType(type,btn){
 function setPolicyType(type,btn){
   S.policyType=type;
   toggleBtns(btn);
-  document.getElementById('childRow').style.display=type==='family'?'flex':'none';
-  if(type!=='family'){S.children=0;document.getElementById('childVal').textContent='0';}
+  const isFamily=type==='family';
+  document.getElementById('childRow').style.display=isFamily?'flex':'none';
+  document.getElementById('seniorRow').style.display=isFamily?'none':'flex';
+  if(isFamily){
+    S.seniors=0;
+    document.getElementById('seniorVal').textContent='0';
+    if(S.adults>2){
+      S.adults=2;
+      document.getElementById('adultVal').textContent='2';
+      document.getElementById('adultMinus').disabled=false;
+    }
+  }else{
+    S.children=0;
+    document.getElementById('childVal').textContent='0';
+  }
   calcPremium();
 }
 
@@ -1162,11 +1175,14 @@ function toggleBtns(btn){
 // ═══════════ COUNTERS ═══════════
 function adj(key,d){
   const min=key==='adults'?1:0;
-  S[key]=Math.max(min,Math.min(10,S[key]+d));
+  const max=key==='adults'&&S.policyType==='family'?2:10;
+  S[key]=Math.max(min,Math.min(max,S[key]+d));
   const ids={adults:'adultVal',seniors:'seniorVal',children:'childVal'};
   const minIds={adults:'adultMinus',seniors:'seniorMinus',children:'childMinus'};
+  const maxBtns={adults:document.querySelector('#adultMinus+span+button'),seniors:document.querySelector('#seniorMinus+span+button'),children:document.querySelector('#childMinus+span+button')};
   document.getElementById(ids[key]).textContent=S[key];
   document.getElementById(minIds[key]).disabled=S[key]<=min;
+  if(maxBtns[key])maxBtns[key].disabled=S[key]>=max;
   calcPremium();
 }
 
