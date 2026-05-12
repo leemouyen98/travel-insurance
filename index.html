@@ -459,6 +459,27 @@ body::before{
 }
 .btn-add-flight:hover{border-color:var(--gold);color:var(--gold)}
 
+/* ── Hero ── */
+.hero{position:relative;border-radius:var(--r);overflow:hidden;margin-bottom:1.75rem}
+.hero-img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover;object-position:center}
+.hero-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(9,14,27,.88) 0%,rgba(9,14,27,.3) 45%,transparent 100%);
+  display:flex;align-items:flex-end;padding:1.5rem 1.6rem;
+}
+.hero-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.45rem;font-weight:600;color:#fff;line-height:1.3;
+  text-shadow:0 2px 12px rgba(0,0,0,.4);
+}
+
+/* ── Product video ── */
+.video-section{margin-bottom:2rem}
+.video-eyebrow{font-size:.63rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem}
+.video-heading{font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:.75rem}
+.video-wrap{position:relative;padding-bottom:56.25%;height:0;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+
 /* ── Annual note ── */
 .annual-note{
   padding:.75rem 1rem;background:rgba(99,155,255,.08);border:1px solid rgba(99,155,255,.18);
@@ -555,6 +576,27 @@ body::before{
 
 <!-- ═══════════ STEP 1: TRIP ═══════════ -->
 <div class="step-panel active" id="step-1">
+
+  <!-- Hero image -->
+  <div class="hero">
+    <img src="/assets/explorer.jpg" class="hero-img" alt="Travel with Tokio Marine Explorer">
+    <div class="hero-overlay">
+      <h2 class="hero-title">Travel with Confidence,<br>with Tokio Marine Explorer</h2>
+    </div>
+  </div>
+
+  <!-- Product video -->
+  <div class="video-section">
+    <div class="video-eyebrow">Product Overview</div>
+    <div class="video-heading">All-New Tokio Marine Explorer</div>
+    <div class="video-wrap">
+      <iframe src="https://www.youtube.com/embed/Rrm4uBH7mvk"
+        title="All-New Tokio Marine Explorer"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen loading="lazy"></iframe>
+    </div>
+  </div>
+
   <div class="panel-heading">
     <h1 class="panel-title">Tell us about your trip</h1>
     <p class="panel-sub">Destination, dates, and who's travelling. Premium calculates as you go.</p>
