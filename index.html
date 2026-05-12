@@ -810,6 +810,7 @@ body::before{
         <span class="acc-arrow">▾</span>
       </div>
       <div class="acc-body">
+        <div class="hint" id="bankTravLabel" style="margin-bottom:.75rem"></div>
         <div class="field"><label class="label">Bank Name</label><input type="text" class="input" id="bankName" placeholder="e.g. Maybank, CIMB, RHB…"></div>
         <div class="field" style="margin-bottom:0"><label class="label">Account Number</label><input type="text" class="input" id="bankAccNum" placeholder="Account number"></div>
       </div>
@@ -1257,15 +1258,15 @@ function selPlan(plan,el){
 function renderTravBlocks(){
   const total=S.adults+S.seniors;
   document.getElementById('detailsSubnote').textContent=`Fill in details for ${total} traveller${total>1?'s':''}.`;
-  let html='',idx=1;
-  for(let i=0;i<S.adults;i++)html+=travBlock(idx++,i===0?'Adult (Main Insured)':'Adult',`a${i}`);
-  for(let i=0;i<S.seniors;i++)html+=travBlock(idx++,'Senior (71–85)',`s${i}`);
+  let html='',idx=1,ti=0;
+  for(let i=0;i<S.adults;i++){html+=travBlock(idx++,i===0?'Adult (Main Insured)':'Adult',`a${i}`,ti++);}
+  for(let i=0;i<S.seniors;i++){html+=travBlock(idx++,'Senior (71–85)',`s${i}`,ti++);}
   document.getElementById('travBlocks').innerHTML=html;
 }
 
-function travBlock(idx,type,id){
+function travBlock(idx,type,id,ti){
   return`<div class="trav-block">
-    <div class="trav-title">Traveller ${idx} — ${type}</div>
+    <div class="trav-title" id="trav-title-${id}" data-num="${idx}" data-type="${type}">Traveller ${idx} — ${type}</div>
     <div class="field">
       <label class="label">NRIC <span class="req">*</span></label>
       <input type="text" class="input" id="nric-${id}" placeholder="000000-00-0000" maxlength="14"
@@ -1278,7 +1279,8 @@ function travBlock(idx,type,id){
     </div>
     <div class="field" style="margin-bottom:0">
       <label class="label">Full Name <span class="req">*</span></label>
-      <input type="text" class="input" id="name-${id}" placeholder="As per NRIC / Passport">
+      <input type="text" class="input" id="name-${id}" placeholder="As per NRIC / Passport"
+        oninput="syncTravName('${id}',${ti})">
     </div>
   </div>`;
 }
@@ -1304,6 +1306,26 @@ function parseNRIC(el,pfx){
   const gEl=document.getElementById('gender-'+pfx);
   if(dobEl){dobEl.textContent=dob;dobEl.className='af-field filled';}
   if(gEl){gEl.textContent=gender;gEl.className='af-field filled';}
+}
+
+// ═══════════ NAME SYNC ═══════════
+function syncTravName(id, ti) {
+  const name = (document.getElementById(`name-${id}`)?.value || '').trim();
+  // Update traveller block title
+  const titleEl = document.getElementById(`trav-title-${id}`);
+  if (titleEl) {
+    const num = titleEl.dataset.num;
+    const type = titleEl.dataset.type;
+    titleEl.textContent = name ? `Traveller ${num} — ${name}` : `Traveller ${num} — ${type}`;
+  }
+  // Update nominee section header (only visible when multiple travellers)
+  const nomHeader = document.getElementById(`nom-header-${ti}`);
+  if (nomHeader) nomHeader.textContent = name || `Traveller ${ti + 1}`;
+  // Update bank details hint (main insured only)
+  if (ti === 0) {
+    const bankHint = document.getElementById('bankTravLabel');
+    if (bankHint) bankHint.textContent = name ? `Account holder: ${name}` : '';
+  }
 }
 
 // ═══════════ FOR OTHER TOGGLE ═══════════
@@ -1404,7 +1426,7 @@ function renderNomineeSections() {
     sec.className = 'nominee-section';
     sec.dataset.ti = t.index;
     sec.innerHTML = `
-      ${total > 1 ? `<div class="nominee-section-header">${t.label}</div>` : ''}
+      ${total > 1 ? `<div class="nominee-section-header" id="nom-header-${t.index}">${t.label}</div>` : ''}
       <div class="nom-list" id="nomList-${t.index}"></div>
       <div class="nom-alloc-bar">
         <span id="nomAllocText-${t.index}">0% allocated</span>
