@@ -2002,9 +2002,15 @@ function collectNominees() {
 let flightCount = 0;
 
 function addFlight() {
+  const list = document.getElementById('flightList');
+  const isFirst = list.children.length === 0;
+  _addOneFlight(list);
+  if (isFirst) _addOneFlight(list);
+}
+
+function _addOneFlight(list) {
   flightCount++;
   const id = flightCount;
-  const list = document.getElementById('flightList');
   const div = document.createElement('div');
   div.className = 'flight-block';
   div.id = `flight-block-${id}`;
