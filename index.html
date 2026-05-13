@@ -2017,29 +2017,21 @@ function _addOneFlight(list) {
   div.innerHTML = `
     <div class="flight-block-title">Flight ${list.children.length + 1}</div>
     <button type="button" class="flight-remove" onclick="removeFlight(${id})" title="Remove">✕</button>
-    <div class="field">
-      <label class="label">Airline & Flight No.</label>
-      <input type="text" class="input" id="flt-num-${id}" placeholder="e.g. AirAsia D7 521">
-    </div>
     <div class="two-col">
       <div class="field" style="margin-bottom:0">
-        <label class="label">Departure Date</label>
-        <input type="date" class="af-input" id="flt-dep-${id}">
+        <input type="text" class="input" id="flt-num-${id}">
       </div>
       <div class="field" style="margin-bottom:0">
-        <label class="label">Arrival Date</label>
-        <input type="date" class="af-input" id="flt-arr-${id}">
+        <label class="label">Date</label>
+        <input type="date" class="af-input" id="flt-dep-${id}">
       </div>
     </div>`;
   list.appendChild(div);
   renumberFlights();
-  // Pre-fill dates from trip selection if available
+  // Pre-fill date from trip departure date if available
   const depEl=document.getElementById(`flt-dep-${id}`);
-  const arrEl=document.getElementById(`flt-arr-${id}`);
   if(S.dateFrom){depEl.value=S.dateFrom;depEl.classList.add('filled');}
-  if(S.dateTo){arrEl.value=S.dateTo;arrEl.classList.add('filled');}
   depEl.addEventListener('change',()=>depEl.classList.toggle('filled',!!depEl.value));
-  arrEl.addEventListener('change',()=>arrEl.classList.toggle('filled',!!arrEl.value));
 }
 
 function removeFlight(id) {
@@ -2060,7 +2052,6 @@ function collectFlights() {
     return {
       departureFlightNumber: document.getElementById(`flt-num-${id}`)?.value || '',
       departureDate: document.getElementById(`flt-dep-${id}`)?.value ? fmtDate(document.getElementById(`flt-dep-${id}`).value) : '',
-      arrivalDate: document.getElementById(`flt-arr-${id}`)?.value ? fmtDate(document.getElementById(`flt-arr-${id}`).value) : '',
     };
   }).filter(f => f.departureFlightNumber || f.departureDate);
 }
