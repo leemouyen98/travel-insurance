@@ -137,7 +137,7 @@ body::before{
 /* ── Panel heading ── */
 .panel-heading{margin-bottom:1.75rem}
 .panel-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:500;line-height:1.3}
-.panel-sub{font-size:.85rem;color:var(--text-2);margin-top:.35rem}
+.panel-sub{font-size:.9rem;color:var(--text-2);margin-top:.35rem;line-height:1.5}
 
 /* ── Card ── */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.4rem;margin-bottom:1rem}
@@ -155,18 +155,18 @@ body::before{
 /* ── Field ── */
 .field{margin-bottom:1.2rem}
 .field:last-child{margin-bottom:0}
-.label{display:block;font-size:.72rem;font-weight:700;color:var(--text-2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.45rem}
+.label{display:block;font-size:.78rem;font-weight:700;color:var(--text-2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.45rem}
 .label .req{color:var(--gold);margin-left:1px}
 .input{
   width:100%;background:var(--surface-2);border:1.5px solid var(--border);
   border-radius:var(--r-sm);padding:.72rem .95rem;color:var(--text);
-  font-size:.925rem;font-family:inherit;transition:border-color var(--ease);outline:none;
+  font-size:1rem;font-family:inherit;transition:border-color var(--ease);outline:none;
   -webkit-appearance:none;appearance:none;
 }
 .input:focus{border-color:var(--gold)}
 .input::placeholder{color:var(--text-3)}
 .input.err{border-color:var(--red)}
-.hint{font-size:.72rem;color:var(--text-3);margin-top:.3rem}
+.hint{font-size:.8rem;color:var(--text-3);margin-top:.3rem;line-height:1.5}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 @media(max-width:460px){.two-col{grid-template-columns:1fr}}
 
@@ -181,7 +181,7 @@ body::before{
 .area-opt.sel{border-color:var(--gold);background:var(--gold-dim)}
 .area-opt-head{display:flex;align-items:center;gap:.5rem}
 .area-opt-name{font-size:.875rem;font-weight:600;color:var(--text)}
-.area-opt-desc{font-size:.75rem;color:var(--text-3);line-height:1.5}
+.area-opt-desc{font-size:.82rem;color:var(--text-3);line-height:1.55}
 .area-pill{font-size:.62rem;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.05em;flex-shrink:0}
 .a-D{background:var(--gold-dim);color:var(--gold)}
 .a-1{background:rgba(45,212,160,.12);color:#2dd4a0}
@@ -197,7 +197,7 @@ body::before{
 .stepper-row:last-child{padding-bottom:0}
 .stepper-row:first-child{padding-top:0}
 .stepper-name{font-size:.9rem;font-weight:500;color:var(--text)}
-.stepper-desc{font-size:.72rem;color:var(--text-3);margin-top:1px}
+.stepper-desc{font-size:.78rem;color:var(--text-3);margin-top:1px}
 .stepper-ctrl{display:flex;align-items:center;gap:.7rem;flex-shrink:0}
 .stp-btn{
   width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border-light);
@@ -272,13 +272,13 @@ body::before{
 .autofill-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-top:.85rem}
 .af-field{
   padding:.72rem .95rem;background:var(--surface-2);border:1.5px solid var(--border);
-  border-radius:var(--r-sm);font-size:.925rem;color:var(--text-2);font-style:italic;
+  border-radius:var(--r-sm);font-size:1rem;color:var(--text-2);font-style:italic;
   font-family:inherit;
 }
 .af-field.filled{color:var(--text);font-style:normal;border-color:rgba(45,212,160,.35)}
 .af-input{
   padding:.72rem .95rem;background:var(--surface-2);border:1.5px solid var(--border);
-  border-radius:var(--r-sm);font-size:.925rem;color:var(--text-2);font-family:inherit;
+  border-radius:var(--r-sm);font-size:1rem;color:var(--text-2);font-family:inherit;
   cursor:pointer;transition:border-color var(--ease);outline:none;width:100%;
   -webkit-appearance:none;appearance:none;
 }
@@ -322,7 +322,7 @@ body::before{
 /* ── Review ── */
 .rv-row{
   display:flex;justify-content:space-between;align-items:flex-start;
-  padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.875rem;gap:1rem;
+  padding:.65rem 0;border-bottom:1px solid var(--border);font-size:.95rem;gap:1rem;
 }
 .rv-row:last-child{border-bottom:none}
 .rv-label{color:var(--text-2);flex-shrink:0}
@@ -337,14 +337,13 @@ body::before{
 
 /* ── Issuance note ── */
 .issuance-note{
-  display:flex;align-items:center;gap:.65rem;
-  padding:.7rem 1rem;background:var(--green-dim);border:1px solid var(--green-border);
-  border-radius:var(--r-sm);font-size:.8rem;color:var(--green);margin-bottom:1.2rem;
+  display:flex;align-items:flex-start;gap:.65rem;
+  padding:.85rem 1rem;background:var(--green-dim);border:1px solid var(--green-border);
+  border-radius:var(--r-sm);font-size:.9rem;line-height:1.55;color:var(--green);margin-bottom:1.2rem;
 }
 
 /* ── Payment options ── */
-.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.2rem}
-@media(max-width:420px){.pay-grid{grid-template-columns:1fr}}
+.pay-grid{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.2rem}
 .pay-opt{
   display:flex;flex-direction:column;align-items:flex-start;gap:.2rem;
   padding:.9rem 1rem;background:var(--surface);border:2px solid var(--border);
@@ -355,7 +354,7 @@ body::before{
 .pay-name-row{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
 .pay-name{font-size:.875rem;font-weight:600;color:var(--text)}
 .pay-rec{font-size:.58rem;background:var(--gold);color:#090e1b;padding:2px 7px;border-radius:20px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
-.pay-detail{font-size:.72rem;color:var(--text-3)}
+.pay-detail{font-size:.78rem;color:var(--text-3)}
 .pay-inst{
   padding:1rem 1.1rem;background:var(--surface-2);border:1px solid var(--border);
   border-radius:var(--r-sm);font-size:.85rem;color:var(--text-2);line-height:1.6;margin-bottom:1rem;display:none;
@@ -383,8 +382,11 @@ body::before{
   padding:1rem 1.1rem;background:var(--surface-2);border:1px solid var(--border);
   border-radius:var(--r-sm);margin:1.2rem 0;
 }
-.declaration input[type=checkbox]{flex-shrink:0;width:17px;height:17px;margin-top:2px;accent-color:var(--gold);cursor:pointer}
-.declaration-text{font-size:.78rem;color:var(--text-2);line-height:1.55}
+.declaration input[type=checkbox]{flex-shrink:0;width:19px;height:19px;margin-top:2px;accent-color:var(--gold);cursor:pointer}
+.declaration-text{font-size:.875rem;color:var(--text-2);line-height:1.6}
+.declaration-text p{margin-bottom:.5rem}
+.declaration-text p:last-child{margin-bottom:0}
+.declaration-text strong{color:var(--text)}
 
 /* ── Buttons ── */
 .btn-primary{
@@ -510,7 +512,7 @@ body::before{
 .success-wa svg{width:18px;height:18px;fill:#fff}
 .success-info{
   text-align:left;max-width:420px;margin:0 auto 1rem;
-  padding:.9rem 1.1rem;border-radius:var(--r-sm);font-size:.8rem;line-height:1.65;
+  padding:.9rem 1.1rem;border-radius:var(--r-sm);font-size:.9rem;line-height:1.65;
 }
 .success-info b{display:block;margin-bottom:.15rem}
 .success-info.doc{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--text-2)}
@@ -524,6 +526,29 @@ body::before{
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem;
 }
 .footer-note,.footer-tm{font-size:.7rem;color:var(--text-3)}
+
+/* ── Tablet & desktop scale-up ── */
+@media(min-width:700px){
+  .wrap{max-width:740px;padding:0 2rem 6rem}
+  .site-header{padding:2rem 0 3rem}
+  .hero-title{font-size:1.65rem}
+  .panel-title{font-size:1.65rem}
+  .plans-grid{gap:.9rem}
+  .plan-card{padding:1.4rem 1.1rem}
+}
+@media(min-width:1000px){
+  html{font-size:17px}
+  .wrap{max-width:800px;padding:0 2.5rem 7rem}
+  .site-header{padding:2.25rem 0 3.25rem}
+  .hero-overlay{padding:2rem 2.25rem}
+  .hero-title{font-size:1.9rem}
+  .panel-title{font-size:1.85rem}
+  .panel-sub{font-size:.9rem}
+  .card{padding:1.6rem}
+  .plans-grid{gap:1.1rem}
+  .plan-card{padding:1.6rem 1.25rem}
+  .area-opt,.pay-opt{padding:1rem 1.25rem}
+}
 </style>
 </head>
 <body>
@@ -610,7 +635,7 @@ body::before{
 
   <!-- Trip type -->
   <div class="field">
-    <label class="label">Insurance Type</label>
+    <label class="label">Trip Duration</label>
     <div class="toggle-group">
       <button class="tgl-btn active" onclick="setTripType('single',this)">Single Trip</button>
       <button class="tgl-btn" onclick="setTripType('annual',this)">Annual</button>
@@ -682,7 +707,7 @@ body::before{
       </div>
       <div class="area-opt" data-area="3" onclick="selArea('3',this)">
         <div class="area-opt-head"><span class="area-pill a-3">Area 3</span></div>
-        <span class="area-opt-desc">Worldwide excluding Malaysia only — includes USA, Canada, Nepal and Tibet.</span>
+        <span class="area-opt-desc">Worldwide, except Malaysia — includes USA, Canada, Nepal and Tibet.</span>
       </div>
     </div>
     <div class="hint">Pick the area that covers your destination. Not sure? <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--gold)">Check the policy wording ↗</a> or <a href="https://wa.me/60126123540" target="_blank" rel="noopener" style="color:var(--gold)">WhatsApp Henry</a>.</div>
@@ -746,7 +771,7 @@ body::before{
   <div class="plans-grid" id="plansGrid"></div>
 
   <div class="annual-note" id="cfarNote" style="display:none">
-    <strong>About CFAR (Deluxe only):</strong> reimburses 75% of your flight/accommodation expenses, up to RM5,000. Only valid if this policy is purchased within <strong>14 days</strong> of booking your flight/accommodation, and if you cancel <strong>more than 48 hours</strong> before departure. Not payable if any refund or credit is recoverable from another party.
+    <strong>CFAR (Deluxe only)</strong> reimburses 75% of your flight/accommodation expenses, up to RM5,000. Only valid if this policy is purchased within <strong>14 days</strong> of booking your flight/accommodation, and if you cancel <strong>more than 48 hours</strong> before departure. Not payable if any refund or credit is recoverable from another party.
   </div>
 
   <div class="card">
@@ -917,7 +942,7 @@ body::before{
     </div>
   </div>
 
-  <div class="issuance-note">⏱️ Once your payment is received and confirmed, your policy is typically issued via WhatsApp within 2 working hours. Cover only begins once payment has been received — please review everything below carefully before submitting.</div>
+  <div class="issuance-note">⏱️ Once your payment is received and confirmed, your policy is typically issued via WhatsApp within 2 working hours. Cover only begins once payment is received — please review everything below carefully before submitting.</div>
 
   <!-- Payment method -->
   <div class="field">
@@ -966,23 +991,9 @@ body::before{
   <div class="declaration">
     <input type="checkbox" id="declaration">
     <div class="declaration-text">
-      I confirm the information provided is accurate and complete. I understand that policy issuance is subject to Tokio Marine's acceptance and payment clearance, and that cover only commences once premium has been received. Henry Lee is my appointed insurance advisor for this application.
-    </div>
-  </div>
-
-  <!-- Health & eligibility declaration -->
-  <div class="declaration">
-    <input type="checkbox" id="declHealth">
-    <div class="declaration-text">
-      I declare that no Insured Person named in this application has, within the past 6 months, been hospitalized as an in-patient, received a terminal prognosis, or is currently awaiting hospital in-patient treatment — and that no Insured Person has been previously diagnosed with any anxiety state or mental illness. I understand pre-existing conditions are not covered, and that inaccurate disclosure may affect or void a claim.
-    </div>
-  </div>
-
-  <!-- PDPA consent -->
-  <div class="declaration">
-    <input type="checkbox" id="declPDPA">
-    <div class="declaration-text">
-      I consent to Tokio Marine Insurans (Malaysia) Berhad and Henry Lee, as my appointed insurance advisor, collecting, using and sharing my personal data (including NRIC/passport and bank details) with the insurer, reinsurer, adjusters and ISM Insurance Services Malaysia Berhad, solely for arranging and administering this insurance, in accordance with the Personal Data Protection Act 2010.
+      <p><strong>Application —</strong> Details are accurate. Cover only begins once payment is received. Henry Lee is my appointed advisor.</p>
+      <p><strong>Health —</strong> No Insured Person has, in the past 6 months, been hospitalised, given a terminal prognosis, or diagnosed with any mental illness. Pre-existing conditions aren't covered.</p>
+      <p><strong>Data (PDPA) —</strong> I consent to my personal data being shared with Tokio Marine and related parties to arrange this policy.</p>
     </div>
   </div>
 
@@ -2047,13 +2058,7 @@ function collectFlights() {
 // ═══════════ SUBMIT ═══════════
 async function doSubmit(){
   if(!document.getElementById('declaration').checked){
-    alert('Please confirm the application declaration before submitting.');return;
-  }
-  if(!document.getElementById('declHealth').checked){
-    alert('Please confirm the health & eligibility declaration before submitting.');return;
-  }
-  if(!document.getElementById('declPDPA').checked){
-    alert('Please confirm the personal data consent before submitting.');return;
+    alert('Please confirm the declaration before submitting.');return;
   }
   const btn=document.getElementById('submitBtn');
   const errBanner=document.getElementById('errBanner');
