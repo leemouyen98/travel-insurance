@@ -2,9 +2,3 @@
 RESEND_API_KEY=re_xxxxx
 NOTIFICATION_EMAIL=henry@example.com
 FROM_EMAIL=TM Explorer <noreply@yourdomain.com>
-
-# Billplz (card payments)
-BILLPLZ_API_KEY=your_billplz_api_key
-BILLPLZ_COLLECTION_ID=your_collection_id
-BILLPLZ_X_SIGNATURE_KEY=your_x_signature_key
-BILLPLZ_SANDBOX=true

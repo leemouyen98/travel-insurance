@@ -4,26 +4,28 @@ Static Cloudflare Pages site for Henry Lee's Tokio Marine Explorer clients. The 
 
 ## Structure
 
-- `index.html`: client-facing landing page and form shell
-- `assets/app.css`: styles
-- `assets/app.js`: quote logic, multi-step form flow, traveller generation, submit handling
-- `functions/api/submit.ts`: Cloudflare Pages Function that forwards submissions to Resend
-- `wrangler.toml`: Cloudflare Pages local/dev configuration
-- `package.json`: local dev and typecheck scripts
-- `.dev.vars.example`: local environment variable template
+- `index.html`: the entire client-facing app — markup, styles, and quote/form logic all live inline in this one file. It is fully self-contained; nothing under `assets/` is loaded by the page.
+- `assets/explorer.jpg`, `assets/Explorer.pdf`: hero image and the product brochure linked from the page.
+- `functions/api/submit.ts`: Cloudflare Pages Function that forwards submissions to Resend (emails Henry only — clients get no confirmation email, only the in-page summary and success screen).
+- `wrangler.toml`: Cloudflare Pages local/dev configuration.
+- `package.json`: local dev and typecheck scripts.
+- `.dev.vars.example`: local environment variable template.
 
 ## What is implemented
 
 - Premium landing page with plan showcase and preselection
 - Single trip and annual quoting flow
-- Domestic / Area 1 / Area 2 / Area 3 travel area logic
+- Direct Domestic / Area 1 / Area 2 / Area 3 coverage-area selection (client picks the area directly — no destination lookup)
 - Explorer brochure pricing
-- Individual, family, and group policy rules
+- Individual, family (including children), and group policy rules
 - 5% group discount logic
-- Dynamic insured traveller cards based on traveller count
+- 180-day maximum trip length enforced on the date pickers
+- Dynamic insured traveller cards based on traveller count, including children under a Family plan
 - Optional flight, bank, and nominee sections
-- Payment method selection with optional payment slip upload
-- Resend email delivery through Cloudflare Pages Functions
+- Application, health/eligibility, and PDPA consent declarations required before submission
+- Payment method selection (DuitNow QR, Touch 'n Go, Bank Transfer) with payment slip upload — no card/Billplz payment
+- Post-submission success screen with the Tokio Marine Travel Assistance emergency hotline and a reminder to keep claim documents
+- Resend email delivery through a Cloudflare Pages Function
 
 ## Environment variables
 
@@ -84,8 +86,7 @@ npm run check
 
 ## Notes
 
-- The current live flow is a 3-step intake: `Travel Details`, `Choose Plan`, and `Confirm & Pay`.
-- The top marketing plan cards sync directly into the in-form plan selection.
-- `assets/app.js` contains the premium logic, validation, summary rendering, and submit payload.
+- The live flow is a 4-step intake: `Trip`, `Plan`, `Details`, and `Pay`.
+- Everything — HTML, CSS, and JS — lives inline in `index.html`. There is no separate `app.js`/`app.css`/`i18n.js` build; if you're editing behavior or styling, edit `index.html` directly.
 - `functions/api/submit.ts` handles the Resend email delivery from Cloudflare Pages Functions.
 - Copy `.dev.vars.example` to `.dev.vars` for local development, but do not commit `.dev.vars`.

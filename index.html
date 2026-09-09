@@ -170,34 +170,23 @@ body::before{
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 @media(max-width:460px){.two-col{grid-template-columns:1fr}}
 
-/* ── Autocomplete ── */
-.ac-wrap{position:relative}
-.ac-results{
-  position:absolute;top:calc(100% + 4px);left:0;right:0;
-  background:var(--surface-2);border:1px solid var(--border-light);
-  border-radius:var(--r-sm);max-height:210px;overflow-y:auto;z-index:50;display:none;
-  box-shadow:0 8px 24px rgba(0,0,0,.4);
+/* ── Area selector ── */
+.area-grid{display:flex;flex-direction:column;gap:.6rem;margin-bottom:.5rem}
+.area-opt{
+  display:flex;flex-direction:column;gap:.35rem;
+  padding:.85rem 1rem;background:var(--surface);border:2px solid var(--border);
+  border-radius:var(--r-sm);cursor:pointer;transition:all var(--ease);
 }
-.ac-results.open{display:block}
-.ac-item{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:.6rem .95rem;cursor:pointer;font-size:.9rem;transition:background var(--ease);
-}
-.ac-item:hover{background:var(--surface)}
+.area-opt:hover{border-color:var(--border-light)}
+.area-opt.sel{border-color:var(--gold);background:var(--gold-dim)}
+.area-opt-head{display:flex;align-items:center;gap:.5rem}
+.area-opt-name{font-size:.875rem;font-weight:600;color:var(--text)}
+.area-opt-desc{font-size:.75rem;color:var(--text-3);line-height:1.5}
 .area-pill{font-size:.62rem;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.05em;flex-shrink:0}
 .a-D{background:var(--gold-dim);color:var(--gold)}
 .a-1{background:rgba(45,212,160,.12);color:#2dd4a0}
 .a-2{background:rgba(99,155,255,.12);color:#639bff}
 .a-3{background:rgba(248,113,113,.12);color:#f87171}
-
-/* ── Area display ── */
-.area-display{
-  display:flex;align-items:center;gap:.7rem;
-  padding:.72rem .95rem;background:var(--surface-2);
-  border:1.5px solid var(--border);border-radius:var(--r-sm);min-height:46px;
-}
-.area-display-text{font-size:.875rem;color:var(--text-3);font-style:italic}
-.area-display-text.filled{color:var(--text);font-style:normal}
 
 /* ── Stepper ── */
 .stepper-row{
@@ -519,6 +508,15 @@ body::before{
 }
 .success-wa:hover{opacity:.9;transform:translateY(-1px)}
 .success-wa svg{width:18px;height:18px;fill:#fff}
+.success-info{
+  text-align:left;max-width:420px;margin:0 auto 1rem;
+  padding:.9rem 1.1rem;border-radius:var(--r-sm);font-size:.8rem;line-height:1.65;
+}
+.success-info b{display:block;margin-bottom:.15rem}
+.success-info.doc{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--text-2)}
+.success-info.doc b{color:var(--gold-light)}
+.success-info.sos{background:rgba(99,155,255,.08);border:1px solid rgba(99,155,255,.18);color:var(--text-2)}
+.success-info.sos b{color:#7ab0ff}
 
 /* ── Footer ── */
 .site-footer{
@@ -626,6 +624,7 @@ body::before{
       <button class="tgl-btn active" onclick="setPolicyType('individual',this)">Individual / Group</button>
       <button class="tgl-btn" onclick="setPolicyType('family',this)">Family</button>
     </div>
+    <div class="annual-note" id="familyNote">Family Plan covers 2 adults (parent/legal guardian, age 18–70) plus any number of legal or legally adopted children aged <strong>30 days–23 years</strong>. Total family sum insured is <strong>3× the individual limits</strong> shown in the coverage table.</div>
   </div>
 
   <!-- Travellers -->
@@ -665,23 +664,28 @@ body::before{
     </div>
   </div>
 
-  <!-- Destination -->
+  <!-- Coverage Area -->
   <div class="field">
-    <label class="label">Destination <span class="req">*</span></label>
-    <div class="ac-wrap">
-      <input type="text" class="input" id="destInput" placeholder="e.g. Japan, United Kingdom, USA…" autocomplete="off"
-        oninput="onDestInput(this.value)" onfocus="onDestInput(this.value)">
-      <div class="ac-results" id="acResults"></div>
+    <label class="label">Coverage Area <span class="req">*</span></label>
+    <div class="area-grid" id="areaGrid">
+      <div class="area-opt" data-area="D" onclick="selArea('D',this)">
+        <div class="area-opt-head"><span class="area-pill a-D">Domestic</span></div>
+        <span class="area-opt-desc">Within Malaysia.</span>
+      </div>
+      <div class="area-opt" data-area="1" onclick="selArea('1',this)">
+        <div class="area-opt-head"><span class="area-pill a-1">Area 1</span></div>
+        <span class="area-opt-desc">Australia, Bangladesh, Brunei, Cambodia, China, Hong Kong, India, Indonesia, Japan, Korea, Laos, Macau, Maldives, Mongolia, Myanmar, New Zealand, Pakistan, Philippines, Singapore, Sri Lanka, Taiwan, Thailand and Vietnam.</span>
+      </div>
+      <div class="area-opt" data-area="2" onclick="selArea('2',this)">
+        <div class="area-opt-head"><span class="area-pill a-2">Area 2</span></div>
+        <span class="area-opt-desc">Worldwide excluding Malaysia, USA, Canada, Nepal and Tibet.</span>
+      </div>
+      <div class="area-opt" data-area="3" onclick="selArea('3',this)">
+        <div class="area-opt-head"><span class="area-pill a-3">Area 3</span></div>
+        <span class="area-opt-desc">Worldwide excluding Malaysia only — includes USA, Canada, Nepal and Tibet.</span>
+      </div>
     </div>
-  </div>
-
-  <!-- Area (auto) -->
-  <div class="field">
-    <label class="label">Coverage Area <span style="font-size:.68rem;color:var(--text-3);text-transform:none;letter-spacing:0;font-weight:400;">— auto-detected from destination</span></label>
-    <div class="area-display" id="areaDisplay">
-      <span class="area-pill" id="areaBadge" style="display:none"></span>
-      <span class="area-display-text" id="areaText">Enter destination above</span>
-    </div>
+    <div class="hint">Pick the area that covers your destination. Not sure? <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--gold)">Check the policy wording ↗</a> or <a href="https://wa.me/60126123540" target="_blank" rel="noopener" style="color:var(--gold)">WhatsApp Henry</a>.</div>
   </div>
 
   <!-- Dates -->
@@ -740,6 +744,10 @@ body::before{
   </div>
 
   <div class="plans-grid" id="plansGrid"></div>
+
+  <div class="annual-note" id="cfarNote" style="display:none">
+    <strong>About CFAR (Deluxe only):</strong> reimburses 75% of your flight/accommodation expenses, up to RM5,000. Only valid if this policy is purchased within <strong>14 days</strong> of booking your flight/accommodation, and if you cancel <strong>more than 48 hours</strong> before departure. Not payable if any refund or credit is recoverable from another party.
+  </div>
 
   <div class="card">
     <div class="card-label">Full Coverage Comparison</div>
@@ -897,10 +905,10 @@ body::before{
   <!-- Summary -->
   <div class="card" style="margin-bottom:1rem">
     <div class="card-label">Trip Summary</div>
-    <div class="rv-row"><span class="rv-label">Destination</span><span class="rv-val" id="rv-dest">—</span></div>
     <div class="rv-row"><span class="rv-label">Coverage Area</span><span class="rv-val" id="rv-area">—</span></div>
     <div class="rv-row"><span class="rv-label">Travel Dates</span><span class="rv-val" id="rv-dates">—</span></div>
     <div class="rv-row"><span class="rv-label">Travellers</span><span class="rv-val" id="rv-pax">—</span></div>
+    <div class="rv-row"><span class="rv-label">Names</span><span class="rv-val" id="rv-names">—</span></div>
     <div class="rv-row"><span class="rv-label">Plan</span><span class="rv-val" id="rv-plan">—</span></div>
     <div class="rv-row"><span class="rv-label">Type</span><span class="rv-val" id="rv-type">—</span></div>
     <div class="rv-total">
@@ -909,7 +917,7 @@ body::before{
     </div>
   </div>
 
-  <div class="issuance-note">⏱️ Policy typically WhatsApp within 2 working hours of payment confirmation.</div>
+  <div class="issuance-note">⏱️ Once your payment is received and confirmed, your policy is typically issued via WhatsApp within 2 working hours. Cover only begins once payment has been received — please review everything below carefully before submitting.</div>
 
   <!-- Payment method -->
   <div class="field">
@@ -926,10 +934,6 @@ body::before{
       <div class="pay-opt" onclick="selPay('bank',this)">
         <span class="pay-name">Bank Transfer</span>
         <span class="pay-detail">Online transfer</span>
-      </div>
-      <div class="pay-opt" onclick="selPay('billplz',this)">
-        <span class="pay-name">Card via Billplz</span>
-        <span class="pay-detail">Visa / Mastercard · +2% fee</span>
       </div>
     </div>
   </div>
@@ -962,7 +966,23 @@ body::before{
   <div class="declaration">
     <input type="checkbox" id="declaration">
     <div class="declaration-text">
-      I confirm the information provided is accurate and complete. I understand that policy issuance is subject to Tokio Marine's acceptance and payment clearance. Henry Lee is my appointed insurance advisor for this application.
+      I confirm the information provided is accurate and complete. I understand that policy issuance is subject to Tokio Marine's acceptance and payment clearance, and that cover only commences once premium has been received. Henry Lee is my appointed insurance advisor for this application.
+    </div>
+  </div>
+
+  <!-- Health & eligibility declaration -->
+  <div class="declaration">
+    <input type="checkbox" id="declHealth">
+    <div class="declaration-text">
+      I declare that no Insured Person named in this application has, within the past 6 months, been hospitalized as an in-patient, received a terminal prognosis, or is currently awaiting hospital in-patient treatment — and that no Insured Person has been previously diagnosed with any anxiety state or mental illness. I understand pre-existing conditions are not covered, and that inaccurate disclosure may affect or void a claim.
+    </div>
+  </div>
+
+  <!-- PDPA consent -->
+  <div class="declaration">
+    <input type="checkbox" id="declPDPA">
+    <div class="declaration-text">
+      I consent to Tokio Marine Insurans (Malaysia) Berhad and Henry Lee, as my appointed insurance advisor, collecting, using and sharing my personal data (including NRIC/passport and bank details) with the insurer, reinsurer, adjusters and ISM Insurance Services Malaysia Berhad, solely for arranging and administering this insurance, in accordance with the Personal Data Protection Act 2010.
     </div>
   </div>
 
@@ -979,7 +999,19 @@ body::before{
 <div class="success-screen" id="successScreen">
   <div class="success-icon">✓</div>
   <h2 class="success-title">Application Submitted</h2>
-  <p class="success-sub">Henry will review your details and follow up shortly. Your policy will be emailed once payment is confirmed — usually within 2 working hours.</p>
+  <p class="success-sub">Henry will review your details and follow up shortly. Your cover note will be sent once your payment has been received and confirmed — usually within 2 working hours. Cover only begins once payment is received, so please avoid non-refundable bookings until you've received your cover note.</p>
+
+  <div class="success-info doc">
+    <b>📋 Keep these for a smooth claim</b>
+    Original receipts, medical reports/certificates, boarding passes, and any police or authority reports — insurers require the originals for most claims, so keep them safe throughout your trip.
+  </div>
+
+  <div class="success-info sos">
+    <b>🚨 24-Hour Travel Assistance (emergencies overseas)</b>
+    +603 7628 3877 — call <strong>before</strong> hospital admission or medical evacuation to arrange cashless approval; failure to call in advance may invalidate that part of your claim.<br>
+    General Customer Service: 1800 88 0812
+  </div>
+
   <a href="https://wa.me/60126123540" class="success-wa" target="_blank" rel="noopener">
     <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.535 4.07 1.475 5.793L0 24l6.348-1.453A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.791 9.791 0 01-5.013-1.373l-.36-.213-3.727.853.876-3.618-.234-.371A9.778 9.778 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg>
     WhatsApp Henry
@@ -994,44 +1026,6 @@ body::before{
 </div><!-- /wrap -->
 
 <script>
-// ═══════════ DESTINATION DATA ═══════════
-const DESTS=[
-  {n:'Malaysia (Domestic)',a:'D',al:'Domestic'},
-  {n:'Japan',a:'1',al:'Area 1'},{n:'South Korea',a:'1',al:'Area 1'},
-  {n:'China',a:'1',al:'Area 1'},{n:'Hong Kong',a:'1',al:'Area 1'},
-  {n:'Taiwan',a:'1',al:'Area 1'},{n:'Macau',a:'1',al:'Area 1'},
-  {n:'Singapore',a:'1',al:'Area 1'},{n:'Thailand',a:'1',al:'Area 1'},
-  {n:'Indonesia',a:'1',al:'Area 1'},{n:'Bali',a:'1',al:'Area 1'},
-  {n:'Philippines',a:'1',al:'Area 1'},{n:'Vietnam',a:'1',al:'Area 1'},
-  {n:'Cambodia',a:'1',al:'Area 1'},{n:'Myanmar',a:'1',al:'Area 1'},
-  {n:'Laos',a:'1',al:'Area 1'},{n:'Brunei',a:'1',al:'Area 1'},
-  {n:'India',a:'1',al:'Area 1'},{n:'Sri Lanka',a:'1',al:'Area 1'},
-  {n:'Bangladesh',a:'1',al:'Area 1'},{n:'Maldives',a:'1',al:'Area 1'},
-  {n:'Australia',a:'1',al:'Area 1'},{n:'New Zealand',a:'1',al:'Area 1'},
-  {n:'Fiji',a:'1',al:'Area 1'},{n:'Mongolia',a:'1',al:'Area 1'},
-  {n:'Nepal',a:'1',al:'Area 1'},{n:'East Timor',a:'1',al:'Area 1'},
-  {n:'United Kingdom',a:'2',al:'Area 2'},{n:'France',a:'2',al:'Area 2'},
-  {n:'Germany',a:'2',al:'Area 2'},{n:'Italy',a:'2',al:'Area 2'},
-  {n:'Spain',a:'2',al:'Area 2'},{n:'Portugal',a:'2',al:'Area 2'},
-  {n:'Netherlands',a:'2',al:'Area 2'},{n:'Switzerland',a:'2',al:'Area 2'},
-  {n:'Austria',a:'2',al:'Area 2'},{n:'Belgium',a:'2',al:'Area 2'},
-  {n:'Sweden',a:'2',al:'Area 2'},{n:'Norway',a:'2',al:'Area 2'},
-  {n:'Denmark',a:'2',al:'Area 2'},{n:'Finland',a:'2',al:'Area 2'},
-  {n:'Ireland',a:'2',al:'Area 2'},{n:'Greece',a:'2',al:'Area 2'},
-  {n:'Czech Republic',a:'2',al:'Area 2'},{n:'Poland',a:'2',al:'Area 2'},
-  {n:'Hungary',a:'2',al:'Area 2'},{n:'Croatia',a:'2',al:'Area 2'},
-  {n:'Turkey',a:'2',al:'Area 2'},{n:'UAE',a:'2',al:'Area 2'},
-  {n:'Dubai',a:'2',al:'Area 2'},{n:'Saudi Arabia',a:'2',al:'Area 2'},
-  {n:'Jordan',a:'2',al:'Area 2'},{n:'Egypt',a:'2',al:'Area 2'},
-  {n:'South Africa',a:'2',al:'Area 2'},{n:'Kenya',a:'2',al:'Area 2'},
-  {n:'Morocco',a:'2',al:'Area 2'},{n:'Russia',a:'2',al:'Area 2'},
-  {n:'Mexico',a:'2',al:'Area 2'},{n:'Brazil',a:'2',al:'Area 2'},
-  {n:'Argentina',a:'2',al:'Area 2'},{n:'Peru',a:'2',al:'Area 2'},
-  {n:'Pakistan',a:'2',al:'Area 2'},{n:'Iran',a:'2',al:'Area 2'},
-  {n:'United States',a:'3',al:'Area 3'},{n:'USA',a:'3',al:'Area 3'},
-  {n:'Canada',a:'3',al:'Area 3'},
-];
-
 // ═══════════ PREMIUM RATES ═══════════
 // Brackets: [≤5d, ≤10d, ≤18d, ≤31d, 32+d, annual]
 const PREMIUMS = {
@@ -1096,7 +1090,7 @@ const AREA_API = { D:'domestic', '1':'area1', '2':'area2', '3':'area3' };
 const S={
   tripType:'single',policyType:'individual',
   adults:1,seniors:0,children:0,
-  dest:'',area:'',
+  area:'',
   dateFrom:'',dateTo:'',days:0,
   annualStart:'',annualEnd:'',
   plan:'essential',
@@ -1122,9 +1116,10 @@ function goStep(n){
 
 function validateStep(n){
   if(n===1){
-    if(!S.dest){alert('Please enter your destination.');return false;}
+    if(!S.area){alert('Please select your coverage area.');return false;}
     if(S.tripType==='single'&&(!S.dateFrom||!S.dateTo)){alert('Please select your travel dates.');return false;}
     if(S.tripType==='single'&&S.days<1){alert('Return date must be after departure date.');return false;}
+    if(S.tripType==='single'&&S.days>180){alert('Trip length exceeds the maximum 180 consecutive days covered under this Policy. Please WhatsApp Henry for a custom arrangement.');return false;}
     if(S.tripType==='annual'&&!S.annualStart){alert('Please select a policy start date for the Annual plan.');return false;}
   }
   return true;
@@ -1167,6 +1162,7 @@ function setPolicyType(type,btn){
   const isFamily=type==='family';
   document.getElementById('childRow').style.display=isFamily?'flex':'none';
   document.getElementById('seniorRow').style.display=isFamily?'none':'flex';
+  document.getElementById('familyNote').style.display=isFamily?'block':'none';
   if(isFamily){
     S.seniors=0;
     document.getElementById('seniorVal').textContent='0';
@@ -1201,43 +1197,13 @@ function adj(key,d){
   calcPremium();
 }
 
-// ═══════════ DESTINATION ═══════════
-function onDestInput(val){
-  const res=document.getElementById('acResults');
-  if(!val||val.length<1){res.classList.remove('open');return;}
-  const matches=DESTS.filter(d=>d.n.toLowerCase().includes(val.toLowerCase())).slice(0,8);
-  if(!matches.length){res.classList.remove('open');return;}
-  res.innerHTML=matches.map(d=>`
-    <div class="ac-item" onclick="selDest('${d.n}','${d.a}','${d.al}')">
-      <span>${d.n}</span>
-      <span class="area-pill a-${d.a}">${d.al}</span>
-    </div>`).join('');
-  res.classList.add('open');
-}
-
-function selDest(name,area,label){
-  S.dest=name;S.area=area;
-  document.getElementById('destInput').value=name;
-  document.getElementById('acResults').classList.remove('open');
-  const descs={
-    D:'Domestic — within Malaysia only',
-    '1':'Asia-Pacific — Japan, China, Australia, Singapore & more',
-    '2':'Worldwide excluding USA, Canada, Nepal & Tibet',
-    '3':'Worldwide including USA & Canada',
-  };
-  const badge=document.getElementById('areaBadge');
-  badge.className='area-pill a-'+area;
-  badge.textContent=label;
-  badge.style.display='inline-block';
-  const txt=document.getElementById('areaText');
-  txt.textContent=descs[area]||'';
-  txt.className='area-display-text filled';
+// ═══════════ COVERAGE AREA ═══════════
+function selArea(area,el){
+  S.area=area;
+  document.querySelectorAll('.area-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
   calcPremium();
 }
-
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.ac-wrap'))document.getElementById('acResults').classList.remove('open');
-});
 
 // ═══════════ DATES ═══════════
 const todayStr=new Date().toISOString().split('T')[0];
@@ -1252,6 +1218,13 @@ function onDate(){
   fromEl.classList.toggle('filled',!!S.dateFrom);
   toEl.classList.toggle('filled',!!S.dateTo);
   toEl.min=S.dateFrom||todayStr;
+  if(S.dateFrom){
+    // Max 180 consecutive days per Trip (policy wording, Section C)
+    const maxReturn=new Date(S.dateFrom+'T00:00:00');
+    maxReturn.setDate(maxReturn.getDate()+179);
+    toEl.max=maxReturn.toISOString().slice(0,10);
+    if(S.dateTo&&S.dateTo>toEl.max){S.dateTo='';toEl.value='';toEl.classList.remove('filled');}
+  }
   if(S.dateFrom&&S.dateTo){
     const d1=new Date(S.dateFrom),d2=new Date(S.dateTo);
     S.days=Math.max(0,Math.ceil((d2-d1)/86400000)+1);
@@ -1366,6 +1339,12 @@ function renderPlans(){
         }).join('')}
       </ul>
     </div>`).join('');
+  updateCfarNote();
+}
+
+function updateCfarNote(){
+  const note=document.getElementById('cfarNote');
+  if(note)note.style.display=S.plan==='deluxe'?'block':'none';
 }
 
 function selPlan(plan,el){
@@ -1373,15 +1352,17 @@ function selPlan(plan,el){
   document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');
   updateDots();
+  updateCfarNote();
 }
 
 // ═══════════ TRAVELLER BLOCKS ═══════════
 function renderTravBlocks(){
-  const total=S.adults+S.seniors;
+  const total=S.adults+S.seniors+S.children;
   document.getElementById('detailsSubnote').textContent=`Fill in details for ${total} traveller${total>1?'s':''}.`;
   let html='',idx=1,ti=0;
   for(let i=0;i<S.adults;i++){html+=travBlock(idx++,i===0?'Adult (Main Insured)':'Adult',`a${i}`,ti++);}
   for(let i=0;i<S.seniors;i++){html+=travBlock(idx++,'Senior (71–85)',`s${i}`,ti++);}
+  for(let i=0;i<S.children;i++){html+=travBlock(idx++,'Child (30 days–23 yrs)',`c${i}`,ti++);}
   document.getElementById('travBlocks').innerHTML=html;
 }
 
@@ -1761,7 +1742,6 @@ function selPay(method,el){
     duitnow:"Scan the QR code below with your banking app and upload your payment receipt once done.",
     tng:`Transfer via Touch 'n Go and upload your receipt below.<div style="margin:.75rem 0 .25rem;font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.01em">012 612 3540</div><div style="font-size:.78rem;color:var(--text-3)">Lee Mou Yen</div>`,
     bank:`Transfer via online banking and upload your receipt below.<div style="margin:.75rem 0 .1rem;font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.01em">1040 2700 307120</div><div style="font-size:.78rem;color:var(--text-3)">RHB Bank · Lee Mou Yen</div>`,
-    billplz:`Complete payment via the link Henry sends. A <strong>+2% card processing fee</strong> applies.`,
   };
   const pi=document.getElementById('payInst');
   const us=document.getElementById('uploadSection');
@@ -1769,7 +1749,7 @@ function selPay(method,el){
   pi.style.display='block';
   pi.innerHTML=inst[method];
   qr.style.display=method==='duitnow'?'block':'none';
-  us.style.display=method==='billplz'?'none':'block';
+  us.style.display='block';
 }
 
 // ═══════════ UPLOAD ═══════════
@@ -1785,8 +1765,7 @@ function renderReview(){
   const activePay=document.querySelector(`.pay-opt[onclick="selPay('${S.payMethod}',this)"]`);
   if(activePay)selPay(S.payMethod,activePay);
 
-  const areaNames={D:'Domestic','1':'Area 1 — Asia-Pacific','2':'Area 2 — Worldwide excl. USA/Canada','3':'Area 3 — Worldwide incl. USA/Canada'};
-  document.getElementById('rv-dest').textContent=S.dest||'—';
+  const areaNames={D:'Domestic','1':'Area 1','2':'Area 2','3':'Area 3'};
   document.getElementById('rv-area').textContent=areaNames[S.area]||'—';
   if(S.tripType==='annual'){
     const datesEl=document.getElementById('rv-dates');
@@ -1800,6 +1779,8 @@ function renderReview(){
       S.dateFrom&&S.dateTo?`${fmtDate(S.dateFrom)} – ${fmtDate(S.dateTo)} (${S.days} days)`:'—';
   }
   document.getElementById('rv-pax').textContent=paxStr();
+  const names=getTravellerList().map(t=>t.label).join(', ');
+  document.getElementById('rv-names').textContent=names||'—';
   document.getElementById('rv-plan').textContent=cap(S.plan)+' Plan';
   document.getElementById('rv-type').textContent=(S.tripType==='annual'?'Annual':'Single Trip')+' · '+cap(S.policyType);
   document.getElementById('rv-total').textContent='RM '+(S.totals[S.plan]||0).toFixed(2);
@@ -1829,6 +1810,12 @@ function getTravellerList() {
     const id = `s${i}`;
     const name = document.getElementById(`name-${id}`)?.value?.trim();
     list.push({ index: idx, id, label: name || `Senior ${i + 1}` });
+    idx++;
+  }
+  for (let i = 0; i < S.children; i++) {
+    const id = `c${i}`;
+    const name = document.getElementById(`name-${id}`)?.value?.trim();
+    list.push({ index: idx, id, label: name || `Child ${i + 1}` });
     idx++;
   }
   return list;
@@ -2060,7 +2047,13 @@ function collectFlights() {
 // ═══════════ SUBMIT ═══════════
 async function doSubmit(){
   if(!document.getElementById('declaration').checked){
-    alert('Please tick the declaration before submitting.');return;
+    alert('Please confirm the application declaration before submitting.');return;
+  }
+  if(!document.getElementById('declHealth').checked){
+    alert('Please confirm the health & eligibility declaration before submitting.');return;
+  }
+  if(!document.getElementById('declPDPA').checked){
+    alert('Please confirm the personal data consent before submitting.');return;
   }
   const btn=document.getElementById('submitBtn');
   const errBanner=document.getElementById('errBanner');
@@ -2095,6 +2088,19 @@ async function doSubmit(){
       address:''
     });
   }
+  for(let i=0;i<S.children;i++){
+    const id=`c${i}`;
+    travellers.push({
+      fullName:document.getElementById(`name-${id}`)?.value||'',
+      idNumber:document.getElementById(`nric-${id}`)?.value||'',
+      nationality:document.getElementById(`country-${id}`)?.value||'MY',
+      dateOfBirth:(()=>{const v=document.getElementById(`dob-${id}`)?.textContent||'';return v==='Date of birth'?'':v;})(),
+      gender:(()=>{const v=(document.getElementById(`gender-${id}`)?.textContent||'').toLowerCase();return v==='gender'?'':v;})(),
+      ageBand:'Child',
+      occupation:'',
+      address:''
+    });
+  }
 
   const forOther=document.getElementById('forOtherChk').checked;
   const proposerName=forOther
@@ -2123,7 +2129,6 @@ async function doSubmit(){
       coverageArea:AREA_API[S.area]||S.area,
       departureDate:S.tripType==='annual'?fmtDate(S.annualStart):S.dateFrom?fmtDate(S.dateFrom):'',
       returnDate:S.tripType==='annual'?fmtDate(S.annualEnd):S.dateTo?fmtDate(S.dateTo):'',
-      destination:S.dest,
       selectedPlan:S.plan
     },
     quote:{
@@ -2156,8 +2161,6 @@ async function doSubmit(){
       btn.textContent='Submit Application';btn.disabled=false;
       return;
     }
-    // Billplz redirect
-    if(data.billplzUrl){window.location.href=data.billplzUrl;return;}
     // Success
     document.getElementById('step-4').classList.remove('active');
     document.getElementById('stepTrack').style.display='none';

@@ -1,14 +1,10 @@
 // functions/api/submit.ts
-// Cloudflare Pages Function — handles form submission, Resend email, and Billplz bill creation
+// Cloudflare Pages Function — handles form submission and Resend email delivery
 
 interface Env {
   RESEND_API_KEY: string;
   NOTIFICATION_EMAIL: string;
   FROM_EMAIL: string;
-  BILLPLZ_API_KEY: string;
-  BILLPLZ_COLLECTION_ID: string;
-  BILLPLZ_X_SIGNATURE_KEY: string;
-  BILLPLZ_SANDBOX?: string; // "true" for sandbox, omit for production
 }
 
 const corsHeaders = {
@@ -66,8 +62,7 @@ const PLAN_LABELS: Record<string, string> = {
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
   duitnow: "DuitNow QR",
   tng: "Touch 'n Go",
-  bank: "Bank Transfer",
-  billplz: "Card via Billplz"
+  bank: "Bank Transfer"
 };
 
 const INSURANCE_TYPE_LABELS: Record<string, string> = {
@@ -190,80 +185,6 @@ function emailWrapper(subject: string, body: string) {
   `;
 }
 
-// ─── Billplz ──────────────────────────────────────────────────────────────────
-
-interface BillplzBill {
-  id: string;
-  collection_id: string;
-  paid: boolean;
-  state: string;
-  amount: number;
-  paid_amount: number;
-  due_at: string;
-  email: string;
-  mobile: string | null;
-  name: string;
-  url: string;
-  reference_1: string | null;
-  reference_2: string | null;
-}
-
-async function createBillplzBill(
-  env: Env,
-  opts: {
-    name: string;
-    email: string;
-    mobile?: string;
-    amount: number;       // in sen (MYR cents)
-    description: string;
-    callbackUrl: string;
-    redirectUrl: string;
-    reference1?: string;
-  }
-): Promise<BillplzBill> {
-  const sandbox = env.BILLPLZ_SANDBOX === "true";
-  const baseUrl = sandbox
-    ? "https://www.billplz-sandbox.com/api/v3"
-    : "https://www.billplz.com/api/v3";
-
-  const collectionId = env.BILLPLZ_COLLECTION_ID;
-  if (!collectionId) throw new Error("Missing BILLPLZ_COLLECTION_ID environment variable.");
-
-  const body = new URLSearchParams({
-    collection_id: collectionId,
-    email: opts.email,
-    name: opts.name,
-    amount: String(opts.amount),
-    callback_url: opts.callbackUrl,
-    description: opts.description,
-    redirect_url: opts.redirectUrl
-  });
-
-  // Restrict to credit card only (Visa / Mastercard)
-  body.append("payment_channels[]", "credit_card");
-
-  if (opts.mobile) body.set("mobile", opts.mobile);
-  if (opts.reference1) body.set("reference_1", opts.reference1.substring(0, 120));
-
-  const credentials = btoa(`${env.BILLPLZ_API_KEY}:`);
-
-  const res = await fetch(`${baseUrl}/bills`, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: body.toString()
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Billplz bill creation failed (${res.status}): ${err}`);
-  }
-
-  return res.json() as Promise<BillplzBill>;
-}
-
 // ─── Request handlers ─────────────────────────────────────────────────────────
 
 export const onRequestOptions = async () =>
@@ -331,7 +252,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       row("Trip Type",     fmt(INSURANCE_TYPE_LABELS, payload.product.insuranceType)),
       row("Policy Type",   fmt(POLICY_TYPE_LABELS, payload.product.policyType)),
       row("Coverage Area", fmt(COVERAGE_AREA_LABELS, payload.product.coverageArea)),
-      row("Destination",   String(payload.product.destination || "Malaysia")),
       isAnnual
         ? row("Policy Start", String(payload.product.departureDate || "—"))
         : row("Departure",    String(payload.product.departureDate || "—")),
@@ -493,20 +413,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       <tr>
         <td colspan="2" style="padding-top:28px">
           ${((): string => {
-            const method = String(payload.paymentMethod || "");
             const name   = escapeHtml(payload.proposer.name || "Client");
             const plan   = escapeHtml(planLabel);
             const total  = escapeHtml(totalFormatted);
 
-            if (method === "billplz") {
-              return `
-                <div style="background:#fef9ec;border:1px solid #f0d080;border-radius:10px;padding:14px 18px">
-                  <div style="font-size:13px;font-weight:700;color:#7a5c00;margin-bottom:2px">Awaiting Payment</div>
-                  <div style="font-size:13px;color:#7a5c00">
-                    Payment link created for <strong>${name}</strong> — <strong>${plan}</strong> ${total}. Issue policy once Billplz confirms payment.
-                  </div>
-                </div>`;
-            }
             if (hasSlip) {
               return `
                 <div style="background:#f0faf5;border:1px solid #b7e4cc;border-radius:10px;padding:14px 18px">
@@ -564,35 +474,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     if (!resendResponse.ok) {
       const errorText = await resendResponse.text();
       return json({ error: `Email delivery failed: ${errorText}` }, 502);
-    }
-
-    // ── Billplz: create bill ────────────────────────────────────────────────
-    if (payload.paymentMethod === "billplz") {
-      if (!env.BILLPLZ_API_KEY) {
-        return json({ error: "Missing BILLPLZ_API_KEY environment variable." }, 500);
-      }
-
-      // Add 2% card convenience fee
-      const basePremium       = Number(payload.quote.total);
-      const convenienceFee    = Math.round(basePremium * 0.02 * 100) / 100;
-      const totalWithFee      = Math.round((basePremium + convenienceFee) * 100) / 100;
-      const amountInSen       = Math.round(totalWithFee * 100);
-      const origin            = new URL(request.url).origin;
-
-      const bill = await createBillplzBill(env, {
-        name:        String(payload.proposer.name  || "Client"),
-        email:       String(payload.proposer.email || env.NOTIFICATION_EMAIL),
-        mobile:      payload.proposer.mobile
-          ? String(payload.proposer.mobile).replace(/[^0-9+]/g, "")
-          : undefined,
-        amount:      amountInSen,
-        description: `Tokio Marine Explorer — ${planLabel} — ${payload.proposer.name || "Client"} (incl. 2% card fee)`,
-        callbackUrl: `${origin}/api/billplz-callback`,
-        redirectUrl: `${origin}/?payment=success`,
-        reference1:  String(payload.proposer.name || "Client")
-      });
-
-      return json({ ok: true, billplzUrl: bill.url, billId: bill.id, convenienceFee, totalWithFee });
     }
 
     return json({ ok: true });
