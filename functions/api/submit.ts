@@ -209,8 +209,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     const payload = JSON.parse(submissionText);
 
+    // Validate: the payload must have the shape both frontends (wizard + chat) produce.
+    if (!payload.product || !payload.quote || !payload.proposer) {
+      return json({ error: "Submission payload is missing required fields." }, 400);
+    }
+
     // Validate: every traveller must have a name
     const travellersRaw: Array<Record<string, string>> = payload.insuredTravellers || [];
+    if (travellersRaw.length === 0) {
+      return json({ error: "At least one traveller is required." }, 400);
+    }
     const missingNames = travellersRaw.filter(t => !String(t.fullName || "").trim());
     if (missingNames.length > 0) {
       return json(
@@ -218,6 +226,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         400
       );
     }
+
+    // Which frontend this came from — the wizard (default) or the conversational chat flow.
+    const source = payload.source === "chat" ? "chat" : "wizard";
 
     // ── Payment slip attachment ─────────────────────────────────────────────
     const attachment = formData.get("paymentSlip");
@@ -386,6 +397,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       <tr>
         <td colspan="2" style="font-size:13px;color:#5b6a7f;padding-bottom:8px">
           ${escapeHtml(planLabel)} &nbsp;&middot;&nbsp; ${escapeHtml(fmt(PAYMENT_METHOD_LABELS, payload.paymentMethod))} &nbsp;&middot;&nbsp; ${totalPax} pax
+          ${source === "chat" ? `&nbsp;&middot;&nbsp; <span style="color:#0f6da8;font-weight:700">Chat submission</span>` : ""}
         </td>
       </tr>
       <tr>
@@ -442,6 +454,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     const html = emailWrapper(`New Application — ${planLabel}`, emailBody);
 
     const subject = [
+      source === "chat" ? "[Chat]" : "",
       "TM Explorer",
       payload.proposer.name || "Client",
       planLabel,

@@ -2116,6 +2116,7 @@ async function doSubmit(){
   const bankDetails=collectBankDetails();
 
   const payload={
+    source:'wizard',
     proposer:{
       name:proposerName,
       mobile:document.getElementById('phoneInput').value,

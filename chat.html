@@ -30,14 +30,25 @@ body{
 
 /* ── Header ── */
 .chat-head{
-  display:flex;align-items:center;gap:.7rem;padding:1rem 1.1rem;
+  display:flex;align-items:center;gap:.6rem;padding:1rem 1.1rem;
   border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--ink);z-index:10;
 }
+.back-btn{
+  background:none;border:none;color:var(--text-soft);font-size:1.5rem;line-height:1;
+  cursor:pointer;padding:0 .25rem 0 0;flex-shrink:0;font-family:inherit;
+}
+.back-btn:hover{color:var(--brass)}
+.reset-btn{
+  margin-left:auto;background:none;border:none;color:var(--text-faint);font-size:.72rem;
+  cursor:pointer;font-family:inherit;text-decoration:underline;flex-shrink:0;white-space:nowrap;
+}
+.reset-btn:hover{color:var(--text-soft)}
 .avatar{
   width:38px;height:38px;border-radius:50%;flex-shrink:0;
   background:linear-gradient(155deg,var(--brass),var(--brass-deep));
   display:flex;align-items:center;justify-content:center;
   font-family:'Space Mono',monospace;font-weight:700;font-size:.75rem;color:var(--ink);
+  object-fit:cover;border:1.5px solid var(--brass);
 }
 .chat-head-name{font-weight:700;font-size:.95rem}
 .chat-head-sub{font-size:.72rem;color:var(--text-faint);margin-top:1px}
@@ -158,11 +169,13 @@ body{
 <body>
 <div class="wrap">
   <div class="chat-head">
-    <div class="avatar">HL</div>
+    <button class="back-btn" onclick="goBack()" aria-label="Back" title="Back">‹</button>
+    <img class="avatar" src="/assets/henry.jpg" alt="Henry Lee">
     <div>
       <div class="chat-head-name">Henry Lee</div>
       <div class="chat-head-sub"><span class="dot"></span>Tokio Marine · Insurance Advisor</div>
     </div>
+    <button class="reset-btn" onclick="startOver()">Start over</button>
   </div>
 
   <div class="thread" id="thread"></div>
@@ -338,6 +351,7 @@ function showTextWidget(opts){
     if(opts.format){ const f=opts.format(input.value); if(f!==input.value) input.value=f; }
     btn.disabled = !validate(input.value);
   };
+  if (opts.value){ input.value=opts.value; check(); }
   input.addEventListener('input', check);
   input.addEventListener('keydown', e=>{ if(e.key==='Enter' && !opts.multiline && !btn.disabled){ e.preventDefault(); btn.click(); } });
   btn.addEventListener('click', ()=>{ if(!btn.disabled) opts.onSend(input.value); });
@@ -347,7 +361,49 @@ function showTextWidget(opts){
 
 const AREA_LABELS = { D:'Domestic', '1':'Area 1 — Asia-Pacific', '2':'Area 2 — Worldwide excl. USA/Canada', '3':'Area 3 — Worldwide' };
 
-async function start(){
+// ═══════════ STEP HISTORY (Back / Start over) ═══════════
+let history=[];
+function snapshotState(){
+  const {paymentSlip, ...rest} = S;
+  return {
+    S: JSON.parse(JSON.stringify(rest)),
+    travellerData: JSON.parse(JSON.stringify(travellerData)),
+    travellers: JSON.parse(JSON.stringify(travellers)),
+    curT
+  };
+}
+function restoreState(snap){
+  Object.keys(S).forEach(k=>delete S[k]);
+  Object.assign(S, snap.S);
+  travellerData = snap.travellerData;
+  travellers = snap.travellers;
+  curT = snap.curT;
+}
+// The only way any step should move to the next one: records where we are now, then runs it.
+function enterStep(fn){
+  history.push({ threadLen: thread.children.length, snap: snapshotState(), fn });
+  fn();
+}
+function goBack(){
+  if (history.length<=1){ window.location.href='/'; return; }
+  history.pop();
+  const cp=history[history.length-1];
+  restoreState(cp.snap);
+  while (thread.children.length > cp.threadLen) thread.lastElementChild.remove();
+  cp.fn();
+}
+function startOver(){
+  if (history.length>2 && !confirm('Start over? This clears your answers so far.')) return;
+  thread.innerHTML='';
+  Object.keys(S).forEach(k=>delete S[k]);
+  Object.assign(S, { tripType:'single', policyType:'individual', adults:1, seniors:0, children:0, area:'', dateFrom:'', dateTo:'', days:0, annualStart:'', annualEnd:'', plan:'' });
+  travellerData=[]; travellers=[]; curT=0; history=[];
+  enterStep(askArea);
+}
+
+async function start(){ enterStep(askArea); }
+
+async function askArea(){
   await sayTheirs("Hi! I'm Henry — I'll get you a quote in under a minute. Where are you headed?", 300);
   showWidget(`
     <div class="chiprow">
@@ -362,6 +418,9 @@ async function pickArea(area){
   S.area = area;
   clearWidget();
   sayMine(AREA_LABELS[area]);
+  enterStep(askTripType);
+}
+async function askTripType(){
   await sayTheirs('Single trip, or annual multi-trip cover?');
   showWidget(`
     <div class="chiprow">
@@ -374,22 +433,25 @@ async function pickTripType(type){
   S.tripType = type;
   clearWidget();
   sayMine(type==='single' ? 'Single Trip' : 'Annual');
-  if (type==='single'){
-    await sayTheirs('When are you travelling?');
-    showWidget(`
-      <div class="datefield-row">
-        <div class="datefield"><label>Departure</label><input type="date" id="wDateFrom" min="${todayStr}" onchange="onDateInput()"></div>
-        <div class="datefield"><label>Return</label><input type="date" id="wDateTo" min="${todayStr}" onchange="onDateInput()"></div>
-      </div>
-      <div class="send-row"><button class="send-btn" id="dateSend" disabled onclick="confirmDates()">→</button></div>`);
-  } else {
-    await sayTheirs('What date should the annual policy start?');
-    showWidget(`
-      <div class="datefield-row">
-        <div class="datefield" style="max-width:180px"><label>Start Date</label><input type="date" id="wAnnualStart" min="${todayStr}" onchange="onAnnualInput()"></div>
-      </div>
-      <div class="send-row"><button class="send-btn" id="annualSend" disabled onclick="confirmAnnual()">→</button></div>`);
-  }
+  if (type==='single') enterStep(askDatesSingle);
+  else enterStep(askDatesAnnual);
+}
+async function askDatesSingle(){
+  await sayTheirs('When are you travelling?');
+  showWidget(`
+    <div class="datefield-row">
+      <div class="datefield"><label>Departure</label><input type="date" id="wDateFrom" min="${todayStr}" onchange="onDateInput()"></div>
+      <div class="datefield"><label>Return</label><input type="date" id="wDateTo" min="${todayStr}" onchange="onDateInput()"></div>
+    </div>
+    <div class="send-row"><button class="send-btn" id="dateSend" disabled onclick="confirmDates()">→</button></div>`);
+}
+async function askDatesAnnual(){
+  await sayTheirs('What date should the annual policy start?');
+  showWidget(`
+    <div class="datefield-row">
+      <div class="datefield" style="max-width:180px"><label>Start Date</label><input type="date" id="wAnnualStart" min="${todayStr}" onchange="onAnnualInput()"></div>
+    </div>
+    <div class="send-row"><button class="send-btn" id="annualSend" disabled onclick="confirmAnnual()">→</button></div>`);
 }
 
 function onDateInput(){
@@ -405,7 +467,7 @@ async function confirmDates(){
   S.dateFrom=f; S.dateTo=t; S.days=days;
   clearWidget();
   sayMine(`${fmtDate(f)} – ${fmtDate(t)} · ${days} day${days!==1?'s':''}`);
-  askPolicyFor();
+  enterStep(askPolicyFor);
 }
 function onAnnualInput(){ document.getElementById('annualSend').disabled = !document.getElementById('wAnnualStart').value; }
 async function confirmAnnual(){
@@ -414,7 +476,7 @@ async function confirmAnnual(){
   S.annualStart=val; S.annualEnd=end.toISOString().slice(0,10); S.days=365;
   clearWidget();
   sayMine(`Starting ${fmtDate(val)} · covers 12 months`);
-  askPolicyFor();
+  enterStep(askPolicyFor);
 }
 
 async function askPolicyFor(){
@@ -429,22 +491,23 @@ async function pickPolicyFor(type){
   S.policyType=type;
   clearWidget();
   sayMine(type==='family' ? 'With family' : 'Just me / a group');
-  askAdults();
+  enterStep(askAdults);
 }
 async function askAdults(){
-  await sayTheirs(S.policyType==='family' ? 'How many adults — parent or legal guardian, aged 18–70 — including you?' : 'How many adults (aged 30 days–70) will be covered, including you?');
   const max = S.policyType==='family' ? 2 : 10;
+  if (S.adults==null) S.adults=1;
+  S.adults = Math.min(S.adults, max);
+  await sayTheirs(S.policyType==='family' ? 'How many adults — parent or legal guardian, aged 18–70 — including you?' : 'How many adults (aged 30 days–70) will be covered, including you?');
   showWidget(`
     <div class="stepper-card">
       <div><div class="stepper-name">Adults</div><div class="stepper-desc">${S.policyType==='family'?'Age 18 – 70':'Age 30 days – 70'}</div></div>
       <div class="stepper-ctrl">
-        <button class="stp-btn" id="aMinus" onclick="adjStep('adults',-1,${max})" disabled>−</button>
-        <span class="stp-val" id="aVal">1</span>
+        <button class="stp-btn" id="aMinus" onclick="adjStep('adults',-1,${max})" ${S.adults<=1?'disabled':''}>−</button>
+        <span class="stp-val" id="aVal">${S.adults}</span>
         <button class="stp-btn" onclick="adjStep('adults',1,${max})">+</button>
       </div>
     </div>
     <div class="send-row"><button class="send-btn" onclick="confirmAdults()">→</button></div>`);
-  S.adults=1;
 }
 function adjStep(key,d,max){
   const min = key==='adults'?1:0;
@@ -458,45 +521,45 @@ function adjStep(key,d,max){
 async function confirmAdults(){
   clearWidget();
   sayMine(`${S.adults} adult${S.adults>1?'s':''}`);
-  if (S.policyType==='family') askChildren(); else askSeniors();
+  if (S.policyType==='family') enterStep(askChildren); else enterStep(askSeniors);
 }
 async function askSeniors(){
+  if (S.seniors==null) S.seniors=0;
   await sayTheirs('Any seniors travelling (aged 71–85)?');
   showWidget(`
     <div class="stepper-card">
       <div><div class="stepper-name">Seniors</div><div class="stepper-desc">Age 71 – 85</div></div>
       <div class="stepper-ctrl">
-        <button class="stp-btn" id="sMinus" onclick="adjStep('seniors',-1,10)" disabled>−</button>
-        <span class="stp-val" id="sVal">0</span>
+        <button class="stp-btn" id="sMinus" onclick="adjStep('seniors',-1,10)" ${S.seniors<=0?'disabled':''}>−</button>
+        <span class="stp-val" id="sVal">${S.seniors}</span>
         <button class="stp-btn" onclick="adjStep('seniors',1,10)">+</button>
       </div>
     </div>
     <div class="send-row"><button class="send-btn" onclick="confirmSeniors()">→</button></div>`);
-  S.seniors=0;
 }
 async function confirmSeniors(){
   clearWidget();
   sayMine(S.seniors>0 ? `${S.seniors} senior${S.seniors>1?'s':''}` : 'No seniors');
-  showPlans();
+  enterStep(showPlans);
 }
 async function askChildren(){
+  if (S.children==null) S.children=0;
   await sayTheirs('Any children with you (30 days–23 years)? Family cover includes any number of children.');
   showWidget(`
     <div class="stepper-card">
       <div><div class="stepper-name">Children</div><div class="stepper-desc">Age 30 days – 23 years</div></div>
       <div class="stepper-ctrl">
-        <button class="stp-btn" id="cMinus" onclick="adjStep('children',-1,10)" disabled>−</button>
-        <span class="stp-val" id="cVal">0</span>
+        <button class="stp-btn" id="cMinus" onclick="adjStep('children',-1,10)" ${S.children<=0?'disabled':''}>−</button>
+        <span class="stp-val" id="cVal">${S.children}</span>
         <button class="stp-btn" onclick="adjStep('children',1,10)">+</button>
       </div>
     </div>
     <div class="send-row"><button class="send-btn" onclick="confirmChildren()">→</button></div>`);
-  S.children=0;
 }
 async function confirmChildren(){
   clearWidget();
   sayMine(S.children>0 ? `${S.children} child${S.children>1?'ren':''}` : 'No children');
-  showPlans();
+  enterStep(showPlans);
 }
 
 async function showPlans(){
@@ -542,7 +605,7 @@ async function pickPlan(plan, amount){
     </div>`;
   thread.appendChild(row); scrollDown();
   await sayTheirs("Now let's get this issued for you — a few quick questions, then payment.", 600);
-  askForOther();
+  enterStep(askForOther);
 }
 
 // ═══════════ TRAVELLER DETAILS ═══════════
@@ -556,14 +619,15 @@ async function askForOther(){
 async function setForOther(val){
   S.forOther=val; clearWidget();
   sayMine(val ? 'Arranging for someone else' : "It's for me");
-  if (val) askPolicyholderName();
-  else { buildTravellerList(); startTravellerLoop(); }
+  if (val) enterStep(askPolicyholderName);
+  else { buildTravellerList(); curT=0; travellerData=[]; enterStep(askTravellerName); }
 }
 async function askPolicyholderName(){
   await sayTheirs("What's the policyholder's full name?");
-  showTextWidget({placeholder:'Full name', onSend:(v)=>{
+  showTextWidget({placeholder:'Full name', value:S.policyholderName, onSend:(v)=>{
     S.policyholderName=v.trim(); clearWidget(); sayMine(v.trim());
-    buildTravellerList(); startTravellerLoop();
+    buildTravellerList(); curT=0; travellerData=[];
+    enterStep(askTravellerName);
   }});
 }
 
@@ -574,15 +638,14 @@ function buildTravellerList(){
   for(let i=0;i<S.seniors;i++) travellers.push({ageBand:'Senior', label:`Senior ${i+1}`});
   for(let i=0;i<S.children;i++) travellers.push({ageBand:'Child', label:`Child ${i+1}`});
 }
-async function startTravellerLoop(){ curT=0; travellerData=[]; askTravellerName(); }
 
 async function askTravellerName(){
   const t=travellers[curT];
   await sayTheirs(t.label==='you' ? "What's your full name?" : `What's ${t.label}'s full name? (Traveller ${curT+1} — ${t.ageBand})`);
-  showTextWidget({placeholder:'As per NRIC / Passport', onSend:(v)=>{
+  showTextWidget({placeholder:'As per NRIC / Passport', value:travellerData[curT]?.fullName, onSend:(v)=>{
     clearWidget(); sayMine(v.trim());
     travellerData[curT] = { fullName:v.trim(), ageBand:t.ageBand };
-    askTravellerNationality();
+    enterStep(askTravellerNationality);
   }});
 }
 async function askTravellerNationality(){
@@ -594,15 +657,16 @@ async function askTravellerNationality(){
 }
 async function setNationality(code){
   clearWidget(); sayMine(code==='MY' ? 'Malaysian' : 'Foreign national');
-  if (code==='MY'){ travellerData[curT].nationality='MY'; askNRIC(); }
-  else {
-    await sayTheirs('Which country?');
-    showTextWidget({placeholder:'e.g. Singapore', onSend:(v)=>{
-      clearWidget(); sayMine(v.trim());
-      travellerData[curT].nationality=v.trim();
-      askPassport();
-    }});
-  }
+  if (code==='MY'){ travellerData[curT].nationality='MY'; enterStep(askNRIC); }
+  else { enterStep(askCountryFreeText); }
+}
+async function askCountryFreeText(){
+  await sayTheirs('Which country?');
+  showTextWidget({placeholder:'e.g. Singapore', value:travellerData[curT]?.nationality, onSend:(v)=>{
+    clearWidget(); sayMine(v.trim());
+    travellerData[curT].nationality=v.trim();
+    enterStep(askPassport);
+  }});
 }
 async function askNRIC(){
   await sayTheirs('NRIC number?');
@@ -610,6 +674,7 @@ async function askNRIC(){
     placeholder:'000000-00-0000', maxlength:14, format:fmtNRICStr,
     validate:v=>v.replace(/\D/g,'').length===12,
     hint:'Auto-fills date of birth and gender.',
+    value:travellerData[curT]?.idNumber,
     onSend:(v)=>{
       clearWidget(); sayMine(v);
       const info=parseNRICInfo(v);
@@ -621,10 +686,10 @@ async function askNRIC(){
 }
 async function askPassport(){
   await sayTheirs('Passport number?');
-  showTextWidget({placeholder:'Passport No.', maxlength:20, onSend:(v)=>{
+  showTextWidget({placeholder:'Passport No.', maxlength:20, value:travellerData[curT]?.idNumber, onSend:(v)=>{
     clearWidget(); sayMine(v);
     travellerData[curT].idNumber=v;
-    askDOB();
+    enterStep(askDOB);
   }});
 }
 async function askDOB(){
@@ -638,7 +703,7 @@ async function confirmDOB(){
   const v=document.getElementById('wDOB').value;
   clearWidget(); sayMine(fmtDate(v));
   travellerData[curT].dateOfBirth=fmtDate(v);
-  askGender();
+  enterStep(askGender);
 }
 async function askGender(){
   await sayTheirs('Gender?');
@@ -649,35 +714,35 @@ async function setGender(g){
   travellerData[curT].gender=g;
   nextTravellerOrContinue();
 }
-async function nextTravellerOrContinue(){
+function nextTravellerOrContinue(){
   curT++;
-  if (curT < travellers.length) askTravellerName();
-  else askEmail();
+  if (curT < travellers.length) enterStep(askTravellerName);
+  else enterStep(askEmail);
 }
 
 // ═══════════ CONTACT & UNDERWRITING ═══════════
 async function askEmail(){
   await sayTheirs("What's the best email for your policy documents?");
-  showTextWidget({placeholder:'name@email.com', type:'email', validate:v=>/^\S+@\S+\.\S+$/.test(v), onSend:(v)=>{
-    S.email=v.trim(); clearWidget(); sayMine(v.trim()); askMobile();
+  showTextWidget({placeholder:'name@email.com', type:'email', validate:v=>/^\S+@\S+\.\S+$/.test(v), value:S.email, onSend:(v)=>{
+    S.email=v.trim(); clearWidget(); sayMine(v.trim()); enterStep(askMobile);
   }});
 }
 async function askMobile(){
   await sayTheirs('And a mobile number?');
-  showTextWidget({placeholder:'012 345 6789', type:'tel', onSend:(v)=>{
-    S.mobile=v.trim(); clearWidget(); sayMine(v.trim()); askAddress();
+  showTextWidget({placeholder:'012 345 6789', type:'tel', value:S.mobile, onSend:(v)=>{
+    S.mobile=v.trim(); clearWidget(); sayMine(v.trim()); enterStep(askAddress);
   }});
 }
 async function askAddress(){
   await sayTheirs('Your home address?');
-  showTextWidget({placeholder:'Street, city, postcode, state', multiline:true, onSend:(v)=>{
-    S.address=v.trim(); clearWidget(); sayMine(v.trim()); askOccupation();
+  showTextWidget({placeholder:'Street, city, postcode, state', multiline:true, value:S.address, onSend:(v)=>{
+    S.address=v.trim(); clearWidget(); sayMine(v.trim()); enterStep(askOccupation);
   }});
 }
 async function askOccupation(){
   await sayTheirs('Last one for underwriting — what do you do for work? High-risk occupations may affect coverage terms.');
-  showTextWidget({placeholder:'e.g. Engineer, Business Owner, Teacher', onSend:(v)=>{
-    S.occupation=v.trim(); clearWidget(); sayMine(v.trim()); askFlightOptional();
+  showTextWidget({placeholder:'e.g. Engineer, Business Owner, Teacher', value:S.occupation, onSend:(v)=>{
+    S.occupation=v.trim(); clearWidget(); sayMine(v.trim()); enterStep(askFlightOptional);
   }});
 }
 
@@ -701,13 +766,13 @@ async function confirmFlight(){
   const date=document.getElementById('wFlightDate').value;
   S.flight={departureFlightNumber:num, departureDate:fmtDate(date)};
   clearWidget(); sayMine(`${num||'Flight'} · ${fmtDate(date)}`);
-  askNomineeOptional();
+  enterStep(askNomineeOptional);
 }
-async function skipStep(which){
+function skipStep(which){
   clearWidget(); sayMine('Skip');
-  if (which==='flight') askNomineeOptional();
-  else if (which==='nominee') askBankOptional();
-  else if (which==='bank') askPaymentMethod();
+  if (which==='flight') enterStep(askNomineeOptional);
+  else if (which==='nominee') enterStep(askBankOptional);
+  else if (which==='bank') enterStep(askPaymentMethod);
 }
 async function askNomineeOptional(){
   await sayTheirs('Add a nominee for claim payout? Optional.');
@@ -717,7 +782,7 @@ async function nomineeYes(){
   clearWidget(); sayMine('Add nominee');
   await sayTheirs("Nominee's full name?");
   showTextWidget({placeholder:'Full name', onSend:(v)=>{
-    S.nominee={name:v.trim()}; clearWidget(); sayMine(v.trim()); askNomineeRel();
+    S.nominee={name:v.trim()}; clearWidget(); sayMine(v.trim()); enterStep(askNomineeRel);
   }});
 }
 async function askNomineeRel(){
@@ -733,7 +798,7 @@ async function askNomineeRel(){
 async function setNomineeRel(rel){
   clearWidget(); sayMine(rel);
   S.nominee.relationship=rel; S.nominee.share=100; S.nominee.idNumber='';
-  askBankOptional();
+  enterStep(askBankOptional);
 }
 async function askBankOptional(){
   await sayTheirs('Add bank details for claim payout? Optional.');
@@ -752,7 +817,7 @@ async function confirmBank(){
   const acc=document.getElementById('wBankAcc').value.trim();
   S.bank={bankName:name, bankAccountNumber:acc};
   clearWidget(); sayMine(`${name}${acc?' · '+acc:''}`);
-  askPaymentMethod();
+  enterStep(askPaymentMethod);
 }
 
 // ═══════════ PAYMENT ═══════════
@@ -774,7 +839,7 @@ async function pickPayment(method){
     bank:'Transfer to <strong>1040 2700 307120</strong> — RHB Bank, Lee Mou Yen — then upload your receipt below.'
   };
   await sayTheirs(insts[method]);
-  askUploadSlip();
+  enterStep(askUploadSlip);
 }
 async function askUploadSlip(){
   showWidget(`
@@ -795,7 +860,7 @@ async function confirmSlip(){
   const f=document.getElementById('wFile').files[0];
   S.paymentSlip=f;
   clearWidget(); sayMine(`Uploaded: ${f.name}`);
-  askDeclaration();
+  enterStep(askDeclaration);
 }
 
 // ═══════════ DECLARATION & SUBMIT ═══════════
@@ -818,6 +883,7 @@ function buildPayload(){
   items.push({label:'Stamp Duty', value:d.stampAmt});
 
   return {
+    source:'chat',
     proposer:{ name:proposerName, mobile:S.mobile, email:S.email, occupation:S.occupation, address:S.address, sameAsFirstTraveller: !S.forOther },
     product:{
       insuranceType:S.tripType, policyType:S.policyType,
