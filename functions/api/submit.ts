@@ -78,7 +78,8 @@ const POLICY_TYPE_LABELS: Record<string, string> = {
 
 const AGE_BAND_LABELS: Record<string, string> = {
   Adult: "Adult",
-  Senior: "Senior (71–85)"
+  Senior: "Senior (71–85)",
+  Child: "Child (30 days–23 yrs)"
 };
 
 // ISO 3166-1 alpha-2 → country name (subset matching the frontend dropdown)
