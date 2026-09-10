@@ -123,7 +123,7 @@ body{
 
 /* ── Thread ── */
 .thread{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1.1rem .9rem 1.5rem;display:flex;flex-direction:column;gap:.55rem}
-.row{display:flex;animation:in .28s ease}
+.row{display:flex;animation:in .16s ease}
 .row.mine{justify-content:flex-end;align-items:center;gap:.35rem}
 .edit-btn{
   background:none;border:none;color:var(--text-faint);font-size:.85rem;cursor:pointer;
@@ -457,7 +457,7 @@ const todayStr = new Date().toISOString().split('T')[0];
 function scrollDown(){ thread.scrollTo({top:thread.scrollHeight, behavior:'smooth'}); }
 
 let suppressAsk=false;
-function sayTheirs(html, delay=520){
+function sayTheirs(html, delay=150){
   if (suppressAsk) return Promise.resolve();
   return new Promise(resolve=>{
     const typingRow=document.createElement('div');
@@ -587,7 +587,7 @@ function startOver(){
 async function start(){ enterStep(askArea); }
 
 async function askArea(){
-  await sayTheirs("Hi! I'm Henry, I'll get you a quote in under a minute. Where are you headed?", 300);
+  await sayTheirs("Hi! I'm Henry, I'll get you a quote in under a minute. Where are you headed?");
   showWidget(`
     <div class="optcards">
       <div class="optcard" onclick="pickArea('D')">
@@ -813,7 +813,7 @@ async function pickPlan(plan, amount){
   S.detail = calcDetail(S, plan);
   clearWidget();
   sayMine(`${plan.charAt(0).toUpperCase()+plan.slice(1)} · RM ${amount.toFixed(2)}`, history.length-1);
-  await sayTheirs("Here's your quote:", 450);
+  await sayTheirs("Here's your quote:");
   S.ref = 'TM-EXP-' + Math.floor(1000+Math.random()*9000);
   const dateLine = S.tripType==='annual'
     ? `${fmtDate(S.annualStart)} – ${fmtDate(S.annualEnd)}`
@@ -829,7 +829,7 @@ async function pickPlan(plan, amount){
       <div class="ticket-row"><span>Ref</span><span>${S.ref}</span></div>
     </div>`;
   thread.appendChild(row); scrollDown();
-  await sayTheirs("Now let's get this issued for you. A few quick questions, then payment.", 600);
+  await sayTheirs("Now let's get this issued for you. A few quick questions, then payment.");
   enterStep(askForOther);
 }
 
@@ -1091,7 +1091,7 @@ async function confirmSlip(){
 
 // ═══════════ DECLARATION & SUBMIT ═══════════
 async function askDeclaration(){
-  await sayTheirs(`Almost done, please confirm:<br><br><strong>Application:</strong> Details are accurate. Cover only begins once payment is received. Henry Lee is my appointed advisor.<br><br><strong>Health:</strong> No Insured Person has, in the past 6 months, been hospitalised, given a terminal prognosis, or diagnosed with any mental illness. Pre-existing conditions aren't covered.<br><br><strong>Data (PDPA):</strong> I consent to my personal data being shared with Tokio Marine and related parties to arrange this policy.`, 500);
+  await sayTheirs(`Almost done, please confirm:<br><br><strong>Application:</strong> Details are accurate. Cover only begins once payment is received. Henry Lee is my appointed advisor.<br><br><strong>Health:</strong> No Insured Person has, in the past 6 months, been hospitalised, given a terminal prognosis, or diagnosed with any mental illness. Pre-existing conditions aren't covered.<br><br><strong>Data (PDPA):</strong> I consent to my personal data being shared with Tokio Marine and related parties to arrange this policy.`);
   showWidget(`<div class="chiprow"><button class="chip" onclick="agreeAndSubmit()" style="border-color:var(--wa);color:var(--wa)">I agree, submit application</button></div>`);
 }
 function buildPayload(){
@@ -1128,7 +1128,7 @@ function buildPayload(){
 }
 async function agreeAndSubmit(){
   clearWidget(); sayMine('I agree, submit application');
-  await sayTheirs('Submitting…', 250);
+  await sayTheirs('Submitting…');
   const payload=buildPayload();
   const fd=new FormData();
   fd.append('submission', JSON.stringify(payload));
@@ -1148,10 +1148,10 @@ async function agreeAndSubmit(){
   }
 }
 async function showSuccess(){
-  await sayTheirs("All submitted! I'll review this and follow up shortly. Your cover note will be sent once your payment is received and confirmed, usually within 2 working hours. Cover only begins once payment is received, so please avoid non-refundable bookings until you've received it.", 500);
-  await sayTheirs("Keep these for a smooth claim: original receipts, medical reports/certificates, boarding passes, and any police or authority reports.", 500);
-  await sayTheirs("And if anything happens overseas, call our 24-Hour Travel Assistance on <strong>+603 7628 3877</strong> before hospital admission or evacuation, so it's arranged cashless. General Customer Service: 1800 88 0812.", 500);
-  await sayTheirs("One last thing, mind rating this chat experience?", 500);
+  await sayTheirs("All submitted! I'll review this and follow up shortly. Your cover note will be sent once your payment is received and confirmed, usually within 2 working hours. Cover only begins once payment is received, so please avoid non-refundable bookings until you've received it.");
+  await sayTheirs("Keep these for a smooth claim: original receipts, medical reports/certificates, boarding passes, and any police or authority reports.");
+  await sayTheirs("And if anything happens overseas, call our 24-Hour Travel Assistance on <strong>+603 7628 3877</strong> before hospital admission or evacuation, so it's arranged cashless. General Customer Service: 1800 88 0812.");
+  await sayTheirs("One last thing, mind rating this chat experience?");
   showRatingWidget();
 }
 
@@ -1178,7 +1178,7 @@ function sendFeedback(){
   clearWidget();
   const summary = selectedRating ? `${'★'.repeat(selectedRating)}${text?' · '+text:''}` : (text || 'Skipped');
   sayMine(summary);
-  sayTheirs('Thanks, this really helps me improve things for future clients!', 400);
+  sayTheirs('Thanks, this really helps me improve things for future clients!');
   if (selectedRating || text){
     const msg=`Feedback on the chat quote tool${selectedRating?` (rating: ${selectedRating}/5)`:''}${text?': '+text:''}`;
     window.open(`https://wa.me/60126123540?text=${encodeURIComponent(msg)}`, '_blank');
