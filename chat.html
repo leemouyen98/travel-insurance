@@ -57,7 +57,12 @@ body{
 /* ── Thread ── */
 .thread{flex:1;padding:1.1rem .9rem 1.5rem;display:flex;flex-direction:column;gap:.55rem}
 .row{display:flex;animation:in .28s ease}
-.row.mine{justify-content:flex-end}
+.row.mine{justify-content:flex-end;align-items:center;gap:.35rem}
+.edit-btn{
+  background:none;border:none;color:var(--text-faint);font-size:.8rem;cursor:pointer;
+  padding:.25rem;flex-shrink:0;line-height:1;
+}
+.edit-btn:hover{color:var(--brass)}
 .row.theirs{justify-content:flex-start}
 @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .bubble{max-width:82%;padding:.62rem .85rem;font-size:.9rem;line-height:1.5;border-radius:17px}
@@ -136,14 +141,17 @@ body{
 .plancards{display:flex;flex-direction:column;gap:.55rem}
 .plancard{
   background:var(--ink-2);border:1.5px solid var(--line);border-radius:var(--r);
-  padding:.8rem .95rem;cursor:pointer;transition:all .15s ease;
-  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+  padding:.85rem .95rem;cursor:pointer;transition:all .15s ease;
 }
 .plancard:hover{border-color:var(--brass)}
-.plancard .pname{font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint)}
+.plancard-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.55rem}
+.plancard .pname{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint)}
 .plancard.pop .pname{color:var(--brass)}
-.plancard .pfeat{font-size:.72rem;color:var(--text-soft);margin-top:.25rem}
 .plancard .pprice{font-family:'Space Mono',monospace;font-weight:700;font-size:1.05rem;color:var(--text);flex-shrink:0}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:.22rem}
+.plan-feats li{display:flex;align-items:flex-start;gap:.4rem;font-size:.74rem;color:var(--text-soft);line-height:1.4}
+.plan-feats .fy{color:var(--wa);flex-shrink:0}
+.plan-feats .fn{color:var(--text-faint);flex-shrink:0}
 
 /* ── Ticket ── */
 .ticket{
@@ -311,7 +319,53 @@ function parseNRICInfo(nric){
   const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const mi=parseInt(mm)-1;
   if(mi<0||mi>11) return null;
-  return { dob:`${dd} ${months[mi]} ${yr}`, gender: parseInt(raw[11])%2===1?'Male':'Female' };
+  return {
+    dob:`${dd} ${months[mi]} ${yr}`, gender: parseInt(raw[11])%2===1?'Male':'Female',
+    year:parseInt(yr), month:parseInt(mm), day:parseInt(dd)
+  };
+}
+// Eligibility cross-check — catches a traveller counted as the wrong age band (e.g. a senior counted as an adult).
+// Takes numeric year/month/day directly rather than re-parsing a formatted display string like "31 Dec 1990",
+// which parses inconsistently across browsers (this is exactly the kind of thing that broke silently on iOS before).
+function ageFromParts(year, month, day){
+  if (!year || !month || !day) return null;
+  const today=new Date();
+  let age=today.getFullYear()-year;
+  const beforeBirthdayThisYear = (today.getMonth()+1<month) || (today.getMonth()+1===month && today.getDate()<day);
+  if (beforeBirthdayThisYear) age--;
+  return age;
+}
+function eligibilityIssue(ageBand, age, policyType){
+  if (age==null || age<0) return null;
+  if (ageBand==='Senior' && (age<71 || age>85)) return `seniors need to be aged 71–85 — this works out to age ${age}`;
+  if (ageBand==='Adult'){
+    const min = policyType==='family' ? 18 : 0;
+    if (age<min || age>70) return `adults need to be ${policyType==='family'?'aged 18–70':'70 or under'} — this works out to age ${age}`;
+  }
+  if (ageBand==='Child' && age>23) return `children need to be 23 or under — this works out to age ${age}`;
+  return null;
+}
+async function checkEligibilityThen(age, nextFn){
+  const t=travellerData[curT];
+  const issue=eligibilityIssue(t.ageBand, age, S.policyType);
+  if (!issue){ nextFn(); return; }
+  await sayTheirs(`Hold on — I have ${t.fullName} down as ${t.ageBand==='Adult'?'an':'a'} ${t.ageBand.toLowerCase()}, but ${issue}. Want to continue anyway, or go back and adjust the traveller counts?`);
+  showWidget(`<div class="chiprow">
+    <button class="chip" onclick="dismissEligibilityWarning()">Continue anyway</button>
+    <button class="chip" onclick="fixTravellerCount()">Go back and fix count</button>
+  </div>`);
+  window._pendingNext=nextFn;
+}
+function dismissEligibilityWarning(){
+  clearWidget(); sayMine('Continue anyway');
+  const fn=window._pendingNext; window._pendingNext=null;
+  if (fn) fn();
+}
+function fixTravellerCount(){
+  clearWidget(); sayMine('Go back and fix traveller count');
+  window._pendingNext=null;
+  const idx=findCheckpointIdx(askAdults);
+  if (idx>=0) jumpTo(idx); else goBack();
 }
 
 // ═══════════ CONVERSATION ENGINE ═══════════
@@ -336,9 +390,10 @@ function sayTheirs(html, delay=520){
     }, delay);
   });
 }
-function sayMine(html){
+function sayMine(html, editIdx){
   const row=document.createElement('div'); row.className='row mine';
-  row.innerHTML=`<div class="bubble">${html}</div>`;
+  const editBtn = (editIdx!=null) ? `<button class="edit-btn" onclick="jumpTo(${editIdx})" title="Edit this">✎</button>` : '';
+  row.innerHTML=`${editBtn}<div class="bubble">${html}</div>`;
   thread.appendChild(row); scrollDown();
 }
 function showWidget(html){
@@ -399,13 +454,23 @@ function enterStep(fn){
   history.push({ threadLen: thread.children.length, snap: snapshotState(), fn });
   fn();
 }
-function goBack(){
-  if (history.length<=1){ window.location.href='/'; return; }
-  history.pop();
-  const cp=history[history.length-1];
+// Jump directly to an earlier checkpoint (used by both Back and the per-answer edit buttons).
+function jumpTo(idx){
+  if (idx<0 || idx>=history.length) return;
+  const cp=history[idx];
+  history=history.slice(0, idx+1);
   restoreState(cp.snap);
   while (thread.children.length > cp.threadLen) thread.lastElementChild.remove();
   cp.fn();
+}
+function goBack(){
+  if (history.length<=1){ window.location.href='/'; return; }
+  jumpTo(history.length-2);
+}
+// Find the most recent checkpoint for a given step function (e.g. to jump back to the traveller counters).
+function findCheckpointIdx(fn){
+  for (let i=history.length-1; i>=0; i--) if (history[i].fn===fn) return i;
+  return -1;
 }
 function startOver(){
   if (history.length>2 && !confirm('Start over? This clears your answers so far.')) return;
@@ -444,7 +509,7 @@ async function askArea(){
 async function pickArea(area){
   S.area = area;
   clearWidget();
-  sayMine(AREA_LABELS[area]);
+  sayMine(AREA_LABELS[area], history.length-1);
   enterStep(askTripType);
 }
 async function askTripType(){
@@ -459,7 +524,7 @@ async function askTripType(){
 async function pickTripType(type){
   S.tripType = type;
   clearWidget();
-  sayMine(type==='single' ? 'Single Trip' : 'Annual');
+  sayMine(type==='single' ? 'Single Trip' : 'Annual', history.length-1);
   if (type==='single') enterStep(askDatesSingle);
   else enterStep(askDatesAnnual);
 }
@@ -493,7 +558,7 @@ async function confirmDates(){
   if (days>180){ await sayTheirs("That's over 180 days, which is the max I can cover in one trip. Mind picking a shorter return date, or WhatsApp me for a custom plan?"); return; }
   S.dateFrom=f; S.dateTo=t; S.days=days;
   clearWidget();
-  sayMine(`${fmtDate(f)} – ${fmtDate(t)} · ${days} day${days!==1?'s':''}`);
+  sayMine(`${fmtDate(f)} – ${fmtDate(t)} · ${days} day${days!==1?'s':''}`, history.length-1);
   enterStep(askPolicyFor);
 }
 function onAnnualInput(){ document.getElementById('annualSend').disabled = !document.getElementById('wAnnualStart').value; }
@@ -502,7 +567,7 @@ async function confirmAnnual(){
   const start=new Date(val); const end=new Date(start); end.setFullYear(end.getFullYear()+1); end.setDate(end.getDate()-1);
   S.annualStart=val; S.annualEnd=end.toISOString().slice(0,10); S.days=365;
   clearWidget();
-  sayMine(`Starting ${fmtDate(val)} · covers 12 months`);
+  sayMine(`Starting ${fmtDate(val)} · covers 12 months`, history.length-1);
   enterStep(askPolicyFor);
 }
 
@@ -520,7 +585,7 @@ async function askPolicyFor(){
 async function pickPolicyFor(type){
   S.policyType=type;
   clearWidget();
-  sayMine(type==='family' ? 'With family' : 'Just me / a group');
+  sayMine(type==='family' ? 'With family' : 'Just me / a group', history.length-1);
   enterStep(askAdults);
 }
 async function askAdults(){
@@ -550,7 +615,7 @@ function adjStep(key,d,max){
 }
 async function confirmAdults(){
   clearWidget();
-  sayMine(`${S.adults} adult${S.adults>1?'s':''}`);
+  sayMine(`${S.adults} adult${S.adults>1?'s':''}`, history.length-1);
   if (S.policyType==='family') enterStep(askChildren); else enterStep(askSeniors);
 }
 async function askSeniors(){
@@ -569,7 +634,7 @@ async function askSeniors(){
 }
 async function confirmSeniors(){
   clearWidget();
-  sayMine(S.seniors>0 ? `${S.seniors} senior${S.seniors>1?'s':''}` : 'No seniors');
+  sayMine(S.seniors>0 ? `${S.seniors} senior${S.seniors>1?'s':''}` : 'No seniors', history.length-1);
   enterStep(showPlans);
 }
 async function askChildren(){
@@ -588,7 +653,7 @@ async function askChildren(){
 }
 async function confirmChildren(){
   clearWidget();
-  sayMine(S.children>0 ? `${S.children} child${S.children>1?'ren':''}` : 'No children');
+  sayMine(S.children>0 ? `${S.children} child${S.children>1?'ren':''}` : 'No children', history.length-1);
   enterStep(showPlans);
 }
 
@@ -599,16 +664,37 @@ async function showPlans(){
   showWidget(`
     <div class="plancards">
       <div class="plancard" onclick="pickPlan('basic',${premiums.basic})">
-        <div><div class="pname">Basic</div><div class="pfeat">Core cover, no lounge or CFAR</div></div>
-        <div class="pprice">RM ${premiums.basic.toFixed(2)}</div>
+        <div class="plancard-head"><span class="pname">Basic</span><span class="pprice">RM ${premiums.basic.toFixed(2)}</span></div>
+        <ul class="plan-feats">
+          <li><span class="fy">✓</span>RM350k Accidental Death</li>
+          <li><span class="fy">✓</span>RM750k Medical Expenses</li>
+          <li><span class="fy">✓</span>RM1M Emergency Evacuation</li>
+          <li><span class="fy">✓</span>RM35k Trip Cancellation &amp; Disruption</li>
+          <li><span class="fn">✗</span>Lounge Access</li>
+          <li><span class="fn">✗</span>CFAR Cover</li>
+        </ul>
       </div>
       <div class="plancard pop" onclick="pickPlan('essential',${premiums.essential})">
-        <div><div class="pname">Essential · Popular</div><div class="pfeat">Unlimited evacuation, lounge access</div></div>
-        <div class="pprice">RM ${premiums.essential.toFixed(2)}</div>
+        <div class="plancard-head"><span class="pname">Essential · Popular</span><span class="pprice">RM ${premiums.essential.toFixed(2)}</span></div>
+        <ul class="plan-feats">
+          <li><span class="fy">✓</span>RM550k Accidental Death</li>
+          <li><span class="fy">✓</span>RM1M Medical Expenses</li>
+          <li><span class="fy">✓</span>Unlimited Emergency Evacuation</li>
+          <li><span class="fy">✓</span>RM70k Trip Cancellation &amp; Disruption</li>
+          <li><span class="fy">✓</span>Lounge Access included</li>
+          <li><span class="fn">✗</span>CFAR Cover</li>
+        </ul>
       </div>
       <div class="plancard" onclick="pickPlan('deluxe',${premiums.deluxe})">
-        <div><div class="pname">Deluxe · Best cover</div><div class="pfeat">Above, plus Cancel for Any Reason</div></div>
-        <div class="pprice">RM ${premiums.deluxe.toFixed(2)}</div>
+        <div class="plancard-head"><span class="pname">Deluxe · Best cover</span><span class="pprice">RM ${premiums.deluxe.toFixed(2)}</span></div>
+        <ul class="plan-feats">
+          <li><span class="fy">✓</span>RM550k Accidental Death</li>
+          <li><span class="fy">✓</span>RM1M Medical Expenses</li>
+          <li><span class="fy">✓</span>Unlimited Emergency Evacuation</li>
+          <li><span class="fy">✓</span>RM70k Trip Cancellation &amp; Disruption</li>
+          <li><span class="fy">✓</span>Lounge Access included</li>
+          <li><span class="fy">✓</span>CFAR up to RM5,000</li>
+        </ul>
       </div>
     </div>
     <div class="note-block">
@@ -621,7 +707,7 @@ async function pickPlan(plan, amount){
   S.plan = plan;
   S.detail = calcDetail(S, plan);
   clearWidget();
-  sayMine(`${plan.charAt(0).toUpperCase()+plan.slice(1)} — RM ${amount.toFixed(2)}`);
+  sayMine(`${plan.charAt(0).toUpperCase()+plan.slice(1)} — RM ${amount.toFixed(2)}`, history.length-1);
   await sayTheirs("That's your quote — here it is:", 450);
   S.ref = 'TM-EXP-' + Math.floor(1000+Math.random()*9000);
   const dateLine = S.tripType==='annual'
@@ -707,7 +793,6 @@ async function askNRIC(){
   showTextWidget({
     placeholder:'000000-00-0000', maxlength:14, format:fmtNRICStr,
     validate:v=>v.replace(/\D/g,'').length===12,
-    hint:'Auto-fills date of birth and gender.',
     value:travellerData[curT]?.idNumber,
     onSend:(v)=>{
       clearWidget(); sayMine(v);
@@ -715,7 +800,8 @@ async function askNRIC(){
       travellerData[curT].idNumber=v;
       travellerData[curT].dateOfBirth=info?info.dob:'';
       travellerData[curT].gender=info?info.gender:'';
-      nextTravellerOrContinue();
+      const age=info?ageFromParts(info.year,info.month,info.day):null;
+      checkEligibilityThen(age, nextTravellerOrContinue);
     }});
 }
 async function askPassport(){
@@ -737,7 +823,8 @@ async function confirmDOB(){
   const v=document.getElementById('wDOB').value;
   clearWidget(); sayMine(fmtDate(v));
   travellerData[curT].dateOfBirth=fmtDate(v);
-  enterStep(askGender);
+  const [y,m,d]=v.split('-').map(Number);
+  checkEligibilityThen(ageFromParts(y,m,d), ()=>enterStep(askGender));
 }
 async function askGender(){
   await sayTheirs('Gender?');
