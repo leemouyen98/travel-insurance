@@ -84,6 +84,21 @@ body{
 .chip .sub{display:block;font-size:.68rem;color:var(--text-faint);margin-top:1px;font-weight:400}
 .chip .price{font-family:'Space Mono',monospace;color:var(--brass);font-weight:700}
 
+.optcards{display:flex;flex-direction:column;gap:.5rem}
+.optcard{
+  background:var(--ink-2);border:1.5px solid var(--line);border-radius:var(--r);
+  padding:.75rem .9rem;cursor:pointer;transition:all .15s ease;
+}
+.optcard:hover{border-color:var(--brass)}
+.optcard-title{font-size:.85rem;font-weight:700;color:var(--brass);letter-spacing:.02em;margin-bottom:.3rem}
+.optcard-desc{font-size:.76rem;color:var(--text-soft);line-height:1.5}
+
+.note-block{
+  background:rgba(203,154,68,.07);border:1px solid rgba(203,154,68,.18);
+  border-radius:var(--r);padding:.7rem .85rem;font-size:.76rem;color:var(--text-soft);line-height:1.6;
+}
+.note-block b{color:var(--text)}
+
 .stepper-card{
   background:var(--ink-2);border:1px solid var(--line);border-radius:var(--r);
   padding:.9rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;
@@ -406,11 +421,23 @@ async function start(){ enterStep(askArea); }
 async function askArea(){
   await sayTheirs("Hi! I'm Henry — I'll get you a quote in under a minute. Where are you headed?", 300);
   showWidget(`
-    <div class="chiprow">
-      <button class="chip" onclick="pickArea('D')">Domestic<span class="sub">Within Malaysia</span></button>
-      <button class="chip" onclick="pickArea('1')">Area 1<span class="sub">Japan, China, Aus & more</span></button>
-      <button class="chip" onclick="pickArea('2')">Area 2<span class="sub">Worldwide excl. US/Canada</span></button>
-      <button class="chip" onclick="pickArea('3')">Area 3<span class="sub">Worldwide incl. US/Canada</span></button>
+    <div class="optcards">
+      <div class="optcard" onclick="pickArea('D')">
+        <div class="optcard-title">Domestic</div>
+        <div class="optcard-desc">Within Malaysia.</div>
+      </div>
+      <div class="optcard" onclick="pickArea('1')">
+        <div class="optcard-title">Area 1</div>
+        <div class="optcard-desc">Australia, Bangladesh, Brunei, Cambodia, China, Hong Kong, India, Indonesia, Japan, Korea, Laos, Macau, Maldives, Mongolia, Myanmar, New Zealand, Pakistan, Philippines, Singapore, Sri Lanka, Taiwan, Thailand and Vietnam.</div>
+      </div>
+      <div class="optcard" onclick="pickArea('2')">
+        <div class="optcard-title">Area 2</div>
+        <div class="optcard-desc">Worldwide excluding Malaysia, USA, Canada, Nepal and Tibet.</div>
+      </div>
+      <div class="optcard" onclick="pickArea('3')">
+        <div class="optcard-title">Area 3</div>
+        <div class="optcard-desc">Worldwide, except Malaysia — includes USA, Canada, Nepal and Tibet.</div>
+      </div>
     </div>`);
 }
 
@@ -485,6 +512,9 @@ async function askPolicyFor(){
     <div class="chiprow">
       <button class="chip" onclick="pickPolicyFor('individual')">Just me / a group</button>
       <button class="chip" onclick="pickPolicyFor('family')">With family</button>
+    </div>
+    <div class="note-block">
+      <b>Family</b> covers 2 adults (age 18–70, e.g. parents) plus any number of children (30 days–23 yrs) under one policy. Travelling with grandma or grandpa too? Seniors (71–85) aren't covered under Family — pick "Just me / a group" instead so they're counted as seniors and properly covered.
     </div>`);
 }
 async function pickPolicyFor(type){
@@ -580,6 +610,10 @@ async function showPlans(){
         <div><div class="pname">Deluxe · Best cover</div><div class="pfeat">Above, plus Cancel for Any Reason</div></div>
         <div class="pprice">RM ${premiums.deluxe.toFixed(2)}</div>
       </div>
+    </div>
+    <div class="note-block">
+      <b>Lounge access</b> — a complimentary Mastercard airport lounge pass if your flight's delayed. Included on Essential &amp; Deluxe.<br><br>
+      <b>CFAR</b> (Cancel for Any Reason) — get 75% of your flight/accommodation costs back (up to RM5,000) if you cancel for any reason. Deluxe only, and only valid if bought within 14 days of booking your trip.
     </div>`);
 }
 
