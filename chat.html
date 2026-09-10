@@ -26,7 +26,7 @@ body{
   color:var(--text); font-family:'Figtree',ui-sans-serif,system-ui,sans-serif;
   min-height:100vh; -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:560px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.wrap{max-width:560px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 
 /* ── Tablet & desktop scale-up ── */
 @media(min-width:700px){
@@ -46,7 +46,7 @@ body{
 /* ── Header ── */
 .chat-head{
   display:flex;align-items:center;gap:.6rem;padding:1rem 1.1rem;
-  border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--ink);z-index:10;
+  border-bottom:1px solid var(--line);background:var(--ink);flex-shrink:0;
 }
 .back-btn{
   background:none;border:none;color:var(--text-soft);font-size:1.5rem;line-height:1;
@@ -78,7 +78,7 @@ body{
 .feedback-link:hover{color:var(--wa)}
 
 /* ── Thread ── */
-.thread{flex:1;padding:1.1rem .9rem 1.5rem;display:flex;flex-direction:column;gap:.55rem}
+.thread{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1.1rem .9rem 1.5rem;display:flex;flex-direction:column;gap:.55rem}
 .row{display:flex;animation:in .28s ease}
 .row.mine{justify-content:flex-end;align-items:center;gap:.35rem}
 .edit-btn{
@@ -191,7 +191,7 @@ body{
 .ticket-row span:first-child{color:var(--text-faint);letter-spacing:.03em}
 .ticket-row span:last-child{font-weight:700;text-align:right}
 
-.footer-note{padding:1.2rem .9rem 2rem;text-align:center;font-size:.7rem;color:var(--text-faint)}
+.footer-note{padding:1.2rem .9rem 2rem;text-align:center;font-size:.7rem;color:var(--text-faint);flex-shrink:0}
 
 /* ── Text widget ── */
 .widget-hint{font-size:.72rem;color:var(--text-faint);margin-bottom:-.15rem}
@@ -410,9 +410,11 @@ const S = { tripType:'single', policyType:'individual', adults:1, seniors:0, chi
 const thread = document.getElementById('thread');
 const todayStr = new Date().toISOString().split('T')[0];
 
-function scrollDown(){ window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'}); }
+function scrollDown(){ thread.scrollTo({top:thread.scrollHeight, behavior:'smooth'}); }
 
+let suppressAsk=false;
 function sayTheirs(html, delay=520){
+  if (suppressAsk) return Promise.resolve();
   return new Promise(resolve=>{
     const typingRow=document.createElement('div');
     typingRow.className='row theirs';
@@ -423,13 +425,14 @@ function sayTheirs(html, delay=520){
       const row=document.createElement('div'); row.className='row theirs';
       row.innerHTML=`<div class="bubble">${html}</div>`;
       thread.appendChild(row); scrollDown();
+      if (currentCp) currentCp.askedLen = thread.children.length;
       resolve();
     }, delay);
   });
 }
 function sayMine(html, editIdx){
   const row=document.createElement('div'); row.className='row mine';
-  const editBtn = (editIdx!=null) ? `<button class="edit-btn" onclick="jumpTo(${editIdx})" title="Edit this">✎</button>` : '';
+  const editBtn = (editIdx!=null) ? `<button class="edit-btn" onclick="editJumpTo(${editIdx})" title="Edit this">✎</button>` : '';
   row.innerHTML=`${editBtn}<div class="bubble">${html}</div>`;
   thread.appendChild(row); scrollDown();
 }
@@ -487,18 +490,36 @@ function restoreState(snap){
   curT = snap.curT;
 }
 // The only way any step should move to the next one: records where we are now, then runs it.
+let currentCp=null;
 function enterStep(fn){
-  history.push({ threadLen: thread.children.length, snap: snapshotState(), fn });
+  const threadLen=thread.children.length;
+  const cp={ threadLen, askedLen:threadLen, snap: snapshotState(), fn };
+  history.push(cp);
+  currentCp=cp;
   fn();
 }
-// Jump directly to an earlier checkpoint (used by both Back and the per-answer edit buttons).
+// Jump directly to an earlier checkpoint and fully replay it, question bubble included (used by Back).
 function jumpTo(idx){
   if (idx<0 || idx>=history.length) return;
   const cp=history[idx];
   history=history.slice(0, idx+1);
   restoreState(cp.snap);
   while (thread.children.length > cp.threadLen) thread.lastElementChild.remove();
+  currentCp=cp;
   cp.fn();
+}
+// Jump to an earlier checkpoint but keep its question bubble in place, only refreshing the widget
+// (used by the per-answer edit pencils, so fixing an earlier answer doesn't re-ask the question).
+function editJumpTo(idx){
+  if (idx<0 || idx>=history.length) return;
+  const cp=history[idx];
+  history=history.slice(0, idx+1);
+  restoreState(cp.snap);
+  while (thread.children.length > cp.askedLen) thread.lastElementChild.remove();
+  currentCp=cp;
+  suppressAsk=true;
+  cp.fn();
+  suppressAsk=false;
 }
 function goBack(){
   if (history.length<=1){ window.location.href='/'; return; }
