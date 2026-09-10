@@ -54,7 +54,7 @@ body{
 }
 .back-btn:hover{color:var(--brass)}
 .reset-btn{
-  margin-left:auto;background:none;border:none;color:var(--text-faint);font-size:.72rem;
+  background:none;border:none;color:var(--text-faint);font-size:.72rem;
   cursor:pointer;font-family:inherit;text-decoration:underline;flex-shrink:0;white-space:nowrap;
 }
 .reset-btn:hover{color:var(--text-soft)}
@@ -66,8 +66,16 @@ body{
   object-fit:cover;border:1.5px solid var(--brass);
 }
 .chat-head-name{font-weight:700;font-size:.95rem}
+.beta-badge{
+  display:inline-block;margin-left:.4rem;font-family:'Space Mono',monospace;font-size:.58rem;
+  letter-spacing:.06em;font-weight:700;color:var(--brass);border:1px solid var(--brass-deep);
+  border-radius:5px;padding:1px 5px;vertical-align:middle;
+}
 .chat-head-sub{font-size:.72rem;color:var(--text-faint);margin-top:1px}
 .chat-head-sub .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--wa);margin-right:5px;vertical-align:middle}
+.head-actions{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
+.feedback-link{font-size:.72rem;color:var(--text-faint);text-decoration:underline;white-space:nowrap}
+.feedback-link:hover{color:var(--wa)}
 
 /* ── Thread ── */
 .thread{flex:1;padding:1.1rem .9rem 1.5rem;display:flex;flex-direction:column;gap:.55rem}
@@ -204,6 +212,15 @@ body{
 .upload-icon{font-size:1.2rem;margin-bottom:.3rem}
 .upload-text{font-size:.82rem;color:var(--text-soft)}
 .upload-hint{font-size:.68rem;color:var(--text-faint);margin-top:.2rem}
+
+/* ── Rating ── */
+.rating-row{display:flex;gap:.3rem}
+.star-btn{
+  background:none;border:none;font-size:1.55rem;line-height:1;color:var(--text-faint);
+  cursor:pointer;padding:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  transition:color .1s ease;
+}
+.star-btn.on{color:var(--brass)}
 </style>
 </head>
 <body>
@@ -212,10 +229,13 @@ body{
     <button class="back-btn" onclick="goBack()" aria-label="Back" title="Back">‹</button>
     <img class="avatar" src="/assets/henry.jpg" alt="Henry Lee">
     <div>
-      <div class="chat-head-name">Henry Lee</div>
+      <div class="chat-head-name">Henry Lee<span class="beta-badge">Beta</span></div>
       <div class="chat-head-sub"><span class="dot"></span>Tokio Marine · Insurance Advisor</div>
     </div>
-    <button class="reset-btn" onclick="startOver()">Start over</button>
+    <div class="head-actions">
+      <a class="feedback-link" href="https://wa.me/60126123540?text=Hi%20Henry%2C%20I%20have%20some%20feedback%20on%20this%20chat%20quote%20tool%3A%20" target="_blank" rel="noopener">Feedback</a>
+      <button class="reset-btn" onclick="startOver()">Start over</button>
+    </div>
   </div>
 
   <div class="thread" id="thread"></div>
@@ -295,7 +315,7 @@ function paxStr(S){
   if(S.children>0)p.push(S.children+(S.children>1?' children':' child'));
   return p.join(', ');
 }
-// Full breakdown for the chosen plan — mirrors calcPremium's formula exactly, used for the quote submission payload.
+// Full breakdown for the chosen plan; mirrors calcPremium's formula exactly, used for the quote submission payload.
 function calcDetail(S, plan){
   const annual = S.tripType==='annual';
   const days = annual ? 365 : S.days;
@@ -321,7 +341,7 @@ function calcDetail(S, plan){
   const total = Math.round((afterSST+stampAmt)*100)/100;
   return { base, discountAmt, sstAmt, stampAmt, total };
 }
-// NRIC helpers — same logic as the live site.
+// NRIC helpers; same logic as the live site.
 function fmtNRICStr(v){
   let d=v.replace(/\D/g,'').slice(0,12);
   if(d.length>6)d=d.slice(0,6)+'-'+d.slice(6);
@@ -341,7 +361,7 @@ function parseNRICInfo(nric){
     year:parseInt(yr), month:parseInt(mm), day:parseInt(dd)
   };
 }
-// Eligibility cross-check — catches a traveller counted as the wrong age band (e.g. a senior counted as an adult).
+// Eligibility cross-check: catches a traveller counted as the wrong age band (e.g. a senior counted as an adult).
 // Takes numeric year/month/day directly rather than re-parsing a formatted display string like "31 Dec 1990",
 // which parses inconsistently across browsers (this is exactly the kind of thing that broke silently on iOS before).
 function ageFromParts(year, month, day){
@@ -354,19 +374,19 @@ function ageFromParts(year, month, day){
 }
 function eligibilityIssue(ageBand, age, policyType){
   if (age==null || age<0) return null;
-  if (ageBand==='Senior' && (age<71 || age>85)) return `seniors need to be aged 71–85 — this works out to age ${age}`;
+  if (ageBand==='Senior' && (age<71 || age>85)) return `seniors need to be aged 71–85, this works out to age ${age}`;
   if (ageBand==='Adult'){
     const min = policyType==='family' ? 18 : 0;
-    if (age<min || age>70) return `adults need to be ${policyType==='family'?'aged 18–70':'70 or under'} — this works out to age ${age}`;
+    if (age<min || age>70) return `adults need to be ${policyType==='family'?'aged 18–70':'70 or under'}, this works out to age ${age}`;
   }
-  if (ageBand==='Child' && age>23) return `children need to be 23 or under — this works out to age ${age}`;
+  if (ageBand==='Child' && age>23) return `children need to be 23 or under, this works out to age ${age}`;
   return null;
 }
 async function checkEligibilityThen(age, nextFn){
   const t=travellerData[curT];
   const issue=eligibilityIssue(t.ageBand, age, S.policyType);
   if (!issue){ nextFn(); return; }
-  await sayTheirs(`Hold on — I have ${t.fullName} down as ${t.ageBand==='Adult'?'an':'a'} ${t.ageBand.toLowerCase()}, but ${issue}. Want to continue anyway, or go back and adjust the traveller counts?`);
+  await sayTheirs(`Hold on, I have ${t.fullName} down as ${t.ageBand==='Adult'?'an':'a'} ${t.ageBand.toLowerCase()}, but ${issue}. Want to continue anyway, or go back and adjust the traveller counts?`);
   showWidget(`<div class="chiprow">
     <button class="chip" onclick="dismissEligibilityWarning()">Continue anyway</button>
     <button class="chip" onclick="fixTravellerCount()">Go back and fix count</button>
@@ -446,7 +466,7 @@ function showTextWidget(opts){
   return div;
 }
 
-const AREA_LABELS = { D:'Domestic', '1':'Area 1 — Asia-Pacific', '2':'Area 2 — Worldwide excl. USA/Canada', '3':'Area 3 — Worldwide' };
+const AREA_LABELS = { D:'Domestic', '1':'Area 1: Asia-Pacific', '2':'Area 2: Worldwide excl. USA/Canada', '3':'Area 3: Worldwide' };
 
 // ═══════════ STEP HISTORY (Back / Start over) ═══════════
 let history=[];
@@ -502,7 +522,7 @@ function startOver(){
 async function start(){ enterStep(askArea); }
 
 async function askArea(){
-  await sayTheirs("Hi! I'm Henry — I'll get you a quote in under a minute. Where are you headed?", 300);
+  await sayTheirs("Hi! I'm Henry, I'll get you a quote in under a minute. Where are you headed?", 300);
   showWidget(`
     <div class="optcards">
       <div class="optcard" onclick="pickArea('D')">
@@ -519,7 +539,7 @@ async function askArea(){
       </div>
       <div class="optcard" onclick="pickArea('3')">
         <div class="optcard-title">Area 3</div>
-        <div class="optcard-desc">Worldwide, except Malaysia — includes USA, Canada, Nepal and Tibet.</div>
+        <div class="optcard-desc">Worldwide, except Malaysia. Includes USA, Canada, Nepal and Tibet.</div>
       </div>
     </div>`);
 }
@@ -598,7 +618,7 @@ async function askPolicyFor(){
       <button class="chip" onclick="pickPolicyFor('family')">With family</button>
     </div>
     <div class="note-block">
-      <b>Family</b> covers 2 adults (age 18–70, e.g. parents) plus any number of children (30 days–23 yrs) under one policy. Travelling with grandma or grandpa too? Seniors (71–85) aren't covered under Family — pick "Just me / a group" instead so they're counted as seniors and properly covered.
+      <b>Family</b> covers 2 adults (age 18–70, e.g. parents) plus any number of children (30 days–23 yrs) under one policy. Travelling with grandma or grandpa too? Seniors (71–85) aren't covered under Family. Pick "Just me / a group" instead so they're counted as seniors and properly covered.
     </div>`);
 }
 async function pickPolicyFor(type){
@@ -611,7 +631,7 @@ async function askAdults(){
   const max = S.policyType==='family' ? 2 : 10;
   if (S.adults==null) S.adults=1;
   S.adults = Math.min(S.adults, max);
-  await sayTheirs(S.policyType==='family' ? 'How many adults — parent or legal guardian, aged 18–70 — including you?' : 'How many adults (aged 30 days–70) will be covered, including you?');
+  await sayTheirs(S.policyType==='family' ? 'How many adults (parent or legal guardian, aged 18–70), including you?' : 'How many adults (aged 30 days–70) will be covered, including you?');
   showWidget(`
     <div class="stepper-card">
       <div><div class="stepper-name">Adults</div><div class="stepper-desc">${S.policyType==='family'?'Age 18 – 70':'Age 30 days – 70'}</div></div>
@@ -717,8 +737,9 @@ async function showPlans(){
       </div>
     </div>
     <div class="note-block">
-      <b>Lounge access</b> — a complimentary Mastercard airport lounge pass if your flight's delayed. Included on Essential &amp; Deluxe.<br><br>
-      <b>CFAR</b> (Cancel for Any Reason) — get 75% of your flight/accommodation costs back (up to RM5,000) if you cancel for any reason. Deluxe only, and only valid if bought within 14 days of booking your trip.
+      <b>Lounge access:</b> a complimentary Mastercard airport lounge pass if your flight's delayed. Included on Essential &amp; Deluxe.<br><br>
+      <b>CFAR</b> (Cancel for Any Reason): get 75% of your flight/accommodation costs back (up to RM5,000) if you cancel for any reason. Deluxe only, and only valid if bought within 14 days of booking your trip.<br><br>
+      Want the full details? <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">View the Explorer brochure (PDF) ↗</a>
     </div>`);
 }
 
@@ -726,8 +747,8 @@ async function pickPlan(plan, amount){
   S.plan = plan;
   S.detail = calcDetail(S, plan);
   clearWidget();
-  sayMine(`${plan.charAt(0).toUpperCase()+plan.slice(1)} — RM ${amount.toFixed(2)}`, history.length-1);
-  await sayTheirs("That's your quote — here it is:", 450);
+  sayMine(`${plan.charAt(0).toUpperCase()+plan.slice(1)} · RM ${amount.toFixed(2)}`, history.length-1);
+  await sayTheirs("Here's your quote:", 450);
   S.ref = 'TM-EXP-' + Math.floor(1000+Math.random()*9000);
   const dateLine = S.tripType==='annual'
     ? `${fmtDate(S.annualStart)} – ${fmtDate(S.annualEnd)}`
@@ -743,7 +764,7 @@ async function pickPlan(plan, amount){
       <div class="ticket-row"><span>Ref</span><span>${S.ref}</span></div>
     </div>`;
   thread.appendChild(row); scrollDown();
-  await sayTheirs("Now let's get this issued for you — a few quick questions, then payment.", 600);
+  await sayTheirs("Now let's get this issued for you. A few quick questions, then payment.", 600);
   enterStep(askForOther);
 }
 
@@ -780,7 +801,7 @@ function buildTravellerList(){
 
 async function askTravellerName(){
   const t=travellers[curT];
-  await sayTheirs(t.label==='you' ? "What's your full name?" : `What's ${t.label}'s full name? (Traveller ${curT+1} — ${t.ageBand})`);
+  await sayTheirs(t.label==='you' ? "What's your full name?" : `What's ${t.label}'s full name? (Traveller ${curT+1}, ${t.ageBand})`);
   showTextWidget({placeholder:'As per NRIC / Passport', value:travellerData[curT]?.fullName, onSend:(v)=>{
     clearWidget(); sayMine(v.trim());
     travellerData[curT] = { fullName:v.trim(), ageBand:t.ageBand };
@@ -880,7 +901,7 @@ async function askAddress(){
   }});
 }
 async function askOccupation(){
-  await sayTheirs('Last one for underwriting — what do you do for work? High-risk occupations may affect coverage terms.');
+  await sayTheirs('Last one for underwriting: what do you do for work? High-risk occupations may affect coverage terms.');
   showTextWidget({placeholder:'e.g. Engineer, Business Owner, Teacher', value:S.occupation, onSend:(v)=>{
     S.occupation=v.trim(); clearWidget(); sayMine(v.trim()); enterStep(askFlightOptional);
   }});
@@ -976,7 +997,7 @@ async function pickPayment(method){
   const insts={
     duitnow:'Scan this QR code with your banking app, then upload your receipt below.<br><img src="/duitnow-qr.png" style="max-width:200px;border-radius:12px;margin-top:.5rem" alt="DuitNow QR">',
     tng:"Transfer to <strong>012 612 3540</strong> (Lee Mou Yen) via Touch 'n Go, then upload your receipt below.",
-    bank:'Transfer to <strong>1040 2700 307120</strong> — RHB Bank, Lee Mou Yen — then upload your receipt below.'
+    bank:'Transfer to <strong>1040 2700 307120</strong> (RHB Bank, Lee Mou Yen), then upload your receipt below.'
   };
   await sayTheirs(insts[method]);
   enterStep(askUploadSlip);
@@ -1005,8 +1026,8 @@ async function confirmSlip(){
 
 // ═══════════ DECLARATION & SUBMIT ═══════════
 async function askDeclaration(){
-  await sayTheirs(`Almost done — please confirm:<br><br><strong>Application —</strong> Details are accurate. Cover only begins once payment is received. Henry Lee is my appointed advisor.<br><br><strong>Health —</strong> No Insured Person has, in the past 6 months, been hospitalised, given a terminal prognosis, or diagnosed with any mental illness. Pre-existing conditions aren't covered.<br><br><strong>Data (PDPA) —</strong> I consent to my personal data being shared with Tokio Marine and related parties to arrange this policy.`, 500);
-  showWidget(`<div class="chiprow"><button class="chip" onclick="agreeAndSubmit()" style="border-color:var(--wa);color:var(--wa)">I agree — submit application</button></div>`);
+  await sayTheirs(`Almost done, please confirm:<br><br><strong>Application:</strong> Details are accurate. Cover only begins once payment is received. Henry Lee is my appointed advisor.<br><br><strong>Health:</strong> No Insured Person has, in the past 6 months, been hospitalised, given a terminal prognosis, or diagnosed with any mental illness. Pre-existing conditions aren't covered.<br><br><strong>Data (PDPA):</strong> I consent to my personal data being shared with Tokio Marine and related parties to arrange this policy.`, 500);
+  showWidget(`<div class="chiprow"><button class="chip" onclick="agreeAndSubmit()" style="border-color:var(--wa);color:var(--wa)">I agree, submit application</button></div>`);
 }
 function buildPayload(){
   const proposerName = S.forOther ? S.policyholderName : (travellerData[0]?.fullName || '');
@@ -1041,7 +1062,7 @@ function buildPayload(){
   };
 }
 async function agreeAndSubmit(){
-  clearWidget(); sayMine('I agree — submit application');
+  clearWidget(); sayMine('I agree, submit application');
   await sayTheirs('Submitting…', 250);
   const payload=buildPayload();
   const fd=new FormData();
@@ -1057,14 +1078,46 @@ async function agreeAndSubmit(){
     }
     showSuccess();
   }catch(e){
-    await sayTheirs('Network error — please check your connection and try again, or WhatsApp me directly.');
+    await sayTheirs('Network error, please check your connection and try again, or WhatsApp me directly.');
     showWidget(`<div class="chiprow"><button class="chip" onclick="agreeAndSubmit()">Try again</button></div>`);
   }
 }
 async function showSuccess(){
-  await sayTheirs("All submitted! I'll review this and follow up shortly. Your cover note will be sent once your payment is received and confirmed — usually within 2 working hours. Cover only begins once payment is received, so please avoid non-refundable bookings until you've received it.", 500);
+  await sayTheirs("All submitted! I'll review this and follow up shortly. Your cover note will be sent once your payment is received and confirmed, usually within 2 working hours. Cover only begins once payment is received, so please avoid non-refundable bookings until you've received it.", 500);
   await sayTheirs("Keep these for a smooth claim: original receipts, medical reports/certificates, boarding passes, and any police or authority reports.", 500);
-  await sayTheirs("And if anything happens overseas — call our 24-Hour Travel Assistance on <strong>+603 7628 3877</strong> before hospital admission or evacuation, so it's arranged cashless. General Customer Service: 1800 88 0812.", 500);
+  await sayTheirs("And if anything happens overseas, call our 24-Hour Travel Assistance on <strong>+603 7628 3877</strong> before hospital admission or evacuation, so it's arranged cashless. General Customer Service: 1800 88 0812.", 500);
+  await sayTheirs("One last thing, mind rating this chat experience?", 500);
+  showRatingWidget();
+}
+
+let selectedRating=0;
+function showRatingWidget(){
+  showWidget(`
+    <div class="rating-row" id="starRow">
+      ${[1,2,3,4,5].map(n=>`<button class="star-btn" data-n="${n}" onclick="setRating(${n})" aria-label="${n} star${n>1?'s':''}">★</button>`).join('')}
+    </div>
+    <div class="widget-hint">Optional &middot; sends via WhatsApp so Henry can read it</div>
+    <div class="textfield-row">
+      <textarea id="wFeedback" placeholder="Anything you'd like to share? (optional)"></textarea>
+    </div>
+    <div class="send-row"><button class="send-btn" onclick="sendFeedback()">→</button></div>`);
+}
+function setRating(n){
+  selectedRating=n;
+  document.querySelectorAll('#starRow .star-btn').forEach(b=>{
+    b.classList.toggle('on', Number(b.dataset.n)<=n);
+  });
+}
+function sendFeedback(){
+  const text=document.getElementById('wFeedback').value.trim();
+  clearWidget();
+  const summary = selectedRating ? `${'★'.repeat(selectedRating)}${text?' · '+text:''}` : (text || 'Skipped');
+  sayMine(summary);
+  sayTheirs('Thanks, this really helps me improve things for future clients!', 400);
+  if (selectedRating || text){
+    const msg=`Feedback on the chat quote tool${selectedRating?` (rating: ${selectedRating}/5)`:''}${text?': '+text:''}`;
+    window.open(`https://wa.me/60126123540?text=${encodeURIComponent(msg)}`, '_blank');
+  }
 }
 
 start();
