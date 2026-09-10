@@ -59,10 +59,12 @@ body{
 .row{display:flex;animation:in .28s ease}
 .row.mine{justify-content:flex-end;align-items:center;gap:.35rem}
 .edit-btn{
-  background:none;border:none;color:var(--text-faint);font-size:.8rem;cursor:pointer;
-  padding:.25rem;flex-shrink:0;line-height:1;
+  background:none;border:none;color:var(--text-faint);font-size:.85rem;cursor:pointer;
+  flex-shrink:0;line-height:1;
+  width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:rgba(203,154,68,.25);
 }
-.edit-btn:hover{color:var(--brass)}
+.edit-btn:hover,.edit-btn:active{color:var(--brass)}
 .row.theirs{justify-content:flex-start}
 @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .bubble{max-width:82%;padding:.62rem .85rem;font-size:.9rem;line-height:1.5;border-radius:17px}
@@ -202,7 +204,7 @@ body{
   </div>
 
   <div class="thread" id="thread"></div>
-  <div class="footer-note">Not Tokio Marine's official policy portal · Managed by Henry Lee</div>
+  <div class="footer-note" id="footerNote">Not Tokio Marine's official policy portal · Managed by Henry Lee</div>
 </div>
 
 <script>
@@ -475,6 +477,7 @@ function findCheckpointIdx(fn){
 function startOver(){
   if (history.length>2 && !confirm('Start over? This clears your answers so far.')) return;
   thread.innerHTML='';
+  document.getElementById('footerNote').style.display='';
   Object.keys(S).forEach(k=>delete S[k]);
   Object.assign(S, { tripType:'single', policyType:'individual', adults:1, seniors:0, children:0, area:'', dateFrom:'', dateTo:'', days:0, annualStart:'', annualEnd:'', plan:'' });
   travellerData=[]; travellers=[]; curT=0; history=[];
@@ -509,6 +512,7 @@ async function askArea(){
 async function pickArea(area){
   S.area = area;
   clearWidget();
+  document.getElementById('footerNote').style.display='none';
   sayMine(AREA_LABELS[area], history.length-1);
   enterStep(askTripType);
 }
