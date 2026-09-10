@@ -799,14 +799,14 @@ async function askForOther(){
 }
 async function setForOther(val){
   S.forOther=val; clearWidget();
-  sayMine(val ? 'Arranging for someone else' : "It's for me");
+  sayMine(val ? 'Arranging for someone else' : "It's for me", history.length-1);
   if (val) enterStep(askPolicyholderName);
   else { buildTravellerList(); curT=0; travellerData=[]; enterStep(askTravellerName); }
 }
 async function askPolicyholderName(){
   await sayTheirs("What's the policyholder's full name?");
   showTextWidget({placeholder:'Full name', value:S.policyholderName, onSend:(v)=>{
-    S.policyholderName=v.trim(); clearWidget(); sayMine(v.trim());
+    S.policyholderName=v.trim(); clearWidget(); sayMine(v.trim(), history.length-1);
     buildTravellerList(); curT=0; travellerData=[];
     enterStep(askTravellerName);
   }});
@@ -824,7 +824,7 @@ async function askTravellerName(){
   const t=travellers[curT];
   await sayTheirs(t.label==='you' ? "What's your full name?" : `What's ${t.label}'s full name? (Traveller ${curT+1}, ${t.ageBand})`);
   showTextWidget({placeholder:'As per NRIC / Passport', value:travellerData[curT]?.fullName, onSend:(v)=>{
-    clearWidget(); sayMine(v.trim());
+    clearWidget(); sayMine(v.trim(), history.length-1);
     travellerData[curT] = { fullName:v.trim(), ageBand:t.ageBand };
     enterStep(askTravellerNationality);
   }});
@@ -837,14 +837,14 @@ async function askTravellerNationality(){
   </div>`);
 }
 async function setNationality(code){
-  clearWidget(); sayMine(code==='MY' ? 'Malaysian' : 'Foreign national');
+  clearWidget(); sayMine(code==='MY' ? 'Malaysian' : 'Foreign national', history.length-1);
   if (code==='MY'){ travellerData[curT].nationality='MY'; enterStep(askNRIC); }
   else { enterStep(askCountryFreeText); }
 }
 async function askCountryFreeText(){
   await sayTheirs('Which country?');
   showTextWidget({placeholder:'e.g. Singapore', value:travellerData[curT]?.nationality, onSend:(v)=>{
-    clearWidget(); sayMine(v.trim());
+    clearWidget(); sayMine(v.trim(), history.length-1);
     travellerData[curT].nationality=v.trim();
     enterStep(askPassport);
   }});
@@ -856,7 +856,7 @@ async function askNRIC(){
     validate:v=>v.replace(/\D/g,'').length===12,
     value:travellerData[curT]?.idNumber,
     onSend:(v)=>{
-      clearWidget(); sayMine(v);
+      clearWidget(); sayMine(v, history.length-1);
       const info=parseNRICInfo(v);
       travellerData[curT].idNumber=v;
       travellerData[curT].dateOfBirth=info?info.dob:'';
@@ -868,7 +868,7 @@ async function askNRIC(){
 async function askPassport(){
   await sayTheirs('Passport number?');
   showTextWidget({placeholder:'Passport No.', maxlength:20, value:travellerData[curT]?.idNumber, onSend:(v)=>{
-    clearWidget(); sayMine(v);
+    clearWidget(); sayMine(v, history.length-1);
     travellerData[curT].idNumber=v;
     enterStep(askDOB);
   }});
@@ -882,7 +882,7 @@ async function askDOB(){
 function onDOBInput(){ document.getElementById('dobSend').disabled = !document.getElementById('wDOB').value; }
 async function confirmDOB(){
   const v=document.getElementById('wDOB').value;
-  clearWidget(); sayMine(fmtDate(v));
+  clearWidget(); sayMine(fmtDate(v), history.length-1);
   travellerData[curT].dateOfBirth=fmtDate(v);
   const [y,m,d]=v.split('-').map(Number);
   checkEligibilityThen(ageFromParts(y,m,d), ()=>enterStep(askGender));
@@ -892,7 +892,7 @@ async function askGender(){
   showWidget(`<div class="chiprow"><button class="chip" onclick="setGender('Male')">Male</button><button class="chip" onclick="setGender('Female')">Female</button></div>`);
 }
 async function setGender(g){
-  clearWidget(); sayMine(g);
+  clearWidget(); sayMine(g, history.length-1);
   travellerData[curT].gender=g;
   nextTravellerOrContinue();
 }
@@ -906,25 +906,25 @@ function nextTravellerOrContinue(){
 async function askEmail(){
   await sayTheirs("What's the best email for your policy documents?");
   showTextWidget({placeholder:'name@email.com', type:'email', validate:v=>/^\S+@\S+\.\S+$/.test(v), value:S.email, onSend:(v)=>{
-    S.email=v.trim(); clearWidget(); sayMine(v.trim()); enterStep(askMobile);
+    S.email=v.trim(); clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askMobile);
   }});
 }
 async function askMobile(){
   await sayTheirs('And a mobile number?');
   showTextWidget({placeholder:'012 345 6789', type:'tel', value:S.mobile, onSend:(v)=>{
-    S.mobile=v.trim(); clearWidget(); sayMine(v.trim()); enterStep(askAddress);
+    S.mobile=v.trim(); clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askAddress);
   }});
 }
 async function askAddress(){
   await sayTheirs('Your home address?');
   showTextWidget({placeholder:'Street, city, postcode, state', multiline:true, value:S.address, onSend:(v)=>{
-    S.address=v.trim(); clearWidget(); sayMine(v.trim()); enterStep(askOccupation);
+    S.address=v.trim(); clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askOccupation);
   }});
 }
 async function askOccupation(){
   await sayTheirs('Last one for underwriting: what do you do for work? High-risk occupations may affect coverage terms.');
   showTextWidget({placeholder:'e.g. Engineer, Business Owner, Teacher', value:S.occupation, onSend:(v)=>{
-    S.occupation=v.trim(); clearWidget(); sayMine(v.trim()); enterStep(askFlightOptional);
+    S.occupation=v.trim(); clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askFlightOptional);
   }});
 }
 
@@ -934,7 +934,7 @@ async function askFlightOptional(){
   showWidget(`<div class="chiprow"><button class="chip" onclick="flightYes()">Add flight</button><button class="chip" onclick="skipStep('flight')">Skip</button></div>`);
 }
 async function flightYes(){
-  clearWidget(); sayMine('Add flight');
+  clearWidget(); sayMine('Add flight', history.length-1);
   await sayTheirs('Flight number, and departure date?');
   showWidget(`
     <div class="textfield-row" style="margin-bottom:.55rem"><input type="text" id="wFlightNum" placeholder="Flight number"></div>
@@ -947,11 +947,11 @@ async function confirmFlight(){
   const num=document.getElementById('wFlightNum').value.trim();
   const date=document.getElementById('wFlightDate').value;
   S.flight={departureFlightNumber:num, departureDate:fmtDate(date)};
-  clearWidget(); sayMine(`${num||'Flight'} · ${fmtDate(date)}`);
+  clearWidget(); sayMine(`${num||'Flight'} · ${fmtDate(date)}`, history.length-1);
   enterStep(askNomineeOptional);
 }
 function skipStep(which){
-  clearWidget(); sayMine('Skip');
+  clearWidget(); sayMine('Skip', history.length-1);
   if (which==='flight') enterStep(askNomineeOptional);
   else if (which==='nominee') enterStep(askBankOptional);
   else if (which==='bank') enterStep(askPaymentMethod);
@@ -961,10 +961,10 @@ async function askNomineeOptional(){
   showWidget(`<div class="chiprow"><button class="chip" onclick="nomineeYes()">Add nominee</button><button class="chip" onclick="skipStep('nominee')">Skip</button></div>`);
 }
 async function nomineeYes(){
-  clearWidget(); sayMine('Add nominee');
+  clearWidget(); sayMine('Add nominee', history.length-1);
   await sayTheirs("Nominee's full name?");
   showTextWidget({placeholder:'Full name', onSend:(v)=>{
-    S.nominee={name:v.trim()}; clearWidget(); sayMine(v.trim()); enterStep(askNomineeRel);
+    S.nominee={name:v.trim()}; clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askNomineeRel);
   }});
 }
 async function askNomineeRel(){
@@ -978,7 +978,7 @@ async function askNomineeRel(){
   </div>`);
 }
 async function setNomineeRel(rel){
-  clearWidget(); sayMine(rel);
+  clearWidget(); sayMine(rel, history.length-1);
   S.nominee.relationship=rel; S.nominee.share=100; S.nominee.idNumber='';
   enterStep(askBankOptional);
 }
@@ -987,7 +987,7 @@ async function askBankOptional(){
   showWidget(`<div class="chiprow"><button class="chip" onclick="bankYes()">Add bank details</button><button class="chip" onclick="skipStep('bank')">Skip</button></div>`);
 }
 async function bankYes(){
-  clearWidget(); sayMine('Add bank details');
+  clearWidget(); sayMine('Add bank details', history.length-1);
   await sayTheirs('Bank name, and account number?');
   showWidget(`
     <div class="textfield-row" style="margin-bottom:.55rem"><input type="text" id="wBankName" placeholder="e.g. Maybank, CIMB, RHB"></div>
@@ -998,7 +998,7 @@ async function confirmBank(){
   const name=document.getElementById('wBankName').value.trim();
   const acc=document.getElementById('wBankAcc').value.trim();
   S.bank={bankName:name, bankAccountNumber:acc};
-  clearWidget(); sayMine(`${name}${acc?' · '+acc:''}`);
+  clearWidget(); sayMine(`${name}${acc?' · '+acc:''}`, history.length-1);
   enterStep(askPaymentMethod);
 }
 
@@ -1014,7 +1014,7 @@ async function askPaymentMethod(){
 async function pickPayment(method){
   S.payMethod=method; clearWidget();
   const labels={duitnow:'DuitNow QR', tng:"Touch 'n Go", bank:'Bank Transfer'};
-  sayMine(labels[method]);
+  sayMine(labels[method], history.length-1);
   const insts={
     duitnow:'Scan this QR code with your banking app, then upload your receipt below.<br><img src="/duitnow-qr.png" style="max-width:200px;border-radius:12px;margin-top:.5rem" alt="DuitNow QR">',
     tng:"Transfer to <strong>012 612 3540</strong> (Lee Mou Yen) via Touch 'n Go, then upload your receipt below.",
@@ -1041,7 +1041,7 @@ function onFileChosen(){
 async function confirmSlip(){
   const f=document.getElementById('wFile').files[0];
   S.paymentSlip=f;
-  clearWidget(); sayMine(`Uploaded: ${f.name}`);
+  clearWidget(); sayMine(`Uploaded: ${f.name}`, history.length-1);
   enterStep(askDeclaration);
 }
 
