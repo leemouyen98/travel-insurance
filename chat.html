@@ -145,7 +145,7 @@ body{
 .typing span:nth-child(2){animation-delay:.15s}
 .typing span:nth-child(3){animation-delay:.3s}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-3px);opacity:.9}}
-@media(prefers-reduced-motion:reduce){.typing span{animation:none;opacity:.7}.row{animation:none}.optcard{animation:none}}
+@media(prefers-reduced-motion:reduce){.typing span{animation:none;opacity:.7}.row{animation:none}.optcard,.chip,.plancard{animation:none}}
 
 /* ── Widgets ── */
 .widget{padding:.15rem .1rem .2rem;display:flex;flex-direction:column;gap:.6rem}
@@ -154,6 +154,7 @@ body{
   font-family:'Figtree',sans-serif;font-size:.85rem;font-weight:500;padding:.5rem .95rem;
   border-radius:20px;border:1.5px solid rgba(238,241,231,.18);color:var(--text);
   background:var(--ink-2);cursor:pointer;transition:all .15s ease;
+  animation:cardSlideIn .38s ease both;
 }
 .chip:hover{border-color:var(--brass)}
 .chip .sub{display:block;font-size:.68rem;color:var(--text-faint);margin-top:1px;font-weight:400}
@@ -165,10 +166,13 @@ body{
   padding:.75rem .9rem;cursor:pointer;transition:all .15s ease;
   animation:cardSlideIn .38s ease both;
 }
-.optcard:nth-child(1){animation-delay:0s}
-.optcard:nth-child(2){animation-delay:.09s}
-.optcard:nth-child(3){animation-delay:.18s}
-.optcard:nth-child(4){animation-delay:.27s}
+/* Shared staggered entrance for every selectable option — area cards, chips, plan cards —
+   so picking your way through the chat reads as one consistent, elegant rhythm. */
+.optcard:nth-child(1),.chip:nth-child(1),.plancard:nth-child(1){animation-delay:0s}
+.optcard:nth-child(2),.chip:nth-child(2),.plancard:nth-child(2){animation-delay:.09s}
+.optcard:nth-child(3),.chip:nth-child(3),.plancard:nth-child(3){animation-delay:.18s}
+.optcard:nth-child(4),.chip:nth-child(4),.plancard:nth-child(4){animation-delay:.27s}
+.chip:nth-child(5){animation-delay:.36s}
 @keyframes cardSlideIn{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
 .optcard:hover{border-color:var(--brass)}
 .optcard:focus-visible,.plancard:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
@@ -228,6 +232,7 @@ body{
 .plancard{
   background:var(--ink-2);border:1.5px solid var(--line);border-radius:var(--r);
   padding:.85rem .95rem;cursor:pointer;transition:all .15s ease;
+  animation:cardSlideIn .38s ease both;
 }
 .plancard:hover{border-color:var(--brass)}
 .plancard.sel{border-color:var(--wa)}
@@ -511,6 +516,7 @@ function onOptKey(e){
 }
 
 let suppressAsk=false;
+function sleep(ms){ return suppressAsk ? Promise.resolve() : new Promise(resolve=>setTimeout(resolve, ms)); }
 // Typing delay scales with how much there is to "type", instead of one fixed
 // duration for every message regardless of length. Floored so short messages
 // still read as a deliberate pause rather than a flicker, and capped so a
@@ -650,7 +656,8 @@ function startOver(){
 async function start(){ enterStep(askArea); }
 
 async function askArea(){
-  await sayTheirs("Hi! I'm Henry, I'll get you a quote in under a minute. Where are you headed?", 700);
+  await sayTheirs("👋🏻 Hi! I'm Henry Lee's AI Assistant. I'll get you a quote in under a minute. Where are you headed?", 700);
+  await sleep(600);
   showWidget(`
     <div class="optcards">
       <div class="optcard" role="button" tabindex="0" onclick="pickArea('D')" onkeydown="onOptKey(event)">
@@ -761,7 +768,8 @@ async function askAdults(){
   S.adults = Math.min(S.adults, max);
   const isFamily = S.policyType==='family';
   if (!isFamily && S.seniors==null) S.seniors=0;
-  await sayTheirs(isFamily ? 'How many adults (parent or legal guardian, aged 18–70), including you?' : 'How many adults and seniors will be covered, including you?');
+  if (isFamily && S.children==null) S.children=0;
+  await sayTheirs(isFamily ? 'How many adults (parent or legal guardian, aged 18–70) and children (30 days–23 years), including you?' : 'How many adults and seniors will be covered, including you?');
   const seniorsCard = isFamily ? '' : `
     <div class="stepper-card" style="margin-top:.5rem">
       <div><div class="stepper-name">Seniors</div><div class="stepper-desc">Age 71 – 85</div></div>
@@ -769,6 +777,15 @@ async function askAdults(){
         <button class="stp-btn" id="sMinus" onclick="adjStep('seniors',-1,10)" ${S.seniors<=0?'disabled':''}>−</button>
         <span class="stp-val" id="sVal">${S.seniors}</span>
         <button class="stp-btn" onclick="adjStep('seniors',1,10)">+</button>
+      </div>
+    </div>`;
+  const childrenCard = !isFamily ? '' : `
+    <div class="stepper-card" style="margin-top:.5rem">
+      <div><div class="stepper-name">Children</div><div class="stepper-desc">Age 30 days – 23 years</div></div>
+      <div class="stepper-ctrl">
+        <button class="stp-btn" id="cMinus" onclick="adjStep('children',-1,10)" ${S.children<=0?'disabled':''}>−</button>
+        <span class="stp-val" id="cVal">${S.children}</span>
+        <button class="stp-btn" onclick="adjStep('children',1,10)">+</button>
       </div>
     </div>`;
   showWidget(`
@@ -781,6 +798,7 @@ async function askAdults(){
       </div>
     </div>
     ${seniorsCard}
+    ${childrenCard}
     <div class="send-row"><button class="send-btn" onclick="confirmAdults()">→</button></div>`);
 }
 function adjStep(key,d,max){
@@ -795,31 +813,12 @@ function adjStep(key,d,max){
 async function confirmAdults(){
   clearWidget();
   if (S.policyType==='family'){
-    sayMine(`${S.adults} adult${S.adults>1?'s':''}`, history.length-1);
-    enterStep(askChildren);
+    const parts=[`${S.adults} adult${S.adults>1?'s':''}`, S.children>0 ? `${S.children} child${S.children>1?'ren':''}` : 'no children'];
+    sayMine(parts.join(', '), history.length-1);
   } else {
     const parts=[`${S.adults} adult${S.adults>1?'s':''}`, S.seniors>0 ? `${S.seniors} senior${S.seniors>1?'s':''}` : 'no seniors'];
     sayMine(parts.join(', '), history.length-1);
-    enterStep(showPlans);
   }
-}
-async function askChildren(){
-  if (S.children==null) S.children=0;
-  await sayTheirs('Any children with you (30 days–23 years)? Family cover includes any number of children.');
-  showWidget(`
-    <div class="stepper-card">
-      <div><div class="stepper-name">Children</div><div class="stepper-desc">Age 30 days – 23 years</div></div>
-      <div class="stepper-ctrl">
-        <button class="stp-btn" id="cMinus" onclick="adjStep('children',-1,10)" ${S.children<=0?'disabled':''}>−</button>
-        <span class="stp-val" id="cVal">${S.children}</span>
-        <button class="stp-btn" onclick="adjStep('children',1,10)">+</button>
-      </div>
-    </div>
-    <div class="send-row"><button class="send-btn" onclick="confirmChildren()">→</button></div>`);
-}
-async function confirmChildren(){
-  clearWidget();
-  sayMine(S.children>0 ? `${S.children} child${S.children>1?'ren':''}` : 'No children', history.length-1);
   enterStep(showPlans);
 }
 
