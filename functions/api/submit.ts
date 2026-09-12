@@ -366,9 +366,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       row("Slip",   hasSlip ? "✓ Attached" : "Not provided"),
     ].join("");
 
-    // ── Travellers (each with their nominees and bank details) ─────────────
+    // ── Travellers (each with their nominees) ───────────────────────────────
     const allNominees: Array<Record<string, string | number>> = payload.nominees || [];
-    const allBankDetails: Array<Record<string, string>> = payload.bankDetails || [];
 
     const travellerRows = (payload.insuredTravellers as Array<Record<string, string>>)
       .map((traveller, index) => {
@@ -379,17 +378,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         const dob = submittedDob || (nationality === "MY" && traveller.idNumber
           ? dobFromNric(String(traveller.idNumber))
           : "");
-
-        const travellerBanks = allBankDetails.filter(
-          b => String(b.travellerIndex) === String(index) || b.travellerName === displayName
-        );
-        const bankBlock = travellerBanks.map(bank => `
-          ${sectionHeader(`Bank — ${displayName || `Traveller ${index + 1}`}`)}
-          ${[
-            row("Bank",           String(bank.bankName || "—")),
-            row("Account Number", String(bank.bankAccountNumber || "—")),
-          ].join("")}
-        `).join("");
 
         const travellerNominees = allNominees.filter(
           n => String(n.travellerIndex) === String(index)
@@ -427,7 +415,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             ...(traveller.occupation ? [row("Occupation", String(traveller.occupation))] : []),
             ...(traveller.address    ? [row("Address",    String(traveller.address))]    : []),
           ].join("")}
-          ${bankBlock}
           ${nomineeBlock}
         `;
       })

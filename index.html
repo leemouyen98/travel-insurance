@@ -930,15 +930,6 @@ body::before{
       </div>
     </div>
 
-    <div class="accordion" id="accBank">
-      <div class="acc-head" onclick="togAcc('accBank')">
-        <span class="acc-title">🏦 Bank Details <span class="opt-tag">For claim payout</span></span>
-        <span class="acc-arrow">▾</span>
-      </div>
-      <div class="acc-body">
-        <div id="bankContainer"></div>
-      </div>
-    </div>
   </div>
 
   <div class="nav-btns">
@@ -1148,7 +1139,7 @@ function goStep(n){
   document.getElementById('step-'+cur).classList.add('active');
   updateDots();
   if(n===2)renderPlans();
-  if(n===3){renderTravBlocks();renderNomineeSections();renderBankSections();}
+  if(n===3){renderTravBlocks();renderNomineeSections();}
   if(n===4){renderReview();if(!wizardTurnstileRendered)renderWizardTurnstile();}
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -1177,6 +1168,16 @@ function validateStep(n){
     if(S.tripType==='single'&&S.days<1){alert('Return date must be after departure date.');return false;}
     if(S.tripType==='single'&&S.days>180){alert('Trip length exceeds the maximum 180 consecutive days covered under this Policy. Please WhatsApp Henry for a custom arrangement.');return false;}
     if(S.tripType==='annual'&&!S.annualStart){alert('Please select a policy start date for the Annual plan.');return false;}
+  }
+  if(n===3){
+    const missingNric=[];
+    document.querySelectorAll('#nomineeContainer .nom-block').forEach(block=>{
+      const nid=block.id.replace('nom-block-','');
+      const name=document.getElementById(`nom-name-${nid}`)?.value?.trim();
+      const nric=document.getElementById(`nom-nric-${nid}`)?.value?.trim();
+      if(name&&!nric)missingNric.push(name);
+    });
+    if(missingNric.length){alert(`Please enter NRIC for nominee: ${missingNric.join(', ')}`);return false;}
   }
   return true;
 }
@@ -1775,9 +1776,6 @@ function syncTravName(id, ti) {
   // Update nominee section header (only visible when multiple travellers)
   const nomHeader = document.getElementById(`nom-header-${ti}`);
   if (nomHeader) nomHeader.textContent = name || `Traveller ${ti + 1}`;
-  // Update bank section header
-  const bankHeader = document.getElementById(`bank-header-${ti}`);
-  if (bankHeader) bankHeader.textContent = name || `Traveller ${ti + 1}`;
 }
 
 // ═══════════ FOR OTHER TOGGLE ═══════════
@@ -1906,53 +1904,6 @@ function renderNomineeSections() {
     `;
     container.appendChild(sec);
   });
-}
-
-function renderBankSections() {
-  const container = document.getElementById('bankContainer');
-  if (!container) return;
-  const travellers = getTravellerList();
-  const total = travellers.length;
-
-  const existing = container.querySelectorAll('.bank-section');
-  if (existing.length === total) return;
-
-  container.innerHTML = '';
-  travellers.forEach(t => {
-    const sec = document.createElement('div');
-    sec.className = 'bank-section';
-    sec.dataset.ti = t.index;
-    sec.innerHTML = `
-      ${total > 1 ? `<div class="nominee-section-header" id="bank-header-${t.index}">${t.label}</div>` : ''}
-      <div class="field"><label class="label">Bank Name</label>
-        <input type="text" class="input" id="bank-name-${t.index}" placeholder="e.g. Maybank, CIMB, RHB…">
-      </div>
-      <div class="field" style="margin-bottom:${t.index < total - 1 ? '1.25rem' : '0'}">
-        <label class="label">Account Number</label>
-        <input type="text" class="input" id="bank-acc-${t.index}" placeholder="Account number">
-      </div>
-    `;
-    container.appendChild(sec);
-  });
-}
-
-function collectBankDetails() {
-  const travellers = getTravellerList();
-  const result = [];
-  document.querySelectorAll('#bankContainer .bank-section').forEach(sec => {
-    const ti = parseInt(sec.dataset.ti);
-    const bankName = document.getElementById(`bank-name-${ti}`)?.value?.trim() || '';
-    if (!bankName) return;
-    const trav = travellers.find(t => t.index === ti);
-    result.push({
-      travellerIndex: ti,
-      travellerName: document.getElementById(`name-${trav?.id}`)?.value?.trim() || trav?.label || '',
-      bankName,
-      bankAccountNumber: document.getElementById(`bank-acc-${ti}`)?.value || '',
-      bankAccountType: 'Savings'
-    });
-  });
-  return result;
 }
 
 function addNominee(ti) {
@@ -2168,8 +2119,6 @@ async function doSubmit(){
 
   const nominees=collectNominees();
 
-  const bankDetails=collectBankDetails();
-
   const payload={
     source:'wizard',
     proposer:{
@@ -2200,7 +2149,6 @@ async function doSubmit(){
     paymentMethod:S.payMethod,
     insuredTravellers:travellers,
     nominees,
-    bankDetails,
     flights
   };
 

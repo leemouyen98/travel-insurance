@@ -198,6 +198,15 @@ body{
   font-size:.95rem;outline:none;padding:.15rem 0;min-height:1.5rem;
 }
 .datefield input::-webkit-calendar-picker-indicator{filter:invert(.6);cursor:pointer}
+.datefield select{
+  width:100%;background:var(--ink-2);border:none;color:var(--text);font-family:inherit;
+  font-size:.95rem;outline:none;padding:.15rem 0;min-height:1.5rem;
+}
+.datefield select option{background:var(--ink-2);color:var(--text)}
+.datefield textarea{
+  width:100%;background:transparent;border:none;color:var(--text);font-family:inherit;
+  font-size:.95rem;outline:none;padding:.15rem 0;resize:none;min-height:2.6rem;
+}
 
 .send-row{display:flex;justify-content:flex-end}
 .send-btn{
@@ -463,8 +472,16 @@ function onOptKey(e){
 }
 
 let suppressAsk=false;
-function sayTheirs(html, delay=150){
+// Typing delay scales with how much there is to "type", instead of one fixed
+// duration for every message regardless of length. Capped so a long passage
+// (e.g. the declaration) still doesn't drag.
+function typingDelayFor(html){
+  const text=html.replace(/<[^>]*>/g,'');
+  return Math.min(600, Math.max(80, text.length*4));
+}
+function sayTheirs(html, delay){
   if (suppressAsk) return Promise.resolve();
+  const ms = delay!=null ? delay : typingDelayFor(html);
   return new Promise(resolve=>{
     const typingRow=document.createElement('div');
     typingRow.className='row theirs';
@@ -477,7 +494,7 @@ function sayTheirs(html, delay=150){
       thread.appendChild(row); scrollDown();
       if (currentCp) currentCp.askedLen = thread.children.length;
       resolve();
-    }, delay);
+    }, ms);
   });
 }
 function sayMine(html, editIdx){
@@ -593,7 +610,7 @@ function startOver(){
 async function start(){ enterStep(askArea); }
 
 async function askArea(){
-  await sayTheirs("Hi! I'm Henry, I'll get you a quote in under a minute. Where are you headed?");
+  await sayTheirs("Hi! I'm Henry, I'll get you a quote in under a minute. Where are you headed?", 700);
   showWidget(`
     <div class="optcards">
       <div class="optcard" role="button" tabindex="0" onclick="pickArea('D')" onkeydown="onOptKey(event)">
@@ -949,33 +966,37 @@ async function setGender(g){
 function nextTravellerOrContinue(){
   curT++;
   if (curT < travellers.length) enterStep(askTravellerName);
-  else enterStep(askEmail);
+  else enterStep(askContactDetails);
 }
 
 // ═══════════ CONTACT & UNDERWRITING ═══════════
-async function askEmail(){
-  await sayTheirs("What's the best email for your policy documents?");
-  showTextWidget({placeholder:'name@email.com', type:'email', validate:v=>/^\S+@\S+\.\S+$/.test(v), value:S.email, onSend:(v)=>{
-    S.email=v.trim(); clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askMobile);
-  }});
+async function askContactDetails(){
+  await sayTheirs("A few contact details for your policy documents and underwriting, all in one go:");
+  showWidget(`
+    <div class="datefield" style="margin-bottom:.55rem"><label>Email</label><input type="email" id="cdEmail" placeholder="name@email.com" value="${S.email||''}"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>Mobile Number</label><input type="tel" id="cdMobile" placeholder="012 345 6789" value="${S.mobile||''}"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>Home Address</label><textarea id="cdAddress" placeholder="Street, city, postcode, state">${S.address||''}</textarea></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>Occupation</label><input type="text" id="cdOccupation" placeholder="e.g. Engineer, Business Owner, Teacher" value="${S.occupation||''}"></div>
+    <div class="widget-hint">High-risk occupations may affect coverage terms.</div>
+    <div class="send-row"><button class="send-btn" id="contactSend" disabled onclick="confirmContactDetails()">→</button></div>`);
+  ['cdEmail','cdMobile','cdAddress','cdOccupation'].forEach(id=>document.getElementById(id).addEventListener('input', onContactInput));
+  onContactInput();
 }
-async function askMobile(){
-  await sayTheirs('And a mobile number?');
-  showTextWidget({placeholder:'012 345 6789', type:'tel', value:S.mobile, onSend:(v)=>{
-    S.mobile=v.trim(); clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askAddress);
-  }});
+function onContactInput(){
+  const email=document.getElementById('cdEmail').value.trim();
+  const mobile=document.getElementById('cdMobile').value.trim();
+  const address=document.getElementById('cdAddress').value.trim();
+  const occupation=document.getElementById('cdOccupation').value.trim();
+  document.getElementById('contactSend').disabled = !(/^\S+@\S+\.\S+$/.test(email) && mobile && address && occupation);
 }
-async function askAddress(){
-  await sayTheirs('Your home address?');
-  showTextWidget({placeholder:'Street, city, postcode, state', multiline:true, value:S.address, onSend:(v)=>{
-    S.address=v.trim(); clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askOccupation);
-  }});
-}
-async function askOccupation(){
-  await sayTheirs('Last one for underwriting: what do you do for work? High-risk occupations may affect coverage terms.');
-  showTextWidget({placeholder:'e.g. Engineer, Business Owner, Teacher', value:S.occupation, onSend:(v)=>{
-    S.occupation=v.trim(); clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askFlightOptional);
-  }});
+function confirmContactDetails(){
+  S.email=document.getElementById('cdEmail').value.trim();
+  S.mobile=document.getElementById('cdMobile').value.trim();
+  S.address=document.getElementById('cdAddress').value.trim();
+  S.occupation=document.getElementById('cdOccupation').value.trim();
+  clearWidget();
+  sayMine(`${S.email}<br>${S.mobile}<br>${S.address}<br>${S.occupation}`, history.length-1);
+  enterStep(askFlightOptional);
 }
 
 // ═══════════ OPTIONAL EXTRAS ═══════════
@@ -1003,8 +1024,7 @@ async function confirmFlight(){
 function skipStep(which){
   clearWidget(); sayMine('Skip', history.length-1);
   if (which==='flight') enterStep(askNomineeOptional);
-  else if (which==='nominee') enterStep(askBankOptional);
-  else if (which==='bank') enterStep(askPaymentMethod);
+  else if (which==='nominee') enterStep(askPaymentMethod);
 }
 async function askNomineeOptional(){
   await sayTheirs('Add a nominee for claim payout? Optional.');
@@ -1012,56 +1032,34 @@ async function askNomineeOptional(){
 }
 async function nomineeYes(){
   clearWidget(); sayMine('Add nominee', history.length-1);
-  await sayTheirs("Nominee's full name?");
-  showTextWidget({placeholder:'Full name', onSend:(v)=>{
-    S.nominee={name:v.trim()}; clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askNomineeNRIC);
-  }});
-}
-async function askNomineeNRIC(){
-  await sayTheirs("Nominee's NRIC number? Optional, leave blank if you don't have it.");
-  showTextWidget({
-    placeholder:'000000-00-0000', maxlength:14, format:fmtNRICStr,
-    validate:()=>true,
-    value:S.nominee?.idNumber,
-    onSend:(v)=>{
-      S.nominee.idNumber=v.trim();
-      clearWidget(); sayMine(v.trim() || 'Skip', history.length-1);
-      enterStep(askNomineeRel);
-    }
-  });
-}
-async function askNomineeRel(){
-  await sayTheirs('Relationship to the nominee?');
-  showWidget(`<div class="chiprow">
-    <button class="chip" onclick="setNomineeRel('Spouse')">Spouse</button>
-    <button class="chip" onclick="setNomineeRel('Parent')">Parent</button>
-    <button class="chip" onclick="setNomineeRel('Child')">Child</button>
-    <button class="chip" onclick="setNomineeRel('Sibling')">Sibling</button>
-    <button class="chip" onclick="setNomineeRel('Other')">Other</button>
-  </div>`);
-}
-async function setNomineeRel(rel){
-  clearWidget(); sayMine(rel, history.length-1);
-  S.nominee.relationship=rel; S.nominee.share=100;
-  enterStep(askBankOptional);
-}
-async function askBankOptional(){
-  await sayTheirs('Add bank details for claim payout? Optional.');
-  showWidget(`<div class="chiprow"><button class="chip" onclick="bankYes()">Add bank details</button><button class="chip" onclick="skipStep('bank')">Skip</button></div>`);
-}
-async function bankYes(){
-  clearWidget(); sayMine('Add bank details', history.length-1);
-  await sayTheirs('Bank name, and account number?');
+  await sayTheirs("Nominee's full name, NRIC, and relationship to you:");
   showWidget(`
-    <div class="textfield-row" style="margin-bottom:.55rem"><input type="text" id="wBankName" placeholder="e.g. Maybank, CIMB, RHB"></div>
-    <div class="textfield-row"><input type="text" id="wBankAcc" placeholder="Account number"></div>
-    <div class="send-row"><button class="send-btn" onclick="confirmBank()">→</button></div>`);
+    <div class="datefield" style="margin-bottom:.55rem"><label>Full Name</label><input type="text" id="nomName" placeholder="Full name"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>NRIC</label><input type="text" id="nomNRIC" placeholder="000000-00-0000" maxlength="14"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>Relationship</label>
+      <select id="nomRel">
+        <option value="">Select…</option>
+        <option>Spouse</option><option>Parent</option><option>Child</option><option>Sibling</option><option>Other</option>
+      </select>
+    </div>
+    <div class="send-row"><button class="send-btn" id="nomineeSend" disabled onclick="confirmNominee()">→</button></div>`);
+  document.getElementById('nomName').addEventListener('input', onNomineeInput);
+  document.getElementById('nomNRIC').addEventListener('input', e=>{ e.target.value=fmtNRICStr(e.target.value); onNomineeInput(); });
+  document.getElementById('nomRel').addEventListener('change', onNomineeInput);
 }
-async function confirmBank(){
-  const name=document.getElementById('wBankName').value.trim();
-  const acc=document.getElementById('wBankAcc').value.trim();
-  S.bank={bankName:name, bankAccountNumber:acc};
-  clearWidget(); sayMine(`${name}${acc?' · '+acc:''}`, history.length-1);
+function onNomineeInput(){
+  const name=document.getElementById('nomName').value.trim();
+  const nric=document.getElementById('nomNRIC').value.replace(/\D/g,'');
+  const rel=document.getElementById('nomRel').value;
+  document.getElementById('nomineeSend').disabled = !(name && nric.length===12 && rel);
+}
+function confirmNominee(){
+  const name=document.getElementById('nomName').value.trim();
+  const idNumber=document.getElementById('nomNRIC').value.trim();
+  const relationship=document.getElementById('nomRel').value;
+  S.nominee={name, idNumber, relationship, share:100};
+  clearWidget();
+  sayMine(`${name}<br>${idNumber}<br>${relationship}`, history.length-1);
   enterStep(askPaymentMethod);
 }
 
@@ -1163,7 +1161,6 @@ function buildPayload(){
     paymentMethod:S.payMethod,
     insuredTravellers:travellersOut,
     nominees: S.nominee ? [{travellerIndex:0, name:S.nominee.name, idNumber:S.nominee.idNumber||'', relationship:S.nominee.relationship, share:S.nominee.share}] : [],
-    bankDetails: S.bank ? [{travellerIndex:0, travellerName:travellerData[0]?.fullName||'', bankName:S.bank.bankName, bankAccountNumber:S.bank.bankAccountNumber, bankAccountType:'Savings'}] : [],
     flights: S.flight ? [S.flight] : []
   };
 }
