@@ -538,7 +538,11 @@ function sayTheirs(html, delay){
       const row=document.createElement('div'); row.className='row theirs';
       row.innerHTML=`<div class="bubble">${html}</div>`;
       thread.appendChild(row); scrollDown();
-      if (currentCp) currentCp.askedLen = thread.children.length;
+      // Only the checkpoint's own opening question should move the edit/undo boundary.
+      // Some steps (e.g. payment instructions after picking a method) say something else
+      // to the same checkpoint afterward — that must not swallow the answer already given,
+      // or the edit pencil on that answer can no longer undo it cleanly.
+      if (currentCp && currentCp.askedLen===currentCp.threadLen) currentCp.askedLen = thread.children.length;
       resolve();
     }, ms);
   });
