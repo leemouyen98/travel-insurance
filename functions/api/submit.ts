@@ -104,7 +104,8 @@ const COVERAGE_AREA_LABELS: Record<string, string> = {
 const PLAN_LABELS: Record<string, string> = {
   basic: "Basic Plan",
   essential: "Essential Plan",
-  deluxe: "Deluxe Plan"
+  deluxe: "Deluxe Plan",
+  domestic: "Domestic Plan"
 };
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {

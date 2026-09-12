@@ -112,9 +112,9 @@ body{
 }
 .chat-head-name{font-weight:700;font-size:.95rem}
 .beta-badge{
-  display:inline-block;margin-left:.4rem;font-family:'Space Mono',monospace;font-size:.58rem;
-  letter-spacing:.06em;font-weight:700;color:var(--brass);border:1px solid var(--brass-deep);
-  border-radius:5px;padding:1px 5px;vertical-align:middle;
+  display:inline-block;margin-left:.4rem;font-size:.62rem;
+  letter-spacing:.02em;font-weight:600;color:var(--brass);background:rgba(203,154,68,.14);
+  border-radius:999px;padding:2px 8px;vertical-align:middle;
 }
 .chat-head-sub{font-size:.72rem;color:var(--text-faint);margin-top:1px}
 .chat-head-sub .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--wa);margin-right:5px;vertical-align:middle}
@@ -145,7 +145,7 @@ body{
 .typing span:nth-child(2){animation-delay:.15s}
 .typing span:nth-child(3){animation-delay:.3s}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-3px);opacity:.9}}
-@media(prefers-reduced-motion:reduce){.typing span{animation:none;opacity:.7}.row{animation:none}}
+@media(prefers-reduced-motion:reduce){.typing span{animation:none;opacity:.7}.row{animation:none}.optcard{animation:none}}
 
 /* ── Widgets ── */
 .widget{padding:.15rem .1rem .2rem;display:flex;flex-direction:column;gap:.6rem}
@@ -163,7 +163,13 @@ body{
 .optcard{
   background:var(--ink-2);border:1.5px solid var(--line);border-radius:var(--r);
   padding:.75rem .9rem;cursor:pointer;transition:all .15s ease;
+  animation:cardSlideIn .38s ease both;
 }
+.optcard:nth-child(1){animation-delay:0s}
+.optcard:nth-child(2){animation-delay:.09s}
+.optcard:nth-child(3){animation-delay:.18s}
+.optcard:nth-child(4){animation-delay:.27s}
+@keyframes cardSlideIn{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
 .optcard:hover{border-color:var(--brass)}
 .optcard:focus-visible,.plancard:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .optcard-title{font-size:.85rem;font-weight:700;color:var(--brass);letter-spacing:.02em;margin-bottom:.3rem}
@@ -292,7 +298,7 @@ body{
     <button class="back-btn" onclick="goBack()" aria-label="Back" title="Back">‹</button>
     <img class="avatar" src="/assets/henry.jpg" alt="Henry Lee">
     <div>
-      <div class="chat-head-name">Henry Lee<span class="beta-badge">Beta</span></div>
+      <div class="chat-head-name">Henry Lee<span class="beta-badge">beta</span></div>
       <div class="chat-head-sub"><span class="dot"></span>Tokio Marine · Insurance Advisor</div>
     </div>
     <div class="head-actions">
@@ -481,11 +487,12 @@ function onOptKey(e){
 
 let suppressAsk=false;
 // Typing delay scales with how much there is to "type", instead of one fixed
-// duration for every message regardless of length. Capped so a long passage
-// (e.g. the declaration) still doesn't drag.
+// duration for every message regardless of length. Floored so short messages
+// still read as a deliberate pause rather than a flicker, and capped so a
+// long passage (e.g. the declaration) doesn't drag on.
 function typingDelayFor(html){
   const text=html.replace(/<[^>]*>/g,'');
-  return Math.min(600, Math.max(80, text.length*4));
+  return Math.min(1200, Math.max(350, text.length*8));
 }
 function sayTheirs(html, delay){
   if (suppressAsk) return Promise.resolve();
@@ -794,7 +801,27 @@ async function confirmChildren(){
 async function showPlans(){
   const premiums = calcPremium(S);
   const durationNote = S.tripType==='annual' ? 'annual cover' : `${S.days} day${S.days!==1?'s':''}`;
+  const isDomestic = S.area==='D';
   await sayTheirs(`Here's what fits ${paxStr(S)} for ${durationNote} in ${AREA_LABELS[S.area]}:`);
+  if (isDomestic) {
+    showWidget(`
+      <div class="plancards">
+        <div class="plancard sel" role="radio" aria-checked="true" tabindex="0" onclick="selectPlanCard('domestic',${premiums.basic},this)" onkeydown="onOptKey(event)">
+          <div class="plancard-head"><span class="pname">Domestic Plan</span><span class="pprice">RM ${premiums.basic.toFixed(2)}</span></div>
+          <ul class="plan-feats">
+            <li><span class="fy">✓</span>RM200k Accidental Death</li>
+            <li><span class="fy">✓</span>RM50k Medical Expenses</li>
+            <li><span class="fy">✓</span>RM500k Emergency Medical Evacuation</li>
+          </ul>
+          <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('domestic',${premiums.basic})">Confirm · RM ${premiums.basic.toFixed(2)}</button>
+        </div>
+      </div>
+      <div class="note-block">
+        Domestic cover applies to accidental causes only, not illness.<br><br>
+        Want the full details? <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">View the Explorer brochure (PDF) ↗</a>
+      </div>`);
+    return;
+  }
   showWidget(`
     <div class="plancards">
       <div class="plancard" role="radio" aria-checked="false" tabindex="0" onclick="selectPlanCard('basic',${premiums.basic},this)" onkeydown="onOptKey(event)">
