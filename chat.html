@@ -184,6 +184,8 @@ body{
   border-radius:var(--r);padding:.7rem .85rem;font-size:.76rem;color:var(--text-soft);line-height:1.6;
 }
 .note-block b{color:var(--text)}
+.note-block p{margin:0}
+.note-block .note-link{display:block;margin-top:.55rem}
 
 .stepper-card{
   background:var(--ink-2);border:1px solid var(--line);border-radius:var(--r);
@@ -247,8 +249,8 @@ body{
 .plancard .pname{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint)}
 .plancard.pop .pname{color:var(--brass)}
 .plancard .pprice{font-family:'Space Mono',monospace;font-weight:700;font-size:1.05rem;color:var(--text);flex-shrink:0}
-.plan-feats{list-style:none;display:flex;flex-direction:column;gap:.22rem}
-.plan-feats li{display:flex;align-items:flex-start;gap:.4rem;font-size:.8rem;color:var(--text-soft);line-height:1.5}
+.plan-feats{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:.32rem .6rem}
+.plan-feats li{display:flex;align-items:flex-start;gap:.35rem;font-size:.74rem;color:var(--text-soft);line-height:1.4}
 .plan-feats .fy{color:var(--wa);flex-shrink:0}
 .plan-feats .fn{color:var(--text-faint);flex-shrink:0}
 
@@ -842,7 +844,7 @@ async function showPlans(){
         <div class="plancard sel" role="radio" aria-checked="true" tabindex="0" onclick="selectPlanCard('domestic',${premiums.basic},this)" onkeydown="onOptKey(event)">
           <div class="plancard-head"><span class="pname">Domestic Plan</span><span class="pprice">RM ${premiums.basic.toFixed(2)}</span></div>
           <ul class="plan-feats">
-            <li><span class="fy">✓</span>RM200k Accidental Death</li>
+            <li><span class="fy">✓</span>RM200k PA Cover</li>
             <li><span class="fy">✓</span>RM50k Medical Expenses</li>
             <li><span class="fy">✓</span>RM500k Emergency Medical Evacuation</li>
           </ul>
@@ -850,7 +852,8 @@ async function showPlans(){
         </div>
       </div>
       <div class="note-block">
-        Domestic cover applies to accidental causes only, not illness — want the full details? <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">View the Explorer brochure (PDF) ↗</a>
+        <p>Domestic cover applies to accidental causes only, not illness.</p>
+        <p class="note-link">T&amp;C applied. <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">Refer Explorer brochure ↗</a></p>
       </div>`);
     return;
   }
@@ -859,38 +862,42 @@ async function showPlans(){
       <div class="plancard" role="radio" aria-checked="false" tabindex="0" onclick="selectPlanCard('basic',${premiums.basic},this)" onkeydown="onOptKey(event)">
         <div class="plancard-head"><span class="pname">Basic</span><span class="pprice">RM ${premiums.basic.toFixed(2)}</span></div>
         <ul class="plan-feats">
-          <li><span class="fy">✓</span>RM350k Accidental Death</li>
+          <li><span class="fy">✓</span>RM350k PA Cover</li>
           <li><span class="fy">✓</span>RM750k Medical Expenses</li>
           <li><span class="fn">✗</span>Lounge Access</li>
           <li><span class="fn">✗</span>CFAR Cover</li>
+          <li><span class="fn">✗</span>Extreme Activities</li>
         </ul>
         <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('basic',${premiums.basic})">Confirm Basic · RM ${premiums.basic.toFixed(2)}</button>
       </div>
       <div class="plancard pop" role="radio" aria-checked="false" tabindex="0" onclick="selectPlanCard('essential',${premiums.essential},this)" onkeydown="onOptKey(event)">
         <div class="plancard-head"><span class="pname">Essential · Popular</span><span class="pprice">RM ${premiums.essential.toFixed(2)}</span></div>
         <ul class="plan-feats">
-          <li><span class="fy">✓</span>RM550k Accidental Death</li>
+          <li><span class="fy">✓</span>RM550k PA Cover</li>
           <li><span class="fy">✓</span>RM1M Medical Expenses</li>
           <li><span class="fy">✓</span>Lounge Access included</li>
           <li><span class="fn">✗</span>CFAR Cover</li>
+          <li><span class="fn">✗</span>Extreme Activities</li>
         </ul>
         <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('essential',${premiums.essential})">Confirm Essential · RM ${premiums.essential.toFixed(2)}</button>
       </div>
       <div class="plancard" role="radio" aria-checked="false" tabindex="0" onclick="selectPlanCard('deluxe',${premiums.deluxe},this)" onkeydown="onOptKey(event)">
         <div class="plancard-head"><span class="pname">Deluxe · Best cover</span><span class="pprice">RM ${premiums.deluxe.toFixed(2)}</span></div>
         <ul class="plan-feats">
-          <li><span class="fy">✓</span>RM550k Accidental Death</li>
+          <li><span class="fy">✓</span>RM550k PA Cover</li>
           <li><span class="fy">✓</span>RM1M Medical Expenses</li>
           <li><span class="fy">✓</span>Lounge Access included</li>
           <li><span class="fy">✓</span>CFAR up to RM5,000</li>
+          <li><span class="fy">✓</span>Extreme Activities included</li>
         </ul>
         <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('deluxe',${premiums.deluxe})">Confirm Deluxe · RM ${premiums.deluxe.toFixed(2)}</button>
       </div>
     </div>
     <div class="note-block">
-      <b>Lounge access:</b> a complimentary Mastercard airport lounge pass if your flight's delayed. Included on Essential &amp; Deluxe.<br><br>
-      <b>CFAR</b> (Cancel for Any Reason): get 75% of your flight/accommodation costs back (up to RM5,000) if you cancel for any reason. Deluxe only, and only valid if bought within 14 days of booking your trip.<br><br>
-      Want the full details? <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">View the Explorer brochure (PDF) ↗</a>
+      <p><b>Lounge Access:</b> a complimentary Mastercard airport lounge pass if your flight's delayed.</p>
+      <p><b>CFAR</b> (Cancel For Any Reason): recover 75% of flight &amp; accommodation expenses, up to RM5,000. <a href="/assets/Explorer.pdf#page=8" target="_blank" rel="noopener" style="color:var(--brass)">See example ↗</a></p>
+      <p><b>Extreme Activities:</b> scuba diving, skiing &amp; similar.</p>
+      <p class="note-link">T&amp;C applied. <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">Refer Explorer brochure ↗</a></p>
     </div>`);
 }
 // Selecting a card just highlights it and reveals its own Confirm button —
