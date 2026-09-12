@@ -274,7 +274,12 @@ body{
 .ticket-row+.ticket-row{border-top:1px dashed rgba(138,100,32,.2)}
 .ticket-row span:first-child{color:var(--text-faint);letter-spacing:.03em}
 .ticket-row span:last-child{font-weight:700;text-align:right}
-.ticket-ref{color:var(--brass-deep)}
+.ticket-breakdown{margin-top:.55rem;padding-top:.5rem;border-top:1px solid rgba(138,100,32,.3)}
+.ticket-breakdown-label{font-family:'Space Mono',monospace;font-size:.58rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--brass-deep);margin-bottom:.15rem}
+.ticket-breakdown .ticket-row{font-size:.66rem;padding:.24rem 0}
+.ticket-row-discount span:last-child{color:var(--wa-deep)}
+.ticket-row-total{border-top:1px solid rgba(138,100,32,.3)!important;margin-top:.1rem;padding-top:.4rem!important}
+.ticket-row-total span{font-weight:700;color:var(--ink)!important;font-size:.72rem}
 
 .footer-note{padding:1.2rem .9rem 2rem;text-align:center;font-size:.7rem;color:var(--text-faint);flex-shrink:0}
 
@@ -424,7 +429,7 @@ function calcDetail(S, plan){
   const sstAmt = isDomestic ? Math.round((afterSST-base)*100)/100 : 0;
   const stampAmt = afterSST>=150 ? 10 : 0;
   const total = Math.round((afterSST+stampAmt)*100)/100;
-  return { base, discountAmt, sstAmt, stampAmt, total };
+  return { base, rawBase, discountAmt, sstAmt, stampAmt, total };
 }
 // NRIC helpers; same logic as the live site.
 function fmtNRICStr(v){
@@ -900,14 +905,20 @@ function confirmPlanSelection(plan, amount){
 
 async function pickPlan(plan, amount){
   S.plan = plan;
-  S.detail = calcDetail(S, plan);
+  const d = S.detail = calcDetail(S, plan);
   clearWidget();
   sayMine(`${plan.charAt(0).toUpperCase()+plan.slice(1)} · RM ${amount.toFixed(2)}`, history.length-1);
   await sayTheirs("Here's your quote:");
-  S.ref = 'TM-EXP-' + Math.floor(1000+Math.random()*9000);
   const dateLine = S.tripType==='annual'
     ? `${fmtDate(S.annualStart)} – ${fmtDate(S.annualEnd)}`
     : `${fmtDate(S.dateFrom)} – ${fmtDate(S.dateTo)}`;
+  const breakdownRows = [
+    `<div class="ticket-row"><span>Base Premium</span><span>RM ${d.rawBase.toFixed(2)}</span></div>`,
+    d.discountAmt>0 ? `<div class="ticket-row ticket-row-discount"><span>Group Discount (5%)</span><span>−RM ${d.discountAmt.toFixed(2)}</span></div>` : '',
+    d.sstAmt>0 ? `<div class="ticket-row"><span>Service Tax (8%)</span><span>+RM ${d.sstAmt.toFixed(2)}</span></div>` : '',
+    d.stampAmt>0 ? `<div class="ticket-row"><span>Stamp Duty</span><span>+RM ${d.stampAmt.toFixed(2)}</span></div>` : '',
+    `<div class="ticket-row ticket-row-total"><span>Total</span><span>RM ${d.total.toFixed(2)}</span></div>`
+  ].join('');
   const row=document.createElement('div'); row.className='row theirs';
   row.innerHTML=`
     <div class="ticket">
@@ -920,7 +931,10 @@ async function pickPlan(plan, amount){
         <div class="ticket-row"><span>Pax</span><span>${paxStr(S)}</span></div>
         <div class="ticket-row"><span>Area</span><span>${AREA_LABELS[S.area]}</span></div>
         <div class="ticket-row"><span>Dates</span><span>${dateLine}</span></div>
-        <div class="ticket-row"><span>Ref</span><span class="ticket-ref">${S.ref}</span></div>
+      </div>
+      <div class="ticket-breakdown">
+        <div class="ticket-breakdown-label">Premium Breakdown</div>
+        ${breakdownRows}
       </div>
     </div>`;
   thread.appendChild(row); scrollDown();
@@ -1224,7 +1238,7 @@ function buildPayload(){
     address: i===0 ? S.address : ''
   }));
   const d=S.detail;
-  const items=[{ label:`${S.plan.charAt(0).toUpperCase()+S.plan.slice(1)} Plan · ${paxStr(S)}`, value:d.base }];
+  const items=[{ label:`${S.plan.charAt(0).toUpperCase()+S.plan.slice(1)} Plan · ${paxStr(S)}`, value:d.rawBase }];
   if (d.discountAmt>0) items.push({label:'5% Group Discount', value:-d.discountAmt});
   if (d.sstAmt>0) items.push({label:'8% Service Tax', value:d.sstAmt});
   items.push({label:'Stamp Duty', value:d.stampAmt});
