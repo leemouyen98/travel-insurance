@@ -24,6 +24,7 @@
 <meta name="twitter:image" content="https://travel.henrylee.cc/assets/explorer.jpg">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -1097,7 +1098,28 @@ async function confirmSlip(){
 // ═══════════ DECLARATION & SUBMIT ═══════════
 async function askDeclaration(){
   await sayTheirs(`Almost done, please confirm:<br><br><strong>Application:</strong> Details are accurate. Cover only begins once payment is received. Henry Lee is my appointed advisor.<br><br><strong>Health:</strong> No Insured Person has, in the past 6 months, been hospitalised, given a terminal prognosis, or diagnosed with any mental illness. Pre-existing conditions aren't covered.<br><br><strong>Data (PDPA):</strong> I consent to my personal data being shared with Tokio Marine and related parties to arrange this policy.`);
-  showWidget(`<div class="chiprow"><button class="chip" onclick="agreeAndSubmit()" style="border-color:var(--wa);color:var(--wa)">I agree, submit application</button></div>`);
+  showWidget(`
+    <div class="chiprow"><button class="chip" id="agreeBtn" onclick="agreeAndSubmit()" style="border-color:var(--wa);color:var(--wa)" disabled>I agree, submit application</button></div>
+    <div id="turnstileBox" style="margin-top:.6rem"></div>`);
+  renderChatTurnstile();
+}
+function retryDeclaration(){
+  const idx=findCheckpointIdx(askDeclaration);
+  if (idx>=0) editJumpTo(idx); else askDeclaration();
+}
+
+// ═══════════ TURNSTILE (bot protection on submit) ═══════════
+const TURNSTILE_SITEKEY='0x4AAAAAAExNY-ahjB2s2iFX';
+let chatTurnstileToken='';
+function renderChatTurnstile(){
+  if(!window.turnstile){ setTimeout(renderChatTurnstile,200); return; }
+  chatTurnstileToken='';
+  turnstile.render('#turnstileBox',{
+    sitekey:TURNSTILE_SITEKEY,
+    action:'submit_application',
+    callback:(token)=>{ chatTurnstileToken=token; const btn=document.getElementById('agreeBtn'); if(btn)btn.disabled=false; },
+    'expired-callback':()=>{ chatTurnstileToken=''; const btn=document.getElementById('agreeBtn'); if(btn)btn.disabled=true; }
+  });
 }
 function buildPayload(){
   const proposerName = S.forOther ? S.policyholderName : (travellerData[0]?.fullName || '');
@@ -1132,24 +1154,26 @@ function buildPayload(){
   };
 }
 async function agreeAndSubmit(){
+  if(!chatTurnstileToken) return;
   clearWidget(); sayMine('I agree, submit application');
   await sayTheirs('Submitting…');
   const payload=buildPayload();
   const fd=new FormData();
   fd.append('submission', JSON.stringify(payload));
+  fd.append('cf-turnstile-response', chatTurnstileToken);
   if (S.paymentSlip) fd.append('paymentSlip', S.paymentSlip);
   try{
     const res=await fetch('/api/submit', {method:'POST', body:fd});
     const data=await res.json();
     if (!res.ok){
       await sayTheirs(`Something went wrong: ${data.error || 'please try again.'}`);
-      showWidget(`<div class="chiprow"><button class="chip" onclick="agreeAndSubmit()">Try again</button></div>`);
+      showWidget(`<div class="chiprow"><button class="chip" onclick="retryDeclaration()">Try again</button></div>`);
       return;
     }
     showSuccess();
   }catch(e){
     await sayTheirs('Network error, please check your connection and try again, or WhatsApp me directly.');
-    showWidget(`<div class="chiprow"><button class="chip" onclick="agreeAndSubmit()">Try again</button></div>`);
+    showWidget(`<div class="chiprow"><button class="chip" onclick="retryDeclaration()">Try again</button></div>`);
   }
 }
 async function showSuccess(){

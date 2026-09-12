@@ -27,6 +27,7 @@
 <meta name="twitter:image" content="https://travel.henrylee.cc/assets/explorer.jpg">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -1028,8 +1029,9 @@ body::before{
   <!-- Error banner -->
   <div class="err-banner" id="errBanner"></div>
 
+  <div id="turnstileBox" style="margin-bottom:1rem"></div>
   <div class="nav-btns">
-    <button class="btn-primary" id="submitBtn" onclick="doSubmit()">Submit Application</button>
+    <button class="btn-primary" id="submitBtn" onclick="doSubmit()" disabled>Submit Application</button>
     <button class="btn-back" onclick="goStep(3)">← Back</button>
   </div>
 </div>
@@ -1149,8 +1151,24 @@ function goStep(n){
   updateDots();
   if(n===2)renderPlans();
   if(n===3){renderTravBlocks();renderNomineeSections();renderBankSections();}
-  if(n===4)renderReview();
+  if(n===4){renderReview();if(!wizardTurnstileRendered)renderWizardTurnstile();}
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══════════ TURNSTILE (bot protection on submit) ═══════════
+const TURNSTILE_SITEKEY='0x4AAAAAAExNY-ahjB2s2iFX';
+let wizardTurnstileToken='';
+let wizardTurnstileWidgetId=null;
+let wizardTurnstileRendered=false;
+function renderWizardTurnstile(){
+  if(!window.turnstile){ setTimeout(renderWizardTurnstile,200); return; }
+  wizardTurnstileRendered=true;
+  wizardTurnstileWidgetId=turnstile.render('#turnstileBox',{
+    sitekey:TURNSTILE_SITEKEY,
+    action:'submit_application',
+    callback:(token)=>{ wizardTurnstileToken=token; document.getElementById('submitBtn').disabled=false; },
+    'expired-callback':()=>{ wizardTurnstileToken=''; document.getElementById('submitBtn').disabled=true; }
+  });
 }
 
 function validateStep(n){
@@ -2091,6 +2109,9 @@ async function doSubmit(){
   if(!document.getElementById('declaration').checked){
     alert('Please confirm the declaration before submitting.');return;
   }
+  if(!wizardTurnstileToken){
+    alert('Please complete the verification check before submitting.');return;
+  }
   const btn=document.getElementById('submitBtn');
   const errBanner=document.getElementById('errBanner');
   errBanner.style.display='none';
@@ -2186,6 +2207,7 @@ async function doSubmit(){
 
   const fd=new FormData();
   fd.append('submission',JSON.stringify(payload));
+  fd.append('cf-turnstile-response',wizardTurnstileToken);
   const fileInput=document.getElementById('file-input');
   if(fileInput.files&&fileInput.files[0])fd.append('paymentSlip',fileInput.files[0]);
 
@@ -2195,7 +2217,9 @@ async function doSubmit(){
     if(!res.ok){
       errBanner.textContent=data.error||'Submission failed. Please try again.';
       errBanner.style.display='block';
-      btn.textContent='Submit Application';btn.disabled=false;
+      btn.textContent='Submit Application';btn.disabled=true;
+      if(wizardTurnstileWidgetId!=null)turnstile.reset(wizardTurnstileWidgetId);
+      wizardTurnstileToken='';
       return;
     }
     // Success
@@ -2207,7 +2231,9 @@ async function doSubmit(){
   }catch(e){
     errBanner.textContent='Network error. Please check your connection and try again.';
     errBanner.style.display='block';
-    btn.textContent='Submit Application';btn.disabled=false;
+    btn.textContent='Submit Application';btn.disabled=true;
+    if(wizardTurnstileWidgetId!=null)turnstile.reset(wizardTurnstileWidgetId);
+    wizardTurnstileToken='';
   }
 }
 

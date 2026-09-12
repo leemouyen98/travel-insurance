@@ -5,6 +5,7 @@ interface Env {
   RESEND_API_KEY: string;
   NOTIFICATION_EMAIL: string;
   FROM_EMAIL: string;
+  TURNSTILE_SECRET: string;
 }
 
 const corsHeaders = {
@@ -36,6 +37,35 @@ function bytesToBase64(bytes: Uint8Array): string {
     binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK_SIZE));
   }
   return btoa(binary);
+}
+
+// ─── Turnstile ──────────────────────────────────────────────────────────────
+// Same widget, same action, embedded at the submit step on both the wizard
+// and the chat flow. Both hostnames it's registered for are listed here.
+const TURNSTILE_ACTION = "submit_application";
+const ALLOWED_TURNSTILE_HOSTNAMES = new Set(["travel.henrylee.cc", "localhost", "127.0.0.1"]);
+
+async function verifyTurnstile(token: unknown, secret: string, remoteip: string): Promise<boolean> {
+  if (typeof token !== "string" || token.length === 0 || token.length > 2048) return false;
+  let result: any;
+  try {
+    const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      signal: AbortSignal.timeout(10_000),
+      body: new URLSearchParams({ secret, response: token, remoteip }),
+    });
+    if (!r.ok) return false;
+    result = await r.json();
+  } catch {
+    // Network error or non-JSON response from siteverify — fail closed.
+    return false;
+  }
+  return (
+    result?.success === true &&
+    result?.action === TURNSTILE_ACTION &&
+    ALLOWED_TURNSTILE_HOSTNAMES.has(result?.hostname)
+  );
 }
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
@@ -210,15 +240,25 @@ export const onRequestOptions = async () =>
   new Response(null, { status: 204, headers: corsHeaders });
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
-  if (!env.RESEND_API_KEY || !env.NOTIFICATION_EMAIL || !env.FROM_EMAIL) {
+  if (!env.RESEND_API_KEY || !env.NOTIFICATION_EMAIL || !env.FROM_EMAIL || !env.TURNSTILE_SECRET) {
     return json(
-      { error: "Server misconfiguration: missing RESEND_API_KEY, NOTIFICATION_EMAIL, or FROM_EMAIL." },
+      { error: "Server misconfiguration: missing RESEND_API_KEY, NOTIFICATION_EMAIL, FROM_EMAIL, or TURNSTILE_SECRET." },
       500
     );
   }
 
   try {
     const formData = await request.formData();
+
+    const turnstileOk = await verifyTurnstile(
+      formData.get("cf-turnstile-response"),
+      env.TURNSTILE_SECRET,
+      request.headers.get("CF-Connecting-IP") || ""
+    );
+    if (!turnstileOk) {
+      return json({ error: "Verification failed. Please refresh the page and try again." }, 403);
+    }
+
     const submissionText = formData.get("submission");
 
     if (typeof submissionText !== "string") {
