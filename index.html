@@ -31,7 +31,7 @@
 {
   "@context": "https://schema.org",
   "@type": "InsuranceAgency",
-  "name": "Henry Lee — Tokio Marine Travel Insurance",
+  "name": "Henry Lee: Tokio Marine Travel Insurance",
   "url": "https://travel.henrylee.cc/",
   "image": "https://travel.henrylee.cc/assets/explorer.jpg",
   "logo": "https://travel.henrylee.cc/apple-touch-icon.png",
@@ -55,7 +55,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -68,7 +68,7 @@
   --border-light:#263a54;
   --text:#e8edf5;
   --text-2:#8da0bb;
-  --text-3:#4e6278;
+  --text-3:#7b8ba3;
   --gold:#c9953a;
   --gold-light:#e2b05a;
   --gold-dim:rgba(201,149,58,.12);
@@ -87,7 +87,7 @@ html{font-size:16px;scroll-behavior:smooth}
 body{
   background:var(--bg);
   color:var(--text);
-  font-family:'DM Sans',sans-serif;
+  font-family:'Figtree',sans-serif;
   font-weight:400;
   line-height:1.6;
   min-height:100vh;
@@ -209,6 +209,7 @@ body::before{
   border-radius:var(--r-sm);cursor:pointer;transition:all var(--ease);
 }
 .area-opt:hover{border-color:var(--border-light)}
+.area-opt:focus-visible,.plan-card:focus-visible,.pay-opt:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .area-opt.sel{border-color:var(--gold);background:var(--gold-dim)}
 .area-opt-head{display:flex;align-items:center;gap:.5rem}
 .area-opt-name{font-size:.875rem;font-weight:600;color:var(--text)}
@@ -723,22 +724,22 @@ body::before{
   <!-- Coverage Area -->
   <div class="field">
     <label class="label">Coverage Area <span class="req">*</span></label>
-    <div class="area-grid" id="areaGrid">
-      <div class="area-opt" data-area="D" onclick="selArea('D',this)">
+    <div class="area-grid" id="areaGrid" role="radiogroup" aria-label="Coverage area">
+      <div class="area-opt" data-area="D" role="radio" aria-checked="false" tabindex="0" onclick="selArea('D',this)" onkeydown="onOptKey(event)">
         <div class="area-opt-head"><span class="area-pill a-D">Domestic</span></div>
         <span class="area-opt-desc">Within Malaysia.</span>
       </div>
-      <div class="area-opt" data-area="1" onclick="selArea('1',this)">
+      <div class="area-opt" data-area="1" role="radio" aria-checked="false" tabindex="0" onclick="selArea('1',this)" onkeydown="onOptKey(event)">
         <div class="area-opt-head"><span class="area-pill a-1">Area 1</span></div>
         <span class="area-opt-desc">Australia, Bangladesh, Brunei, Cambodia, China, Hong Kong, India, Indonesia, Japan, Korea, Laos, Macau, Maldives, Mongolia, Myanmar, New Zealand, Pakistan, Philippines, Singapore, Sri Lanka, Taiwan, Thailand and Vietnam.</span>
       </div>
-      <div class="area-opt" data-area="2" onclick="selArea('2',this)">
+      <div class="area-opt" data-area="2" role="radio" aria-checked="false" tabindex="0" onclick="selArea('2',this)" onkeydown="onOptKey(event)">
         <div class="area-opt-head"><span class="area-pill a-2">Area 2</span></div>
         <span class="area-opt-desc">Worldwide excluding Malaysia, USA, Canada, Nepal and Tibet.</span>
       </div>
-      <div class="area-opt" data-area="3" onclick="selArea('3',this)">
+      <div class="area-opt" data-area="3" role="radio" aria-checked="false" tabindex="0" onclick="selArea('3',this)" onkeydown="onOptKey(event)">
         <div class="area-opt-head"><span class="area-pill a-3">Area 3</span></div>
-        <span class="area-opt-desc">Worldwide, except Malaysia — includes USA, Canada, Nepal and Tibet.</span>
+        <span class="area-opt-desc">Worldwide, except Malaysia. Includes USA, Canada, Nepal and Tibet.</span>
       </div>
     </div>
     <div class="hint">Pick the area that covers your destination. Not sure? <a href="https://wa.me/60126123540" target="_blank" rel="noopener" style="color:var(--gold)">WhatsApp Henry</a>.</div>
@@ -788,7 +789,7 @@ body::before{
   </div>
 
   <div class="nav-btns">
-    <button class="btn-primary" onclick="goStep(2)">Continue — Choose Your Plan →</button>
+    <button class="btn-primary" onclick="goStep(2)">Continue · Choose Your Plan →</button>
   </div>
 </div>
 
@@ -799,7 +800,7 @@ body::before{
     <p class="panel-sub">Prices shown are calculated for your specific trip.</p>
   </div>
 
-  <div class="plans-grid" id="plansGrid"></div>
+  <div class="plans-grid" id="plansGrid" role="radiogroup" aria-label="Plan"></div>
 
   <div class="annual-note" id="cfarNote" style="display:none">
     <strong>CFAR (Deluxe only)</strong> reimburses 75% of your flight/accommodation expenses, up to RM5,000. Only valid if this policy is purchased within <strong>14 days</strong> of booking your flight/accommodation, and if you cancel <strong>more than 48 hours</strong> before departure. Not payable if any refund or credit is recoverable from another party.
@@ -829,7 +830,7 @@ body::before{
   </div>
 
   <div class="nav-btns">
-    <button class="btn-primary" onclick="goStep(3)">Continue — Traveller Details →</button>
+    <button class="btn-primary" onclick="goStep(3)">Continue · Traveller Details →</button>
     <button class="btn-back" onclick="goStep(1)">← Back</button>
   </div>
 </div>
@@ -942,7 +943,7 @@ body::before{
   </div>
 
   <div class="nav-btns">
-    <button class="btn-primary" onclick="goStep(4)">Continue — Review & Pay →</button>
+    <button class="btn-primary" onclick="goStep(4)">Continue · Review & Pay →</button>
     <button class="btn-back" onclick="goStep(2)">← Back</button>
   </div>
 </div>
@@ -969,21 +970,21 @@ body::before{
     </div>
   </div>
 
-  <div class="issuance-note">⏱️ Once your payment is received and confirmed, your policy is typically issued via WhatsApp within 2 working hours. Cover only begins once payment is received — please review everything below carefully before submitting.</div>
+  <div class="issuance-note">⏱️ Once your payment is received and confirmed, your policy is typically issued via WhatsApp within 2 working hours. Cover only begins once payment is received, so please review everything below carefully before submitting.</div>
 
   <!-- Payment method -->
   <div class="field">
     <label class="label">Payment Method <span class="req">*</span></label>
-    <div class="pay-grid">
-      <div class="pay-opt sel" onclick="selPay('duitnow',this)">
+    <div class="pay-grid" role="radiogroup" aria-label="Payment method">
+      <div class="pay-opt sel" role="radio" aria-checked="true" tabindex="0" onclick="selPay('duitnow',this)" onkeydown="onOptKey(event)">
         <div class="pay-name-row"><span class="pay-name">DuitNow QR</span><span class="pay-rec">Recommended</span></div>
         <span class="pay-detail">Instant</span>
       </div>
-      <div class="pay-opt" onclick="selPay('tng',this)">
+      <div class="pay-opt" role="radio" aria-checked="false" tabindex="0" onclick="selPay('tng',this)" onkeydown="onOptKey(event)">
         <span class="pay-name">Touch 'n Go</span>
         <span class="pay-detail">eWallet transfer</span>
       </div>
-      <div class="pay-opt" onclick="selPay('bank',this)">
+      <div class="pay-opt" role="radio" aria-checked="false" tabindex="0" onclick="selPay('bank',this)" onkeydown="onOptKey(event)">
         <span class="pay-name">Bank Transfer</span>
         <span class="pay-detail">Online transfer</span>
       </div>
@@ -1018,9 +1019,9 @@ body::before{
   <div class="declaration">
     <input type="checkbox" id="declaration">
     <div class="declaration-text">
-      <p><strong>Application —</strong> Details are accurate. Cover only begins once payment is received. Henry Lee is my appointed advisor.</p>
-      <p><strong>Health —</strong> No Insured Person has, in the past 6 months, been hospitalised, given a terminal prognosis, or diagnosed with any mental illness. Pre-existing conditions aren't covered.</p>
-      <p><strong>Data (PDPA) —</strong> I consent to my personal data being shared with Tokio Marine and related parties to arrange this policy.</p>
+      <p><strong>Application:</strong> Details are accurate. Cover only begins once payment is received. Henry Lee is my appointed advisor.</p>
+      <p><strong>Health:</strong> No Insured Person has, in the past 6 months, been hospitalised, given a terminal prognosis, or diagnosed with any mental illness. Pre-existing conditions aren't covered.</p>
+      <p><strong>Data (PDPA):</strong> I consent to my personal data being shared with Tokio Marine and related parties to arrange this policy.</p>
     </div>
   </div>
 
@@ -1037,16 +1038,16 @@ body::before{
 <div class="success-screen" id="successScreen">
   <div class="success-icon">✓</div>
   <h2 class="success-title">Application Submitted</h2>
-  <p class="success-sub">Henry will review your details and follow up shortly. Your cover note will be sent once your payment has been received and confirmed — usually within 2 working hours. Cover only begins once payment is received, so please avoid non-refundable bookings until you've received your cover note.</p>
+  <p class="success-sub">Henry will review your details and follow up shortly. Your cover note will be sent once your payment has been received and confirmed, usually within 2 working hours. Cover only begins once payment is received, so please avoid non-refundable bookings until you've received your cover note.</p>
 
   <div class="success-info doc">
     <b>📋 Keep these for a smooth claim</b>
-    Original receipts, medical reports/certificates, boarding passes, and any police or authority reports — insurers require the originals for most claims, so keep them safe throughout your trip.
+    Original receipts, medical reports/certificates, boarding passes, and any police or authority reports. Insurers require the originals for most claims, so keep them safe throughout your trip.
   </div>
 
   <div class="success-info sos">
     <b>🚨 24-Hour Travel Assistance (emergencies overseas)</b>
-    +603 7628 3877 — call <strong>before</strong> hospital admission or medical evacuation to arrange cashless approval; failure to call in advance may invalidate that part of your claim.<br>
+    +603 7628 3877. Call <strong>before</strong> hospital admission or medical evacuation to arrange cashless approval; failure to call in advance may invalidate that part of your claim.<br>
     General Customer Service: 1800 88 0812
   </div>
 
@@ -1082,7 +1083,7 @@ const PREMIUMS = {
     senior: { basic:[478,716,1121,1478,357,3218], essential:[583,871,1360,1792,432,3907], deluxe:[688,1021,1525,1972,477,4447] },
     family: { basic:[441,641,1033,1362,319,2875], essential:[502,754,1231,1651,415,3358], deluxe:[779,1149,1674,2140,536,4796] }
   },
-  D: { // Domestic — single rate regardless of plan
+  D: { // Domestic: single rate regardless of plan
     adult:  [23,30,45,60,15,230],
     senior: [62,83,124,165,41,620],
     family: [57,76,114,152,38,570]
@@ -1236,10 +1237,14 @@ function adj(key,d){
 }
 
 // ═══════════ COVERAGE AREA ═══════════
+// Lets a keyboard user activate a card-style radio option the same way a click does.
+function onOptKey(e){
+  if(e.key==='Enter'||e.key===' '){ e.preventDefault(); e.currentTarget.click(); }
+}
 function selArea(area,el){
   S.area=area;
-  document.querySelectorAll('.area-opt').forEach(o=>o.classList.remove('sel'));
-  el.classList.add('sel');
+  document.querySelectorAll('.area-opt').forEach(o=>{o.classList.remove('sel');o.setAttribute('aria-checked','false');});
+  el.classList.add('sel');el.setAttribute('aria-checked','true');
   calcPremium();
 }
 
@@ -1306,7 +1311,7 @@ function calcPremium(){
   const isDomestic=S.area==='D';
 
   if(isDomestic){
-    // Domestic — single rate regardless of plan, no Basic/Essential/Deluxe split
+    // Domestic: single rate regardless of plan, no Basic/Essential/Deluxe split
     let t;
     if(S.policyType==='family'){
       t=getBracket(PREMIUMS.D.family,days,annual);
@@ -1364,7 +1369,7 @@ function renderPlans(){
   const discountNote = groupEligible ? ' · 5% group discount applied' : '';
   const taxNote = S.area==='D' ? '+8% SST & stamp duty' : '+stamp duty RM10';
   document.getElementById('plansGrid').innerHTML=PLAN_META.map(p=>`
-    <div class="plan-card${S.plan===p.key?' sel':''}" onclick="selPlan('${p.key}',this)">
+    <div class="plan-card${S.plan===p.key?' sel':''}" role="radio" aria-checked="${S.plan===p.key}" tabindex="0" onclick="selPlan('${p.key}',this)" onkeydown="onOptKey(event)">
       ${p.badge?`<div class="plan-badge ${p.badge.c}">${p.badge.t}</div>`:''}
       <div class="plan-name">${p.name}</div>
       <div class="plan-price">RM ${S.premiums[p.key]>0?S.premiums[p.key].toFixed(2):'—'}</div>
@@ -1387,8 +1392,8 @@ function updateCfarNote(){
 
 function selPlan(plan,el){
   S.plan=plan;
-  document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');
+  document.querySelectorAll('.plan-card').forEach(c=>{c.classList.remove('sel');c.setAttribute('aria-checked','false');});
+  el.classList.add('sel');el.setAttribute('aria-checked','true');
   updateDots();
   updateCfarNote();
 }
@@ -1406,7 +1411,7 @@ function renderTravBlocks(){
 
 function travBlock(idx,type,id,ti){
   return`<div class="trav-block">
-    <div class="trav-title" id="trav-title-${id}" data-num="${idx}" data-type="${type}">Traveller ${idx} — ${type}</div>
+    <div class="trav-title" id="trav-title-${id}" data-num="${idx}" data-type="${type}">Traveller ${idx} · ${type}</div>
     <div class="field">
       <label class="label">Full Name <span class="req">*</span></label>
       <input type="text" class="input" id="name-${id}" placeholder="As per NRIC / Passport"
@@ -1616,7 +1621,6 @@ function travBlock(idx,type,id,ti){
       <label class="label">NRIC / Passport <span class="req">*</span></label>
       <input type="text" class="input" id="nric-${id}" placeholder="000000-00-0000" maxlength="14"
         oninput="onIDInput(this,'${id}')" onblur="onIDBlur(this,'${id}')">
-      <div class="hint" id="nric-hint-${id}">Auto-fills date of birth and gender.</div>
       <div class="autofill-row" id="autofill-${id}">
         <div>
           <label class="label">Date of Birth</label>
@@ -1749,7 +1753,7 @@ function syncTravName(id, ti) {
   if (titleEl) {
     const num = titleEl.dataset.num;
     const type = titleEl.dataset.type;
-    titleEl.textContent = name ? `Traveller ${num} — ${name}` : `Traveller ${num} — ${type}`;
+    titleEl.textContent = name ? `Traveller ${num} · ${name}` : `Traveller ${num} · ${type}`;
   }
   // Update nominee section header (only visible when multiple travellers)
   const nomHeader = document.getElementById(`nom-header-${ti}`);
@@ -1774,8 +1778,8 @@ function togAcc(id){document.getElementById(id).classList.toggle('open');}
 // ═══════════ PAYMENT ═══════════
 function selPay(method,el){
   S.payMethod=method;
-  document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('sel'));
-  el.classList.add('sel');
+  document.querySelectorAll('.pay-opt').forEach(o=>{o.classList.remove('sel');o.setAttribute('aria-checked','false');});
+  el.classList.add('sel');el.setAttribute('aria-checked','true');
   const inst={
     duitnow:"Scan the QR code below with your banking app and upload your payment receipt once done.",
     tng:`Transfer via Touch 'n Go and upload your receipt below.<div style="margin:.75rem 0 .25rem;font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.01em">012 612 3540</div><div style="font-size:.78rem;color:var(--text-3)">Lee Mou Yen</div>`,
@@ -1865,7 +1869,7 @@ function renderNomineeSections() {
   const travellers = getTravellerList();
   const total = travellers.length;
 
-  // Build sections — only rebuild if traveller count changed
+  // Build sections; only rebuild if traveller count changed
   const existing = container.querySelectorAll('.nominee-section');
   if (existing.length === total) return; // already built for this count
 

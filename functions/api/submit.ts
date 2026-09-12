@@ -20,6 +20,24 @@ function json(data: unknown, status = 200) {
   });
 }
 
+// Matches the "Max 5MB" / "JPG, PNG or PDF" hint shown in the upload widget on both
+// frontends — enforced here too, since a direct POST can otherwise skip the browser check.
+const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
+const ALLOWED_ATTACHMENT_TYPES = new Set([
+  "image/jpeg", "image/png", "image/webp", "image/heic", "image/heif", "application/pdf"
+]);
+
+// Converts in chunks rather than one String.fromCharCode call per byte, which is both
+// slow and, on a large file, at risk of blowing the call stack.
+function bytesToBase64(bytes: Uint8Array): string {
+  const CHUNK_SIZE = 8192;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK_SIZE));
+  }
+  return btoa(binary);
+}
+
 // ─── Formatters ───────────────────────────────────────────────────────────────
 
 function escapeHtml(value: string) {
@@ -234,11 +252,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     const attachment = formData.get("paymentSlip");
     let attachments: Array<{ filename: string; content: string }> = [];
     if (attachment instanceof File) {
+      if (attachment.size > MAX_ATTACHMENT_BYTES) {
+        return json({ error: "Payment slip is too large. Please upload a file under 5MB." }, 400);
+      }
+      if (!attachment.type || !ALLOWED_ATTACHMENT_TYPES.has(attachment.type)) {
+        return json({ error: "Payment slip must be a JPG, PNG or PDF file." }, 400);
+      }
       const buffer = await attachment.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      let binary = "";
-      bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
-      attachments = [{ filename: attachment.name, content: btoa(binary) }];
+      attachments = [{ filename: attachment.name, content: bytesToBase64(new Uint8Array(buffer)) }];
     }
 
     const hasSlip = attachments.length > 0;

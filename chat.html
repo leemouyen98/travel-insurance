@@ -28,7 +28,7 @@
 {
   "@context": "https://schema.org",
   "@type": "InsuranceAgency",
-  "name": "Henry Lee — Tokio Marine Travel Insurance",
+  "name": "Henry Lee: Tokio Marine Travel Insurance",
   "url": "https://travel.henrylee.cc/chat",
   "image": "https://travel.henrylee.cc/assets/explorer.jpg",
   "logo": "https://travel.henrylee.cc/apple-touch-icon.png",
@@ -51,7 +51,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Figtree:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -164,6 +164,7 @@ body{
   padding:.75rem .9rem;cursor:pointer;transition:all .15s ease;
 }
 .optcard:hover{border-color:var(--brass)}
+.optcard:focus-visible,.plancard:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .optcard-title{font-size:.85rem;font-weight:700;color:var(--brass);letter-spacing:.02em;margin-bottom:.3rem}
 .optcard-desc{font-size:.76rem;color:var(--text-soft);line-height:1.5}
 
@@ -455,6 +456,10 @@ const thread = document.getElementById('thread');
 const todayStr = new Date().toISOString().split('T')[0];
 
 function scrollDown(){ thread.scrollTo({top:thread.scrollHeight, behavior:'smooth'}); }
+// Lets a keyboard user activate a card-style choice the same way a click does.
+function onOptKey(e){
+  if(e.key==='Enter'||e.key===' '){ e.preventDefault(); e.currentTarget.click(); }
+}
 
 let suppressAsk=false;
 function sayTheirs(html, delay=150){
@@ -590,19 +595,19 @@ async function askArea(){
   await sayTheirs("Hi! I'm Henry, I'll get you a quote in under a minute. Where are you headed?");
   showWidget(`
     <div class="optcards">
-      <div class="optcard" onclick="pickArea('D')">
+      <div class="optcard" role="button" tabindex="0" onclick="pickArea('D')" onkeydown="onOptKey(event)">
         <div class="optcard-title">Domestic</div>
         <div class="optcard-desc">Within Malaysia.</div>
       </div>
-      <div class="optcard" onclick="pickArea('1')">
+      <div class="optcard" role="button" tabindex="0" onclick="pickArea('1')" onkeydown="onOptKey(event)">
         <div class="optcard-title">Area 1</div>
         <div class="optcard-desc">Australia, Bangladesh, Brunei, Cambodia, China, Hong Kong, India, Indonesia, Japan, Korea, Laos, Macau, Maldives, Mongolia, Myanmar, New Zealand, Pakistan, Philippines, Singapore, Sri Lanka, Taiwan, Thailand and Vietnam.</div>
       </div>
-      <div class="optcard" onclick="pickArea('2')">
+      <div class="optcard" role="button" tabindex="0" onclick="pickArea('2')" onkeydown="onOptKey(event)">
         <div class="optcard-title">Area 2</div>
         <div class="optcard-desc">Worldwide excluding Malaysia, USA, Canada, Nepal and Tibet.</div>
       </div>
-      <div class="optcard" onclick="pickArea('3')">
+      <div class="optcard" role="button" tabindex="0" onclick="pickArea('3')" onkeydown="onOptKey(event)">
         <div class="optcard-title">Area 3</div>
         <div class="optcard-desc">Worldwide, except Malaysia. Includes USA, Canada, Nepal and Tibet.</div>
       </div>
@@ -767,7 +772,7 @@ async function showPlans(){
   await sayTheirs(`Here's what fits ${paxStr(S)} for ${durationNote} in ${AREA_LABELS[S.area]}:`);
   showWidget(`
     <div class="plancards">
-      <div class="plancard" onclick="pickPlan('basic',${premiums.basic})">
+      <div class="plancard" role="button" tabindex="0" onclick="pickPlan('basic',${premiums.basic})" onkeydown="onOptKey(event)">
         <div class="plancard-head"><span class="pname">Basic</span><span class="pprice">RM ${premiums.basic.toFixed(2)}</span></div>
         <ul class="plan-feats">
           <li><span class="fy">✓</span>RM350k Accidental Death</li>
@@ -778,7 +783,7 @@ async function showPlans(){
           <li><span class="fn">✗</span>CFAR Cover</li>
         </ul>
       </div>
-      <div class="plancard pop" onclick="pickPlan('essential',${premiums.essential})">
+      <div class="plancard pop" role="button" tabindex="0" onclick="pickPlan('essential',${premiums.essential})" onkeydown="onOptKey(event)">
         <div class="plancard-head"><span class="pname">Essential · Popular</span><span class="pprice">RM ${premiums.essential.toFixed(2)}</span></div>
         <ul class="plan-feats">
           <li><span class="fy">✓</span>RM550k Accidental Death</li>
@@ -789,7 +794,7 @@ async function showPlans(){
           <li><span class="fn">✗</span>CFAR Cover</li>
         </ul>
       </div>
-      <div class="plancard" onclick="pickPlan('deluxe',${premiums.deluxe})">
+      <div class="plancard" role="button" tabindex="0" onclick="pickPlan('deluxe',${premiums.deluxe})" onkeydown="onOptKey(event)">
         <div class="plancard-head"><span class="pname">Deluxe · Best cover</span><span class="pprice">RM ${premiums.deluxe.toFixed(2)}</span></div>
         <ul class="plan-feats">
           <li><span class="fy">✓</span>RM550k Accidental Death</li>
