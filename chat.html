@@ -249,16 +249,27 @@ body{
 
 /* ── Ticket ── */
 .ticket{
-  background:var(--paper);color:var(--ink);border-radius:14px;
-  padding:.9rem 1rem 1rem;position:relative;overflow:hidden;border-bottom-left-radius:4px;
+  background:linear-gradient(160deg,#f8f2e2 0%,var(--paper) 55%,#ece3cd 100%);
+  color:var(--ink);border-radius:14px;
+  padding:1rem 1.1rem 1.05rem;position:relative;overflow:hidden;border-bottom-left-radius:4px;
   max-width:min(82%,380px);
+  border:1px solid rgba(203,154,68,.35);
+  box-shadow:0 16px 34px -16px rgba(0,0,0,.55);
 }
 .ticket::before{content:'';position:absolute;left:-6px;top:50%;width:12px;height:12px;background:var(--ink);border-radius:50%;transform:translateY(-50%)}
-.ticket-eyebrow{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;color:var(--brass-deep);margin-bottom:.35rem}
-.ticket-amount{font-family:'Playfair Display',serif;font-weight:700;font-size:1.9rem;margin-bottom:.55rem;font-variant-numeric:tabular-nums}
-.ticket-row{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:.68rem;padding:.28rem 0;border-top:1px dashed rgba(20,27,22,.18)}
+.ticket::after{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--brass-deep),var(--brass) 50%,var(--brass-deep))}
+.ticket-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.5rem}
+.ticket-eyebrow{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;color:var(--brass-deep);display:flex;align-items:center;gap:.35rem}
+.ticket-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 3px rgba(203,154,68,.18);flex-shrink:0}
+.ticket-stamp{font-family:'Space Mono',monospace;font-size:.56rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--wa-deep);background:rgba(28,122,69,.12);border:1px solid rgba(28,122,69,.3);border-radius:999px;padding:2px 7px;white-space:nowrap;flex-shrink:0}
+.ticket-amount{font-family:'Playfair Display',serif;font-weight:700;font-size:1.95rem;margin-bottom:.6rem;font-variant-numeric:tabular-nums}
+.ticket-currency{font-family:'Figtree',sans-serif;font-size:.85rem;font-weight:700;color:var(--brass-deep);margin-right:.2rem}
+.ticket-rows{padding-top:.2rem;border-top:1px dashed rgba(138,100,32,.28)}
+.ticket-row{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:.68rem;padding:.3rem 0}
+.ticket-row+.ticket-row{border-top:1px dashed rgba(138,100,32,.2)}
 .ticket-row span:first-child{color:var(--text-faint);letter-spacing:.03em}
 .ticket-row span:last-child{font-weight:700;text-align:right}
+.ticket-ref{color:var(--brass-deep)}
 
 .footer-note{padding:1.2rem .9rem 2rem;text-align:center;font-size:.7rem;color:var(--text-faint);flex-shrink:0}
 
@@ -298,7 +309,7 @@ body{
     <button class="back-btn" onclick="goBack()" aria-label="Back" title="Back">‹</button>
     <img class="avatar" src="/assets/henry.jpg" alt="Henry Lee">
     <div>
-      <div class="chat-head-name">Henry Lee<span class="beta-badge">beta</span></div>
+      <div class="chat-head-name">Henry Lee<span class="beta-badge">AI</span></div>
       <div class="chat-head-sub"><span class="dot"></span>Tokio Marine · Insurance Advisor</div>
     </div>
     <div class="head-actions">
@@ -709,7 +720,7 @@ async function confirmAnnual(){
   const start=new Date(val); const end=new Date(start); end.setFullYear(end.getFullYear()+1); end.setDate(end.getDate()-1);
   S.annualStart=val; S.annualEnd=end.toISOString().slice(0,10); S.days=365;
   clearWidget();
-  sayMine(`Starting ${fmtDate(val)} · covers 12 months`, history.length-1);
+  sayMine(`Starting ${fmtDate(val)} · covers 365 days`, history.length-1);
   enterStep(askPolicyFor);
 }
 
@@ -817,8 +828,7 @@ async function showPlans(){
         </div>
       </div>
       <div class="note-block">
-        Domestic cover applies to accidental causes only, not illness.<br><br>
-        Want the full details? <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">View the Explorer brochure (PDF) ↗</a>
+        Domestic cover applies to accidental causes only, not illness — want the full details? <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">View the Explorer brochure (PDF) ↗</a>
       </div>`);
     return;
   }
@@ -884,12 +894,17 @@ async function pickPlan(plan, amount){
   const row=document.createElement('div'); row.className='row theirs';
   row.innerHTML=`
     <div class="ticket">
-      <div class="ticket-eyebrow">Tokio Marine Explorer · ${plan.charAt(0).toUpperCase()+plan.slice(1)}</div>
-      <div class="ticket-amount">RM ${amount.toFixed(2)}</div>
-      <div class="ticket-row"><span>Pax</span><span>${paxStr(S)}</span></div>
-      <div class="ticket-row"><span>Area</span><span>${AREA_LABELS[S.area]}</span></div>
-      <div class="ticket-row"><span>Dates</span><span>${dateLine}</span></div>
-      <div class="ticket-row"><span>Ref</span><span>${S.ref}</span></div>
+      <div class="ticket-top">
+        <div class="ticket-eyebrow">Tokio Marine Explorer · ${plan.charAt(0).toUpperCase()+plan.slice(1)}</div>
+        <div class="ticket-stamp">Confirmed</div>
+      </div>
+      <div class="ticket-amount"><span class="ticket-currency">RM</span>${amount.toFixed(2)}</div>
+      <div class="ticket-rows">
+        <div class="ticket-row"><span>Pax</span><span>${paxStr(S)}</span></div>
+        <div class="ticket-row"><span>Area</span><span>${AREA_LABELS[S.area]}</span></div>
+        <div class="ticket-row"><span>Dates</span><span>${dateLine}</span></div>
+        <div class="ticket-row"><span>Ref</span><span class="ticket-ref">${S.ref}</span></div>
+      </div>
     </div>`;
   thread.appendChild(row); scrollDown();
   await sayTheirs("Now let's get this issued for you. A few quick questions, then payment.");
@@ -1034,7 +1049,7 @@ async function nomineeYes(){
     <div class="datefield" style="margin-bottom:.55rem"><label>Relationship</label>
       <select id="nomRel">
         <option value="">Select…</option>
-        <option>Spouse</option><option>Parent</option><option>Child</option><option>Sibling</option><option>Other</option>
+        <option>Spouse</option><option>Parent</option><option>Child</option><option>Sibling</option>
       </select>
     </div>
     <div class="send-row"><button class="send-btn" id="nomineeSend" disabled onclick="confirmNominee()">→</button></div>`);
