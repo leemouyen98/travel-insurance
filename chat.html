@@ -719,16 +719,28 @@ async function askAdults(){
   const max = S.policyType==='family' ? 2 : 10;
   if (S.adults==null) S.adults=1;
   S.adults = Math.min(S.adults, max);
-  await sayTheirs(S.policyType==='family' ? 'How many adults (parent or legal guardian, aged 18–70), including you?' : 'How many adults (aged 30 days–70) will be covered, including you?');
+  const isFamily = S.policyType==='family';
+  if (!isFamily && S.seniors==null) S.seniors=0;
+  await sayTheirs(isFamily ? 'How many adults (parent or legal guardian, aged 18–70), including you?' : 'How many adults and seniors will be covered, including you?');
+  const seniorsCard = isFamily ? '' : `
+    <div class="stepper-card" style="margin-top:.5rem">
+      <div><div class="stepper-name">Seniors</div><div class="stepper-desc">Age 71 – 85</div></div>
+      <div class="stepper-ctrl">
+        <button class="stp-btn" id="sMinus" onclick="adjStep('seniors',-1,10)" ${S.seniors<=0?'disabled':''}>−</button>
+        <span class="stp-val" id="sVal">${S.seniors}</span>
+        <button class="stp-btn" onclick="adjStep('seniors',1,10)">+</button>
+      </div>
+    </div>`;
   showWidget(`
     <div class="stepper-card">
-      <div><div class="stepper-name">Adults</div><div class="stepper-desc">${S.policyType==='family'?'Age 18 – 70':'Age 30 days – 70'}</div></div>
+      <div><div class="stepper-name">Adults</div><div class="stepper-desc">${isFamily?'Age 18 – 70':'Age 30 days – 70'}</div></div>
       <div class="stepper-ctrl">
         <button class="stp-btn" id="aMinus" onclick="adjStep('adults',-1,${max})" ${S.adults<=1?'disabled':''}>−</button>
         <span class="stp-val" id="aVal">${S.adults}</span>
         <button class="stp-btn" onclick="adjStep('adults',1,${max})">+</button>
       </div>
     </div>
+    ${seniorsCard}
     <div class="send-row"><button class="send-btn" onclick="confirmAdults()">→</button></div>`);
 }
 function adjStep(key,d,max){
@@ -742,27 +754,14 @@ function adjStep(key,d,max){
 }
 async function confirmAdults(){
   clearWidget();
-  sayMine(`${S.adults} adult${S.adults>1?'s':''}`, history.length-1);
-  if (S.policyType==='family') enterStep(askChildren); else enterStep(askSeniors);
-}
-async function askSeniors(){
-  if (S.seniors==null) S.seniors=0;
-  await sayTheirs('Any seniors travelling (aged 71–85)?');
-  showWidget(`
-    <div class="stepper-card">
-      <div><div class="stepper-name">Seniors</div><div class="stepper-desc">Age 71 – 85</div></div>
-      <div class="stepper-ctrl">
-        <button class="stp-btn" id="sMinus" onclick="adjStep('seniors',-1,10)" ${S.seniors<=0?'disabled':''}>−</button>
-        <span class="stp-val" id="sVal">${S.seniors}</span>
-        <button class="stp-btn" onclick="adjStep('seniors',1,10)">+</button>
-      </div>
-    </div>
-    <div class="send-row"><button class="send-btn" onclick="confirmSeniors()">→</button></div>`);
-}
-async function confirmSeniors(){
-  clearWidget();
-  sayMine(S.seniors>0 ? `${S.seniors} senior${S.seniors>1?'s':''}` : 'No seniors', history.length-1);
-  enterStep(showPlans);
+  if (S.policyType==='family'){
+    sayMine(`${S.adults} adult${S.adults>1?'s':''}`, history.length-1);
+    enterStep(askChildren);
+  } else {
+    const parts=[`${S.adults} adult${S.adults>1?'s':''}`, S.seniors>0 ? `${S.seniors} senior${S.seniors>1?'s':''}` : 'no seniors'];
+    sayMine(parts.join(', '), history.length-1);
+    enterStep(showPlans);
+  }
 }
 async function askChildren(){
   if (S.children==null) S.children=0;
@@ -977,7 +976,6 @@ async function askContactDetails(){
     <div class="datefield" style="margin-bottom:.55rem"><label>Mobile Number</label><input type="tel" id="cdMobile" placeholder="012 345 6789" value="${S.mobile||''}"></div>
     <div class="datefield" style="margin-bottom:.55rem"><label>Home Address</label><textarea id="cdAddress" placeholder="Street, city, postcode, state">${S.address||''}</textarea></div>
     <div class="datefield" style="margin-bottom:.55rem"><label>Occupation</label><input type="text" id="cdOccupation" placeholder="e.g. Engineer, Business Owner, Teacher" value="${S.occupation||''}"></div>
-    <div class="widget-hint">High-risk occupations may affect coverage terms.</div>
     <div class="send-row"><button class="send-btn" id="contactSend" disabled onclick="confirmContactDetails()">→</button></div>`);
   ['cdEmail','cdMobile','cdAddress','cdOccupation'].forEach(id=>document.getElementById(id).addEventListener('input', onContactInput));
   onContactInput();
