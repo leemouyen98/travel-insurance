@@ -428,6 +428,20 @@ function fmtNRICStr(v){
   if(d.length>9)d=d.slice(0,9)+'-'+d.slice(9);
   return d;
 }
+// A leading digit means NRIC (Malaysians); anything else means passport (foreigners) —
+// passports don't encode DOB/gender the way an NRIC does, so that has to be asked separately.
+function isPassportId(v){
+  const s=(v||'').trim();
+  return s.length>0 && !/^\d/.test(s);
+}
+function fmtIdStr(v){
+  return isPassportId(v) ? v.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,20) : fmtNRICStr(v);
+}
+function validIdStr(v){
+  const s=(v||'').trim();
+  if (!s) return false;
+  return isPassportId(s) ? s.replace(/[^A-Za-z0-9]/g,'').length>=5 : s.replace(/\D/g,'').length===12;
+}
 function parseNRICInfo(nric){
   const raw=nric.replace(/\D/g,'');
   if(raw.length<12) return null;
@@ -930,34 +944,82 @@ async function askTravellerName(){
     if (curT===0) enterStep(askNricMobile); else enterStep(askNRIC);
   }});
 }
-// First traveller only: they're also the contact/proposer, so NRIC and mobile go together.
+// First traveller only: they're also the contact/proposer, so NRIC/passport and mobile go together.
 async function askNricMobile(){
-  await sayTheirs('NRIC number and mobile number?');
+  await sayTheirs('NRIC/ Passport number and mobile number?');
   showWidget(`
-    <div class="datefield" style="margin-bottom:.55rem"><label>NRIC</label><input type="text" id="nmNric" placeholder="000000-00-0000" maxlength="14" value="${travellerData[curT]?.idNumber||''}"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>NRIC / Passport</label><input type="text" id="nmNric" placeholder="000000-00-0000 or passport no." maxlength="20" value="${travellerData[curT]?.idNumber||''}"></div>
     <div class="datefield" style="margin-bottom:.55rem"><label>Mobile Number</label><input type="tel" id="nmMobile" placeholder="012 345 6789" value="${S.mobile||''}"></div>
     <div class="send-row"><button class="send-btn" id="nmSend" disabled onclick="confirmNricMobile()">→</button></div>`);
-  document.getElementById('nmNric').addEventListener('input', e=>{ e.target.value=fmtNRICStr(e.target.value); onNricMobileInput(); });
+  document.getElementById('nmNric').addEventListener('input', e=>{ e.target.value=fmtIdStr(e.target.value); onNricMobileInput(); });
   document.getElementById('nmMobile').addEventListener('input', onNricMobileInput);
   onNricMobileInput();
 }
 function onNricMobileInput(){
-  const nric=document.getElementById('nmNric').value.replace(/\D/g,'');
+  const nric=document.getElementById('nmNric').value;
   const mobile=document.getElementById('nmMobile').value.trim();
-  document.getElementById('nmSend').disabled = !(nric.length===12 && mobile);
+  document.getElementById('nmSend').disabled = !(validIdStr(nric) && mobile);
 }
 function confirmNricMobile(){
   const nricVal=document.getElementById('nmNric').value.trim();
   S.mobile=document.getElementById('nmMobile').value.trim();
   clearWidget();
   sayMine(`${nricVal}<br>${S.mobile}`, history.length-1);
-  const info=parseNRICInfo(nricVal);
   travellerData[curT].idNumber=nricVal;
+  if (isPassportId(nricVal)){
+    travellerData[curT].nationality='';
+    travellerData[curT].dateOfBirth='';
+    travellerData[curT].gender='';
+    enterStep(askNationalityGenderDob);
+    return;
+  }
+  const info=parseNRICInfo(nricVal);
   travellerData[curT].nationality='MY';
   travellerData[curT].dateOfBirth=info?info.dob:'';
   travellerData[curT].gender=info?info.gender:'';
   const age=info?ageFromParts(info.year,info.month,info.day):null;
   checkEligibilityThen(age, ()=>enterStep(askAddressEmailOccupation));
+}
+// Passport holders only: NRIC encodes DOB/gender/nationality, a passport doesn't, so ask directly.
+// Sits after NRIC/passport + mobile (first traveller) or after NRIC/passport (others), before
+// whatever would normally come next for that traveller.
+async function askNationalityGenderDob(){
+  await sayTheirs('Nationality, gender, and date of birth?');
+  const t=travellerData[curT];
+  showWidget(`
+    <div class="datefield" style="margin-bottom:.55rem"><label>Nationality</label><input type="text" id="ngdNationality" placeholder="e.g. Singaporean" value="${t.nationality||''}"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>Gender</label>
+      <select id="ngdGender">
+        <option value="">Select…</option>
+        <option>Male</option><option>Female</option>
+      </select>
+    </div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>Date of Birth</label><input type="date" id="ngdDob" max="${todayStr}" value="${t.dobRaw||''}"></div>
+    <div class="send-row"><button class="send-btn" id="ngdSend" disabled onclick="confirmNationalityGenderDob()">→</button></div>`);
+  ['ngdNationality','ngdDob'].forEach(id=>document.getElementById(id).addEventListener('input', onNgdInput));
+  document.getElementById('ngdGender').addEventListener('change', onNgdInput);
+  if (t.gender) document.getElementById('ngdGender').value=t.gender;
+  onNgdInput();
+}
+function onNgdInput(){
+  const nationality=document.getElementById('ngdNationality').value.trim();
+  const gender=document.getElementById('ngdGender').value;
+  const dob=document.getElementById('ngdDob').value;
+  document.getElementById('ngdSend').disabled = !(nationality && gender && dob);
+}
+function confirmNationalityGenderDob(){
+  const nationality=document.getElementById('ngdNationality').value.trim();
+  const gender=document.getElementById('ngdGender').value;
+  const dobRaw=document.getElementById('ngdDob').value;
+  clearWidget();
+  const [yr,mo,da]=dobRaw.split('-').map(Number);
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dobFmt=`${da} ${months[mo-1]} ${yr}`;
+  sayMine(`${nationality}<br>${gender}<br>${dobFmt}`, history.length-1);
+  const t=travellerData[curT];
+  t.nationality=nationality; t.gender=gender; t.dateOfBirth=dobFmt; t.dobRaw=dobRaw;
+  const age=ageFromParts(yr,mo,da);
+  checkEligibilityThen(age, curT===0 ? ()=>enterStep(askAddressEmailOccupation) : nextTravellerOrContinue);
 }
 // First traveller only, right after NRIC + mobile.
 async function askAddressEmailOccupation(){
@@ -987,15 +1049,22 @@ function confirmAddressEmailOccupation(){
 // Every other traveller (senior, child, additional adult): name then NRIC, nothing else —
 // contact details belong to the first traveller only.
 async function askNRIC(){
-  await sayTheirs('NRIC number?');
+  await sayTheirs('NRIC/ Passport number?');
   showTextWidget({
-    placeholder:'000000-00-0000', maxlength:14, format:fmtNRICStr,
-    validate:v=>v.replace(/\D/g,'').length===12,
+    placeholder:'000000-00-0000 or passport no.', maxlength:20, format:fmtIdStr,
+    validate:validIdStr,
     value:travellerData[curT]?.idNumber,
     onSend:(v)=>{
       clearWidget(); sayMine(v, history.length-1);
-      const info=parseNRICInfo(v);
       travellerData[curT].idNumber=v;
+      if (isPassportId(v)){
+        travellerData[curT].nationality='';
+        travellerData[curT].dateOfBirth='';
+        travellerData[curT].gender='';
+        enterStep(askNationalityGenderDob);
+        return;
+      }
+      const info=parseNRICInfo(v);
       travellerData[curT].nationality='MY';
       travellerData[curT].dateOfBirth=info?info.dob:'';
       travellerData[curT].gender=info?info.gender:'';
