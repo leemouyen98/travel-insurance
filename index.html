@@ -1166,6 +1166,7 @@ function renderWizardTurnstile(){
   wizardTurnstileWidgetId=turnstile.render('#turnstileBox',{
     sitekey:TURNSTILE_SITEKEY,
     action:'submit_application',
+    theme:'dark',
     callback:(token)=>{ wizardTurnstileToken=token; document.getElementById('submitBtn').disabled=false; },
     'expired-callback':()=>{ wizardTurnstileToken=''; document.getElementById('submitBtn').disabled=true; }
   });

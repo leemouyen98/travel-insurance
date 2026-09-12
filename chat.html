@@ -1117,6 +1117,7 @@ function renderChatTurnstile(){
   turnstile.render('#turnstileBox',{
     sitekey:TURNSTILE_SITEKEY,
     action:'submit_application',
+    theme:'dark',
     callback:(token)=>{ chatTurnstileToken=token; const btn=document.getElementById('agreeBtn'); if(btn)btn.disabled=false; },
     'expired-callback':()=>{ chatTurnstileToken=''; const btn=document.getElementById('agreeBtn'); if(btn)btn.disabled=true; }
   });
