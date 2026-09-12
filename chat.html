@@ -1014,8 +1014,21 @@ async function nomineeYes(){
   clearWidget(); sayMine('Add nominee', history.length-1);
   await sayTheirs("Nominee's full name?");
   showTextWidget({placeholder:'Full name', onSend:(v)=>{
-    S.nominee={name:v.trim()}; clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askNomineeRel);
+    S.nominee={name:v.trim()}; clearWidget(); sayMine(v.trim(), history.length-1); enterStep(askNomineeNRIC);
   }});
+}
+async function askNomineeNRIC(){
+  await sayTheirs("Nominee's NRIC number? Optional, leave blank if you don't have it.");
+  showTextWidget({
+    placeholder:'000000-00-0000', maxlength:14, format:fmtNRICStr,
+    validate:()=>true,
+    value:S.nominee?.idNumber,
+    onSend:(v)=>{
+      S.nominee.idNumber=v.trim();
+      clearWidget(); sayMine(v.trim() || 'Skip', history.length-1);
+      enterStep(askNomineeRel);
+    }
+  });
 }
 async function askNomineeRel(){
   await sayTheirs('Relationship to the nominee?');
@@ -1029,7 +1042,7 @@ async function askNomineeRel(){
 }
 async function setNomineeRel(rel){
   clearWidget(); sayMine(rel, history.length-1);
-  S.nominee.relationship=rel; S.nominee.share=100; S.nominee.idNumber='';
+  S.nominee.relationship=rel; S.nominee.share=100;
   enterStep(askBankOptional);
 }
 async function askBankOptional(){
