@@ -224,7 +224,15 @@ body{
   padding:.85rem .95rem;cursor:pointer;transition:all .15s ease;
 }
 .plancard:hover{border-color:var(--brass)}
+.plancard.sel{border-color:var(--wa)}
 .plancard-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.55rem}
+.plan-confirm{
+  display:none;width:100%;margin-top:.75rem;padding:.6rem;border-radius:12px;
+  border:1.5px solid var(--wa);color:var(--wa);background:transparent;
+  font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;
+}
+.plancard.sel .plan-confirm{display:block}
+.plan-confirm:hover{background:rgba(58,176,108,.12)}
 .plancard .pname{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint)}
 .plancard.pop .pname{color:var(--brass)}
 .plancard .pprice{font-family:'Space Mono',monospace;font-weight:700;font-size:1.05rem;color:var(--text);flex-shrink:0}
@@ -789,38 +797,35 @@ async function showPlans(){
   await sayTheirs(`Here's what fits ${paxStr(S)} for ${durationNote} in ${AREA_LABELS[S.area]}:`);
   showWidget(`
     <div class="plancards">
-      <div class="plancard" role="button" tabindex="0" onclick="pickPlan('basic',${premiums.basic})" onkeydown="onOptKey(event)">
+      <div class="plancard" role="radio" aria-checked="false" tabindex="0" onclick="selectPlanCard('basic',${premiums.basic},this)" onkeydown="onOptKey(event)">
         <div class="plancard-head"><span class="pname">Basic</span><span class="pprice">RM ${premiums.basic.toFixed(2)}</span></div>
         <ul class="plan-feats">
           <li><span class="fy">✓</span>RM350k Accidental Death</li>
           <li><span class="fy">✓</span>RM750k Medical Expenses</li>
-          <li><span class="fy">✓</span>RM1M Emergency Evacuation</li>
-          <li><span class="fy">✓</span>RM35k Trip Cancellation &amp; Disruption</li>
           <li><span class="fn">✗</span>Lounge Access</li>
           <li><span class="fn">✗</span>CFAR Cover</li>
         </ul>
+        <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('basic',${premiums.basic})">Confirm Basic · RM ${premiums.basic.toFixed(2)}</button>
       </div>
-      <div class="plancard pop" role="button" tabindex="0" onclick="pickPlan('essential',${premiums.essential})" onkeydown="onOptKey(event)">
+      <div class="plancard pop" role="radio" aria-checked="false" tabindex="0" onclick="selectPlanCard('essential',${premiums.essential},this)" onkeydown="onOptKey(event)">
         <div class="plancard-head"><span class="pname">Essential · Popular</span><span class="pprice">RM ${premiums.essential.toFixed(2)}</span></div>
         <ul class="plan-feats">
           <li><span class="fy">✓</span>RM550k Accidental Death</li>
           <li><span class="fy">✓</span>RM1M Medical Expenses</li>
-          <li><span class="fy">✓</span>Unlimited Emergency Evacuation</li>
-          <li><span class="fy">✓</span>RM70k Trip Cancellation &amp; Disruption</li>
           <li><span class="fy">✓</span>Lounge Access included</li>
           <li><span class="fn">✗</span>CFAR Cover</li>
         </ul>
+        <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('essential',${premiums.essential})">Confirm Essential · RM ${premiums.essential.toFixed(2)}</button>
       </div>
-      <div class="plancard" role="button" tabindex="0" onclick="pickPlan('deluxe',${premiums.deluxe})" onkeydown="onOptKey(event)">
+      <div class="plancard" role="radio" aria-checked="false" tabindex="0" onclick="selectPlanCard('deluxe',${premiums.deluxe},this)" onkeydown="onOptKey(event)">
         <div class="plancard-head"><span class="pname">Deluxe · Best cover</span><span class="pprice">RM ${premiums.deluxe.toFixed(2)}</span></div>
         <ul class="plan-feats">
           <li><span class="fy">✓</span>RM550k Accidental Death</li>
           <li><span class="fy">✓</span>RM1M Medical Expenses</li>
-          <li><span class="fy">✓</span>Unlimited Emergency Evacuation</li>
-          <li><span class="fy">✓</span>RM70k Trip Cancellation &amp; Disruption</li>
           <li><span class="fy">✓</span>Lounge Access included</li>
           <li><span class="fy">✓</span>CFAR up to RM5,000</li>
         </ul>
+        <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('deluxe',${premiums.deluxe})">Confirm Deluxe · RM ${premiums.deluxe.toFixed(2)}</button>
       </div>
     </div>
     <div class="note-block">
@@ -828,6 +833,15 @@ async function showPlans(){
       <b>CFAR</b> (Cancel for Any Reason): get 75% of your flight/accommodation costs back (up to RM5,000) if you cancel for any reason. Deluxe only, and only valid if bought within 14 days of booking your trip.<br><br>
       Want the full details? <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">View the Explorer brochure (PDF) ↗</a>
     </div>`);
+}
+// Selecting a card just highlights it and reveals its own Confirm button —
+// picking a plan is a real cost/coverage commitment, so it shouldn't fire on a single tap.
+function selectPlanCard(plan, amount, el){
+  document.querySelectorAll('.plancard').forEach(c=>{ c.classList.remove('sel'); c.setAttribute('aria-checked','false'); });
+  el.classList.add('sel'); el.setAttribute('aria-checked','true');
+}
+function confirmPlanSelection(plan, amount){
+  pickPlan(plan, amount);
 }
 
 async function pickPlan(plan, amount){
@@ -852,36 +866,15 @@ async function pickPlan(plan, amount){
     </div>`;
   thread.appendChild(row); scrollDown();
   await sayTheirs("Now let's get this issued for you. A few quick questions, then payment.");
-  enterStep(askForOther);
+  buildTravellerList(); curT=0; travellerData=[];
+  enterStep(askTravellerName);
 }
 
 // ═══════════ TRAVELLER DETAILS ═══════════
-async function askForOther(){
-  await sayTheirs('Is this policy for you, or are you arranging it for someone else?');
-  showWidget(`<div class="chiprow">
-    <button class="chip" onclick="setForOther(false)">It's for me</button>
-    <button class="chip" onclick="setForOther(true)">Arranging for someone else</button>
-  </div>`);
-}
-async function setForOther(val){
-  S.forOther=val; clearWidget();
-  sayMine(val ? 'Arranging for someone else' : "It's for me", history.length-1);
-  if (val) enterStep(askPolicyholderName);
-  else { buildTravellerList(); curT=0; travellerData=[]; enterStep(askTravellerName); }
-}
-async function askPolicyholderName(){
-  await sayTheirs("What's the policyholder's full name?");
-  showTextWidget({placeholder:'Full name', value:S.policyholderName, onSend:(v)=>{
-    S.policyholderName=v.trim(); clearWidget(); sayMine(v.trim(), history.length-1);
-    buildTravellerList(); curT=0; travellerData=[];
-    enterStep(askTravellerName);
-  }});
-}
-
 let travellers=[], travellerData=[], curT=0;
 function buildTravellerList(){
   travellers=[];
-  for(let i=0;i<S.adults;i++) travellers.push({ageBand:'Adult', label:(i===0&&!S.forOther)?'you':`Adult ${i+1}`});
+  for(let i=0;i<S.adults;i++) travellers.push({ageBand:'Adult', label:i===0?'you':`Adult ${i+1}`});
   for(let i=0;i<S.seniors;i++) travellers.push({ageBand:'Senior', label:`Senior ${i+1}`});
   for(let i=0;i<S.children;i++) travellers.push({ageBand:'Child', label:`Child ${i+1}`});
 }
@@ -892,29 +885,65 @@ async function askTravellerName(){
   showTextWidget({placeholder:'As per NRIC / Passport', value:travellerData[curT]?.fullName, onSend:(v)=>{
     clearWidget(); sayMine(v.trim(), history.length-1);
     travellerData[curT] = { fullName:v.trim(), ageBand:t.ageBand };
-    enterStep(askTravellerNationality);
+    if (curT===0) enterStep(askNricMobile); else enterStep(askNRIC);
   }});
 }
-async function askTravellerNationality(){
-  await sayTheirs('Malaysian, or another nationality?');
-  showWidget(`<div class="chiprow">
-    <button class="chip" onclick="setNationality('MY')">Malaysian</button>
-    <button class="chip" onclick="setNationality('OTHER')">Foreign national</button>
-  </div>`);
+// First traveller only: they're also the contact/proposer, so NRIC and mobile go together.
+async function askNricMobile(){
+  await sayTheirs('NRIC number and mobile number?');
+  showWidget(`
+    <div class="datefield" style="margin-bottom:.55rem"><label>NRIC</label><input type="text" id="nmNric" placeholder="000000-00-0000" maxlength="14" value="${travellerData[curT]?.idNumber||''}"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>Mobile Number</label><input type="tel" id="nmMobile" placeholder="012 345 6789" value="${S.mobile||''}"></div>
+    <div class="send-row"><button class="send-btn" id="nmSend" disabled onclick="confirmNricMobile()">→</button></div>`);
+  document.getElementById('nmNric').addEventListener('input', e=>{ e.target.value=fmtNRICStr(e.target.value); onNricMobileInput(); });
+  document.getElementById('nmMobile').addEventListener('input', onNricMobileInput);
+  onNricMobileInput();
 }
-async function setNationality(code){
-  clearWidget(); sayMine(code==='MY' ? 'Malaysian' : 'Foreign national', history.length-1);
-  if (code==='MY'){ travellerData[curT].nationality='MY'; enterStep(askNRIC); }
-  else { enterStep(askCountryFreeText); }
+function onNricMobileInput(){
+  const nric=document.getElementById('nmNric').value.replace(/\D/g,'');
+  const mobile=document.getElementById('nmMobile').value.trim();
+  document.getElementById('nmSend').disabled = !(nric.length===12 && mobile);
 }
-async function askCountryFreeText(){
-  await sayTheirs('Which country?');
-  showTextWidget({placeholder:'e.g. Singapore', value:travellerData[curT]?.nationality, onSend:(v)=>{
-    clearWidget(); sayMine(v.trim(), history.length-1);
-    travellerData[curT].nationality=v.trim();
-    enterStep(askPassport);
-  }});
+function confirmNricMobile(){
+  const nricVal=document.getElementById('nmNric').value.trim();
+  S.mobile=document.getElementById('nmMobile').value.trim();
+  clearWidget();
+  sayMine(`${nricVal}<br>${S.mobile}`, history.length-1);
+  const info=parseNRICInfo(nricVal);
+  travellerData[curT].idNumber=nricVal;
+  travellerData[curT].nationality='MY';
+  travellerData[curT].dateOfBirth=info?info.dob:'';
+  travellerData[curT].gender=info?info.gender:'';
+  const age=info?ageFromParts(info.year,info.month,info.day):null;
+  checkEligibilityThen(age, ()=>enterStep(askAddressEmailOccupation));
 }
+// First traveller only, right after NRIC + mobile.
+async function askAddressEmailOccupation(){
+  await sayTheirs('Home address, email address, and occupation?');
+  showWidget(`
+    <div class="datefield" style="margin-bottom:.55rem"><label>Home Address</label><textarea id="aeoAddress" placeholder="Street, city, postcode, state">${S.address||''}</textarea></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>Email</label><input type="email" id="aeoEmail" placeholder="name@email.com" value="${S.email||''}"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>Occupation</label><input type="text" id="aeoOccupation" placeholder="e.g. Engineer, Business Owner, Teacher" value="${S.occupation||''}"></div>
+    <div class="send-row"><button class="send-btn" id="aeoSend" disabled onclick="confirmAddressEmailOccupation()">→</button></div>`);
+  ['aeoAddress','aeoEmail','aeoOccupation'].forEach(id=>document.getElementById(id).addEventListener('input', onAeoInput));
+  onAeoInput();
+}
+function onAeoInput(){
+  const address=document.getElementById('aeoAddress').value.trim();
+  const email=document.getElementById('aeoEmail').value.trim();
+  const occupation=document.getElementById('aeoOccupation').value.trim();
+  document.getElementById('aeoSend').disabled = !(address && /^\S+@\S+\.\S+$/.test(email) && occupation);
+}
+function confirmAddressEmailOccupation(){
+  S.address=document.getElementById('aeoAddress').value.trim();
+  S.email=document.getElementById('aeoEmail').value.trim();
+  S.occupation=document.getElementById('aeoOccupation').value.trim();
+  clearWidget();
+  sayMine(`${S.address}<br>${S.email}<br>${S.occupation}`, history.length-1);
+  nextTravellerOrContinue();
+}
+// Every other traveller (senior, child, additional adult): name then NRIC, nothing else —
+// contact details belong to the first traveller only.
 async function askNRIC(){
   await sayTheirs('NRIC number?');
   showTextWidget({
@@ -925,76 +954,17 @@ async function askNRIC(){
       clearWidget(); sayMine(v, history.length-1);
       const info=parseNRICInfo(v);
       travellerData[curT].idNumber=v;
+      travellerData[curT].nationality='MY';
       travellerData[curT].dateOfBirth=info?info.dob:'';
       travellerData[curT].gender=info?info.gender:'';
       const age=info?ageFromParts(info.year,info.month,info.day):null;
       checkEligibilityThen(age, nextTravellerOrContinue);
     }});
 }
-async function askPassport(){
-  await sayTheirs('Passport number?');
-  showTextWidget({placeholder:'Passport No.', maxlength:20, value:travellerData[curT]?.idNumber, onSend:(v)=>{
-    clearWidget(); sayMine(v, history.length-1);
-    travellerData[curT].idNumber=v;
-    enterStep(askDOB);
-  }});
-}
-async function askDOB(){
-  await sayTheirs('Date of birth?');
-  showWidget(`
-    <div class="datefield-row"><div class="datefield"><label>Date of Birth</label><input type="date" id="wDOB" max="${todayStr}" onchange="onDOBInput()"></div></div>
-    <div class="send-row"><button class="send-btn" id="dobSend" disabled onclick="confirmDOB()">→</button></div>`);
-}
-function onDOBInput(){ document.getElementById('dobSend').disabled = !document.getElementById('wDOB').value; }
-async function confirmDOB(){
-  const v=document.getElementById('wDOB').value;
-  clearWidget(); sayMine(fmtDate(v), history.length-1);
-  travellerData[curT].dateOfBirth=fmtDate(v);
-  const [y,m,d]=v.split('-').map(Number);
-  checkEligibilityThen(ageFromParts(y,m,d), ()=>enterStep(askGender));
-}
-async function askGender(){
-  await sayTheirs('Gender?');
-  showWidget(`<div class="chiprow"><button class="chip" onclick="setGender('Male')">Male</button><button class="chip" onclick="setGender('Female')">Female</button></div>`);
-}
-async function setGender(g){
-  clearWidget(); sayMine(g, history.length-1);
-  travellerData[curT].gender=g;
-  nextTravellerOrContinue();
-}
 function nextTravellerOrContinue(){
   curT++;
   if (curT < travellers.length) enterStep(askTravellerName);
-  else enterStep(askContactDetails);
-}
-
-// ═══════════ CONTACT & UNDERWRITING ═══════════
-async function askContactDetails(){
-  await sayTheirs("A few contact details for your policy documents and underwriting, all in one go:");
-  showWidget(`
-    <div class="datefield" style="margin-bottom:.55rem"><label>Email</label><input type="email" id="cdEmail" placeholder="name@email.com" value="${S.email||''}"></div>
-    <div class="datefield" style="margin-bottom:.55rem"><label>Mobile Number</label><input type="tel" id="cdMobile" placeholder="012 345 6789" value="${S.mobile||''}"></div>
-    <div class="datefield" style="margin-bottom:.55rem"><label>Home Address</label><textarea id="cdAddress" placeholder="Street, city, postcode, state">${S.address||''}</textarea></div>
-    <div class="datefield" style="margin-bottom:.55rem"><label>Occupation</label><input type="text" id="cdOccupation" placeholder="e.g. Engineer, Business Owner, Teacher" value="${S.occupation||''}"></div>
-    <div class="send-row"><button class="send-btn" id="contactSend" disabled onclick="confirmContactDetails()">→</button></div>`);
-  ['cdEmail','cdMobile','cdAddress','cdOccupation'].forEach(id=>document.getElementById(id).addEventListener('input', onContactInput));
-  onContactInput();
-}
-function onContactInput(){
-  const email=document.getElementById('cdEmail').value.trim();
-  const mobile=document.getElementById('cdMobile').value.trim();
-  const address=document.getElementById('cdAddress').value.trim();
-  const occupation=document.getElementById('cdOccupation').value.trim();
-  document.getElementById('contactSend').disabled = !(/^\S+@\S+\.\S+$/.test(email) && mobile && address && occupation);
-}
-function confirmContactDetails(){
-  S.email=document.getElementById('cdEmail').value.trim();
-  S.mobile=document.getElementById('cdMobile').value.trim();
-  S.address=document.getElementById('cdAddress').value.trim();
-  S.occupation=document.getElementById('cdOccupation').value.trim();
-  clearWidget();
-  sayMine(`${S.email}<br>${S.mobile}<br>${S.address}<br>${S.occupation}`, history.length-1);
-  enterStep(askFlightOptional);
+  else enterStep(askFlightOptional);
 }
 
 // ═══════════ OPTIONAL EXTRAS ═══════════
@@ -1132,12 +1102,12 @@ function renderChatTurnstile(){
   });
 }
 function buildPayload(){
-  const proposerName = S.forOther ? S.policyholderName : (travellerData[0]?.fullName || '');
+  const proposerName = travellerData[0]?.fullName || '';
   const travellersOut = travellerData.map((t,i)=>({
     fullName:t.fullName, idNumber:t.idNumber||'', nationality:t.nationality||'MY',
     dateOfBirth:t.dateOfBirth||'', gender:(t.gender||'').toLowerCase(), ageBand:t.ageBand,
-    occupation: (i===0 && !S.forOther) ? S.occupation : '',
-    address: (i===0 && !S.forOther) ? S.address : ''
+    occupation: i===0 ? S.occupation : '',
+    address: i===0 ? S.address : ''
   }));
   const d=S.detail;
   const items=[{ label:`${S.plan.charAt(0).toUpperCase()+S.plan.slice(1)} Plan · ${paxStr(S)}`, value:d.base }];
@@ -1147,7 +1117,7 @@ function buildPayload(){
 
   return {
     source:'chat',
-    proposer:{ name:proposerName, mobile:S.mobile, email:S.email, occupation:S.occupation, address:S.address, sameAsFirstTraveller: !S.forOther },
+    proposer:{ name:proposerName, mobile:S.mobile, email:S.email, occupation:S.occupation, address:S.address, sameAsFirstTraveller: true },
     product:{
       insuranceType:S.tripType, policyType:S.policyType,
       coverageArea:{D:'domestic','1':'area1','2':'area2','3':'area3'}[S.area],

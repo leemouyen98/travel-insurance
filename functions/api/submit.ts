@@ -307,18 +307,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     const planLabel = fmt(PLAN_LABELS, payload.product.selectedPlan);
     const totalFormatted = `RM ${Number(payload.quote.total).toFixed(2)}`;
 
-    // ── Proposer / contact ──────────────────────────────────────────────────
-    // Only show the Contact section if the proposer is NOT Traveller 1.
-    const showContactSection = payload.proposer.sameAsFirstTraveller === false;
-
-    const contactRows = [
-      row("Name",       String(payload.proposer.name       || "—")),
-      row("Mobile",     String(payload.proposer.mobile      || "—")),
-      row("Email",      String(payload.proposer.email       || "—")),
-      row("Occupation", titleCase(String(payload.proposer.occupation || "—"))),
-      row("Address",    String(payload.proposer.address     || "—")),
-    ].join("");
-
     // ── Trip ───────────────────────────────────────────────────────────────
     const isAnnual = payload.product.insuranceType === "annual";
     const tripRows = [
@@ -405,8 +393,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             row("Date of Birth",   dob || "—"),
             row("Gender",          genderDisplay),
             row("Age Band",        fmt(AGE_BAND_LABELS, String(traveller.ageBand || ""))),
-            // Contact info — shown on traveller 0 when same as proposer; avoids duplication
-            ...(index === 0 && !showContactSection
+            // Traveller 1 is always the proposer/contact — no separate contact section needed.
+            ...(index === 0
               ? [
                   row("Mobile", String(payload.proposer.mobile || "—")),
                   row("Email",  String(payload.proposer.email  || "—")),
@@ -453,8 +441,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           ${escapeHtml(totalFormatted)}
         </td>
       </tr>
-
-      ${showContactSection ? `${sectionHeader("Proposer / Contact")}${contactRows}` : ""}
 
       ${sectionHeader("Trip")}
       ${tripRows}
