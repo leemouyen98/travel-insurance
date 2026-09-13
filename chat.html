@@ -118,6 +118,12 @@ body{
 }
 .chat-head-sub{font-size:.72rem;color:var(--text-faint);margin-top:1px}
 .chat-head-sub .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--wa);margin-right:5px;vertical-align:middle}
+
+/* ── Progress track (Trip / Plan / Details / Pay) ── */
+.progress-track{display:flex;gap:4px;padding:.55rem 1.1rem;background:var(--ink);border-bottom:1px solid var(--line);flex-shrink:0}
+.progress-seg{flex:1;height:3px;border-radius:3px;background:var(--line);transition:background .3s ease,opacity .3s ease}
+.progress-seg.active{background:var(--brass)}
+.progress-seg.done{background:var(--brass);opacity:.45}
 .head-actions{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
 .feedback-link{font-size:.72rem;color:var(--text-faint);text-decoration:underline;white-space:nowrap}
 .feedback-link:hover{color:var(--wa)}
@@ -249,6 +255,7 @@ body{
 .plancard .pname{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint)}
 .plancard.pop .pname{color:var(--brass)}
 .plancard .pprice{font-family:'Space Mono',monospace;font-weight:700;font-size:1.05rem;color:var(--text);flex-shrink:0}
+.plan-reco-note{font-size:.72rem;color:var(--brass);line-height:1.4;margin:-.25rem 0 .55rem}
 .plan-feats{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:.32rem .6rem}
 .plan-feats li{display:flex;align-items:flex-start;gap:.35rem;font-size:.74rem;color:var(--text-soft);line-height:1.4}
 .plan-feats .fy{color:var(--wa);flex-shrink:0}
@@ -340,6 +347,12 @@ body{
     </div>
   </div>
 
+  <div class="progress-track" id="progressTrack" aria-hidden="true">
+    <div class="progress-seg" id="pseg-1"></div>
+    <div class="progress-seg" id="pseg-2"></div>
+    <div class="progress-seg" id="pseg-3"></div>
+    <div class="progress-seg" id="pseg-4"></div>
+  </div>
   <div class="thread" id="thread"></div>
   <div class="footer-note" id="footerNote">Not Tokio Marine's official policy portal · Managed by Henry Lee</div>
 </div>
@@ -408,6 +421,16 @@ function calcPremium(S) {
     });
   }
   return out;
+}
+// Picks the best-fit tier for the trip in state — domestic has only one real plan, so it
+// returns null there. International trips default to Essential (best everyday value) and
+// step up to Deluxe when there's meaningfully more to protect or more cancellation risk.
+function recommendPlan(S){
+  if(S.area==='D')return null;
+  if(S.area==='3')return{key:'deluxe',reason:"Area 3 trips carry the highest medical costs abroad — Deluxe's higher cover and CFAR fit best."};
+  if(S.tripType==='annual')return{key:'deluxe',reason:"Annual cover benefits most from Deluxe's higher limits and CFAR."};
+  if(S.tripType==='single'&&S.days>=14)return{key:'deluxe',reason:"Longer trips carry more exposure — Deluxe's higher cover and CFAR fit best."};
+  return{key:'essential',reason:'Great everyday value — solid cover with lounge access included.'};
 }
 function fmtDate(s){ const d=new Date(s+'T00:00:00'); return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
 function paxStr(S){
@@ -605,6 +628,16 @@ function showTextWidget(opts){
 
 const AREA_LABELS = { D:'Domestic', '1':'Area 1: Asia-Pacific', '2':'Area 2: Worldwide excl. USA/Canada', '3':'Area 3: Worldwide' };
 
+// ═══════════ PROGRESS (Trip / Plan / Details / Pay) ═══════════
+// Mirrors the wizard's 4-step track. Set from the first function of each phase, so Back/jump
+// naturally re-sets it correctly whenever one of those phase-entry functions replays.
+function setProgress(phase){
+  for(let i=1;i<=4;i++){
+    const seg=document.getElementById('pseg-'+i);
+    seg.className='progress-seg'+(i<phase?' done':i===phase?' active':'');
+  }
+}
+
 // ═══════════ STEP HISTORY (Back / Start over) ═══════════
 let history=[];
 function snapshotState(){
@@ -677,6 +710,7 @@ function startOver(){
 async function start(){ enterStep(askArea); }
 
 async function askArea(){
+  setProgress(1);
   await sayTheirs("👋🏻 Hi! I'm Henry Lee's AI Assistant. I'll get you a quote in under a minute. Where are you headed?", 700);
   await sleep(600);
   showWidget(`
@@ -844,6 +878,7 @@ async function confirmAdults(){
 }
 
 async function showPlans(){
+  setProgress(2);
   const premiums = calcPremium(S);
   const durationNote = S.tripType==='annual' ? 'annual cover' : `${S.days} day${S.days!==1?'s':''}`;
   const isDomestic = S.area==='D';
@@ -867,41 +902,37 @@ async function showPlans(){
       </div>`);
     return;
   }
+  const reco=recommendPlan(S);
+  const card=(key,label,price,feats)=>{
+    const isReco=reco&&reco.key===key;
+    return `
+      <div class="plancard${isReco?' pop sel':''}" role="radio" aria-checked="${isReco}" tabindex="0" onclick="selectPlanCard('${key}',${price},this)" onkeydown="onOptKey(event)">
+        <div class="plancard-head"><span class="pname">${label}${isReco?' · Recommended':''}</span><span class="pprice">RM ${price.toFixed(2)}</span></div>
+        ${isReco?`<div class="plan-reco-note">${reco.reason}</div>`:''}
+        <ul class="plan-feats">${feats}</ul>
+        <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('${key}',${price})">Confirm ${label} · RM ${price.toFixed(2)}</button>
+      </div>`;
+  };
   showWidget(`
     <div class="plancards">
-      <div class="plancard" role="radio" aria-checked="false" tabindex="0" onclick="selectPlanCard('basic',${premiums.basic},this)" onkeydown="onOptKey(event)">
-        <div class="plancard-head"><span class="pname">Basic</span><span class="pprice">RM ${premiums.basic.toFixed(2)}</span></div>
-        <ul class="plan-feats">
+      ${card('basic','Basic',premiums.basic,`
           <li><span class="fy">✓</span>RM350k PA Cover</li>
           <li><span class="fy">✓</span>RM750k Medical Expenses</li>
           <li><span class="fn">✗</span>Lounge Access</li>
           <li><span class="fn">✗</span>CFAR Cover</li>
-          <li><span class="fn">✗</span>Extreme Activities</li>
-        </ul>
-        <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('basic',${premiums.basic})">Confirm Basic · RM ${premiums.basic.toFixed(2)}</button>
-      </div>
-      <div class="plancard pop" role="radio" aria-checked="false" tabindex="0" onclick="selectPlanCard('essential',${premiums.essential},this)" onkeydown="onOptKey(event)">
-        <div class="plancard-head"><span class="pname">Essential · Popular</span><span class="pprice">RM ${premiums.essential.toFixed(2)}</span></div>
-        <ul class="plan-feats">
+          <li><span class="fn">✗</span>Extreme Activities</li>`)}
+      ${card('essential','Essential',premiums.essential,`
           <li><span class="fy">✓</span>RM550k PA Cover</li>
           <li><span class="fy">✓</span>RM1M Medical Expenses</li>
           <li><span class="fy">✓</span>Lounge Access included</li>
           <li><span class="fn">✗</span>CFAR Cover</li>
-          <li><span class="fn">✗</span>Extreme Activities</li>
-        </ul>
-        <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('essential',${premiums.essential})">Confirm Essential · RM ${premiums.essential.toFixed(2)}</button>
-      </div>
-      <div class="plancard" role="radio" aria-checked="false" tabindex="0" onclick="selectPlanCard('deluxe',${premiums.deluxe},this)" onkeydown="onOptKey(event)">
-        <div class="plancard-head"><span class="pname">Deluxe · Best cover</span><span class="pprice">RM ${premiums.deluxe.toFixed(2)}</span></div>
-        <ul class="plan-feats">
+          <li><span class="fn">✗</span>Extreme Activities</li>`)}
+      ${card('deluxe','Deluxe',premiums.deluxe,`
           <li><span class="fy">✓</span>RM550k PA Cover</li>
           <li><span class="fy">✓</span>RM1M Medical Expenses</li>
           <li><span class="fy">✓</span>Lounge Access included</li>
           <li><span class="fy">✓</span>CFAR up to RM5,000</li>
-          <li><span class="fy">✓</span>Extreme Activities included</li>
-        </ul>
-        <button class="plan-confirm" onclick="event.stopPropagation();confirmPlanSelection('deluxe',${premiums.deluxe})">Confirm Deluxe · RM ${premiums.deluxe.toFixed(2)}</button>
-      </div>
+          <li><span class="fy">✓</span>Extreme Activities included</li>`)}
     </div>
     <div class="note-block">
       <p><b>Lounge Access:</b> a complimentary Mastercard airport lounge pass if your flight's delayed.</p>
@@ -973,6 +1004,7 @@ function buildTravellerList(){
 }
 
 async function askTravellerName(){
+  setProgress(3);
   const t=travellers[curT];
   await sayTheirs(t.label==='you' ? "What's your full name?" : `What's ${t.label}'s full name? (Traveller ${curT+1}, ${t.ageBand})`);
   showTextWidget({placeholder:'As per NRIC / Passport', value:travellerData[curT]?.fullName, onSend:(v)=>{
@@ -1181,6 +1213,7 @@ function confirmNominee(){
 
 // ═══════════ PAYMENT ═══════════
 async function askPaymentMethod(){
+  setProgress(4);
   await sayTheirs('How would you like to pay?');
   showWidget(`<div class="chiprow">
     <button class="chip" onclick="pickPayment('duitnow')">DuitNow QR</button>
@@ -1304,6 +1337,7 @@ async function agreeAndSubmit(){
   }
 }
 async function showSuccess(){
+  setProgress(5);
   await sayTheirs("All submitted! I'll review this and follow up shortly. Your cover note will be sent once your payment is received and confirmed, usually within 2 working hours. Cover only begins once payment is received, so please avoid non-refundable bookings until you've received it.");
   await sayTheirs("Keep these for a smooth claim: original receipts, medical reports/certificates, boarding passes, and any police or authority reports.");
   await sayTheirs("And if anything happens overseas, call our 24-Hour Travel Assistance on <strong>+603 7628 3877</strong> before hospital admission or evacuation, so it's arranged cashless. General Customer Service: 1800 88 0812.");

@@ -256,6 +256,8 @@ body::before{
 /* ── Plan cards ── */
 .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:1.2rem}
 @media(max-width:480px){.plans-grid{grid-template-columns:1fr}}
+.plans-grid.single{grid-template-columns:1fr}
+.plan-reco-note{font-size:.72rem;color:var(--gold-light);line-height:1.45;margin:-.35rem 0 .8rem}
 .plan-card{
   background:var(--surface);border:2px solid var(--border);border-radius:var(--r);
   padding:1.2rem .95rem;cursor:pointer;transition:all .22s ease;
@@ -269,7 +271,6 @@ body::before{
   padding:3px 10px;border-radius:20px;white-space:nowrap;
 }
 .b-pop{background:var(--gold);color:#090e1b}
-.b-best{background:var(--green);color:#090e1b}
 .plan-name{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:.6rem}
 .plan-price{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:600;color:var(--text);line-height:1}
 .plan-card.sel .plan-price{color:var(--gold-light)}
@@ -507,6 +508,14 @@ body::before{
   padding:.75rem 1rem;background:var(--red-dim);border:1px solid rgba(248,113,113,.25);
   border-radius:var(--r-sm);font-size:.82rem;color:var(--red);margin-bottom:1rem;display:none;
 }
+
+/* ── Inline field errors ── */
+.field-err{
+  font-size:.8rem;color:var(--red);margin-top:.5rem;line-height:1.45;
+  display:flex;align-items:flex-start;gap:.4rem;animation:fadeUp .25s ease;
+}
+.field-err::before{content:'⚠';flex-shrink:0;line-height:1.3}
+.area-grid.err{outline:1.5px solid var(--red);outline-offset:5px;border-radius:var(--r-sm)}
 
 /* ── Success ── */
 .success-screen{display:none;text-align:center;padding:3rem 1rem;animation:fadeUp .5s ease}
@@ -781,7 +790,7 @@ body::before{
 <div class="step-panel" id="step-2">
   <div class="panel-heading">
     <h1 class="panel-title">Choose your plan</h1>
-    <p class="panel-sub">Prices shown are calculated for your specific trip.</p>
+    <p class="panel-sub" id="planSubnote">Prices shown are calculated for your specific trip.</p>
   </div>
 
   <div class="plans-grid" id="plansGrid" role="radiogroup" aria-label="Plan"></div>
@@ -1108,23 +1117,71 @@ function renderWizardTurnstile(){
   });
 }
 
+// ═══════════ INLINE FIELD ERRORS ═══════════
+// Renders a small warning line right after `afterEl` instead of a blocking alert(), and
+// scrolls the offending field into view so the user sees exactly what needs fixing.
+function showFieldError(afterEl,msg){
+  const div=document.createElement('div');
+  div.className='field-err';div.setAttribute('data-verr','1');
+  div.textContent=msg;
+  afterEl.insertAdjacentElement('afterend',div);
+  afterEl.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function clearFieldErrors(){
+  document.querySelectorAll('[data-verr]').forEach(el=>el.remove());
+  document.querySelectorAll('.err').forEach(el=>el.classList.remove('err'));
+}
+
 function validateStep(n){
+  clearFieldErrors();
   if(n===1){
-    if(!S.area){alert('Please select your coverage area.');return false;}
-    if(S.tripType==='single'&&(!S.dateFrom||!S.dateTo)){alert('Please select your travel dates.');return false;}
-    if(S.tripType==='single'&&S.days<1){alert('Return date must be after departure date.');return false;}
-    if(S.tripType==='single'&&S.days>180){alert('Trip length exceeds the maximum 180 consecutive days covered under this Policy. Please WhatsApp Henry for a custom arrangement.');return false;}
-    if(S.tripType==='annual'&&!S.annualStart){alert('Please select a policy start date for the Annual plan.');return false;}
+    if(!S.area){
+      const grid=document.getElementById('areaGrid');
+      grid.classList.add('err');
+      showFieldError(grid,'Please select your coverage area.');
+      return false;
+    }
+    if(S.tripType==='single'&&(!S.dateFrom||!S.dateTo)){
+      const toEl=document.getElementById('dateTo'),fromEl=document.getElementById('dateFrom');
+      if(!S.dateFrom)fromEl.classList.add('err'); if(!S.dateTo)toEl.classList.add('err');
+      showFieldError(document.getElementById('dateSection'),'Please select both your departure and return dates.');
+      return false;
+    }
+    if(S.tripType==='single'&&S.days<1){
+      document.getElementById('dateTo').classList.add('err');
+      showFieldError(document.getElementById('dateSection'),'Return date must be after departure date.');
+      return false;
+    }
+    if(S.tripType==='single'&&S.days>180){
+      document.getElementById('dateTo').classList.add('err');
+      showFieldError(document.getElementById('dateSection'),"Trip length exceeds the maximum 180 consecutive days covered under this Policy. Please WhatsApp Henry for a custom arrangement.");
+      return false;
+    }
+    if(S.tripType==='annual'&&!S.annualStart){
+      const startEl=document.getElementById('annualStart');
+      startEl.classList.add('err');
+      showFieldError(document.getElementById('annualDateSection'),'Please select a policy start date for the Annual plan.');
+      return false;
+    }
   }
   if(n===3){
     const missingNric=[];
+    let firstBadInput=null;
     document.querySelectorAll('#nomineeContainer .nom-block').forEach(block=>{
       const nid=block.id.replace('nom-block-','');
       const name=document.getElementById(`nom-name-${nid}`)?.value?.trim();
-      const nric=document.getElementById(`nom-nric-${nid}`)?.value?.trim();
-      if(name&&!nric)missingNric.push(name);
+      const nricEl=document.getElementById(`nom-nric-${nid}`);
+      const nric=nricEl?.value?.trim();
+      if(name&&!nric){
+        missingNric.push(name);
+        nricEl.classList.add('err');
+        if(!firstBadInput)firstBadInput=nricEl;
+      }
     });
-    if(missingNric.length){alert(`Please enter NRIC for nominee: ${missingNric.join(', ')}`);return false;}
+    if(missingNric.length){
+      showFieldError(firstBadInput,`Please enter NRIC for nominee: ${missingNric.join(', ')}.`);
+      return false;
+    }
   }
   return true;
 }
@@ -1142,7 +1199,7 @@ function updateDots(){
   const pill=document.getElementById('premiumPill');
   if(cur>=2&&S.totals.essential>0){
     pill.classList.add('visible');
-    document.getElementById('pillPlan').textContent=cap(S.plan)+' Plan';
+    document.getElementById('pillPlan').textContent=planLabel();
     document.getElementById('pillPax').textContent=paxStr();
     document.getElementById('pillAmount').textContent='RM '+S.totals[S.plan].toFixed(2);
   }else{pill.classList.remove('visible');}
@@ -1324,21 +1381,61 @@ function paxStr(){
 
 // ═══════════ PLAN CARDS ═══════════
 const PLAN_META=[
-  {key:'basic',name:'Basic',badge:null,feats:['RM350k Accidental Death','RM750k Medical Expenses','RM1M Emergency Evacuation','No Lounge Access','No CFAR cover']},
-  {key:'essential',name:'Essential',badge:{t:'Popular',c:'b-pop'},feats:['RM550k Accidental Death','RM1M Medical Expenses','Unlimited Evacuation','Lounge Access included','No CFAR cover']},
-  {key:'deluxe',name:'Deluxe',badge:{t:'Best Cover',c:'b-best'},feats:['RM550k Accidental Death','RM1M Medical Expenses','Unlimited Evacuation','Lounge Access included','CFAR up to RM5k']},
+  {key:'basic',name:'Basic',feats:['RM350k Accidental Death','RM750k Medical Expenses','RM1M Emergency Evacuation','No Lounge Access','No CFAR cover']},
+  {key:'essential',name:'Essential',feats:['RM550k Accidental Death','RM1M Medical Expenses','Unlimited Evacuation','Lounge Access included','No CFAR cover']},
+  {key:'deluxe',name:'Deluxe',feats:['RM550k Accidental Death','RM1M Medical Expenses','Unlimited Evacuation','Lounge Access included','CFAR up to RM5k']},
 ];
+
+// Picks the best-fit tier for the trip in state — domestic has only one real plan, so it
+// returns null there. International trips default to Essential (best everyday value) and
+// step up to Deluxe when there's meaningfully more to protect or more cancellation risk.
+function recommendPlan(){
+  if(S.area==='D')return null;
+  if(S.area==='3')return{key:'deluxe',reason:"Area 3 trips carry the highest medical costs abroad — Deluxe's higher cover and CFAR fit best."};
+  if(S.tripType==='annual')return{key:'deluxe',reason:"Annual cover benefits most from Deluxe's higher limits and CFAR."};
+  if(S.tripType==='single'&&S.days>=14)return{key:'deluxe',reason:"Longer trips carry more exposure — Deluxe's higher cover and CFAR fit best."};
+  return{key:'essential',reason:'Great everyday value — solid cover with lounge access included.'};
+}
+
+function planLabel(){
+  return S.area==='D'?'Domestic Plan':cap(S.plan)+' Plan';
+}
 
 function renderPlans(){
   const groupEligible = S.policyType !== 'family' && S.adults >= 2;
   const discountNote = groupEligible ? ' · 5% group discount applied' : '';
-  const taxNote = S.area==='D' ? '+8% SST & stamp duty' : '+stamp duty RM10';
+
+  if(S.area==='D'){
+    document.getElementById('planSubnote').textContent='Domestic trips are covered by a single plan — no tiers to pick between.';
+    document.getElementById('plansGrid').className='plans-grid single';
+    document.getElementById('plansGrid').innerHTML=`
+      <div class="plan-card sel" style="cursor:default">
+        <div class="plan-name">Domestic Plan</div>
+        <div class="plan-price">RM ${S.premiums.essential>0?S.premiums.essential.toFixed(2):'—'}</div>
+        <div class="plan-price-note">${paxStr()}${discountNote} · +8% SST &amp; stamp duty</div>
+        <ul class="plan-feats">
+          <li><span class="fy feat-icon">✓</span>RM200k Personal Accident Cover</li>
+          <li><span class="fy feat-icon">✓</span>RM50k Medical Expenses</li>
+          <li><span class="fy feat-icon">✓</span>RM500k Emergency Medical Evacuation</li>
+        </ul>
+      </div>`;
+    document.getElementById('cfarNote').style.display='none';
+    return;
+  }
+
+  document.getElementById('plansGrid').className='plans-grid';
+  const reco=recommendPlan();
+  document.getElementById('planSubnote').textContent=reco
+    ?`Prices shown are calculated for your specific trip. We'd recommend ${cap(reco.key)} for this one.`
+    :'Prices shown are calculated for your specific trip.';
+  const taxNote='+stamp duty RM10';
   document.getElementById('plansGrid').innerHTML=PLAN_META.map(p=>`
     <div class="plan-card${S.plan===p.key?' sel':''}" role="radio" aria-checked="${S.plan===p.key}" tabindex="0" onclick="selPlan('${p.key}',this)" onkeydown="onOptKey(event)">
-      ${p.badge?`<div class="plan-badge ${p.badge.c}">${p.badge.t}</div>`:''}
+      ${reco&&reco.key===p.key?`<div class="plan-badge b-pop">Recommended</div>`:''}
       <div class="plan-name">${p.name}</div>
       <div class="plan-price">RM ${S.premiums[p.key]>0?S.premiums[p.key].toFixed(2):'—'}</div>
       <div class="plan-price-note">${paxStr()}${discountNote} · ${taxNote}</div>
+      ${reco&&reco.key===p.key?`<div class="plan-reco-note">${reco.reason}</div>`:''}
       <ul class="plan-feats">
         ${p.feats.map(f=>{
           const yes=!f.startsWith('No ');
@@ -1777,11 +1874,11 @@ function renderReview(){
   document.getElementById('rv-pax').textContent=paxStr();
   const names=getTravellerList().map(t=>t.label).join(', ');
   document.getElementById('rv-names').textContent=names||'—';
-  document.getElementById('rv-plan').textContent=cap(S.plan)+' Plan';
+  document.getElementById('rv-plan').textContent=planLabel();
   document.getElementById('rv-type').textContent=(S.tripType==='annual'?'Annual':'Single Trip')+' · '+cap(S.policyType);
   document.getElementById('rv-total').textContent='RM '+(S.totals[S.plan]||0).toFixed(2);
   document.getElementById('pillAmount').textContent='RM '+(S.totals[S.plan]||0).toFixed(2);
-  document.getElementById('pillPlan').textContent=cap(S.plan)+' Plan';
+  document.getElementById('pillPlan').textContent=planLabel();
 }
 
 function fmtDate(s){
@@ -2076,7 +2173,7 @@ async function doSubmit(){
     quote:{
       total:S.totals[S.plan],
       items:[
-        {label:`${cap(S.plan)} Plan · ${paxStr()}`,value:S.premiums[S.plan]},
+        {label:`${planLabel()} · ${paxStr()}`,value:S.premiums[S.plan]},
         ...(S.policyType!=='family'&&S.adults>=2?[{label:'5% Group Discount',value:-Math.round(S.premiums[S.plan]/0.95*0.05*100)/100}]:[]),
         ...(S.area==='D'?[{label:'8% Service Tax',value:Math.round(S.premiums[S.plan]*0.08*100)/100}]:[]),
         {label:'Stamp Duty',value:stampDutyAmount(S.premiums[S.plan],S.area==='D')}
