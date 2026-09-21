@@ -1875,7 +1875,7 @@ function renderReview(){
   const names=getTravellerList().map(t=>t.label).join(', ');
   document.getElementById('rv-names').textContent=names||'—';
   document.getElementById('rv-plan').textContent=planLabel();
-  document.getElementById('rv-type').textContent=(S.tripType==='annual'?'Annual':'Single Trip')+' · '+cap(S.policyType);
+  document.getElementById('rv-type').textContent=(S.tripType==='annual'?'Annual':'Single Trip')+' · '+(S.policyType!=='family'&&S.adults>=2?'Group':cap(S.policyType));
   document.getElementById('rv-total').textContent='RM '+(S.totals[S.plan]||0).toFixed(2);
   document.getElementById('pillAmount').textContent='RM '+(S.totals[S.plan]||0).toFixed(2);
   document.getElementById('pillPlan').textContent=planLabel();
