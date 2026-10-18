@@ -488,20 +488,6 @@ function fmtNRICStr(v){
   if(d.length>9)d=d.slice(0,9)+'-'+d.slice(9);
   return d;
 }
-// A leading digit means NRIC (Malaysians); anything else means passport (foreigners) —
-// passports don't encode DOB/gender the way an NRIC does, so that has to be asked separately.
-function isPassportId(v){
-  const s=(v||'').trim();
-  return s.length>0 && !/^\d/.test(s);
-}
-function fmtIdStr(v){
-  return isPassportId(v) ? v.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,20) : fmtNRICStr(v);
-}
-function validIdStr(v){
-  const s=(v||'').trim();
-  if (!s) return false;
-  return isPassportId(s) ? s.replace(/[^A-Za-z0-9]/g,'').length>=5 : s.replace(/\D/g,'').length===12;
-}
 function parseNRICInfo(nric){
   const raw=nric.replace(/\D/g,'');
   if(raw.length<12) return null;
@@ -1025,24 +1011,56 @@ async function askTravellerName(){
   showTextWidget({placeholder:'As per NRIC / Passport', value:travellerData[curT]?.fullName, onSend:(v)=>{
     clearWidget(); sayMine(v.trim(), history.length-1);
     travellerData[curT] = { fullName:v.trim(), ageBand:t.ageBand };
-    if (curT===0) enterStep(askNricMobile); else enterStep(askNRIC);
+    enterStep(askIdType);
   }});
 }
-// First traveller only: they're also the contact/proposer, so NRIC/passport and mobile go together.
+// Forces an explicit Malaysian/foreigner choice before the ID field, rather than guessing from
+// what's typed — a Malaysian typing their passport number here used to slip through and need a
+// manual WhatsApp follow-up to get the real NRIC later.
+async function askIdType(){
+  const t=travellerData[curT];
+  await sayTheirs(curT===0
+    ? 'Are you a Malaysian (NRIC), or a foreign passport holder?'
+    : `Is ${t.fullName} a Malaysian (NRIC), or a foreign passport holder?`);
+  showWidget(`<div class="chiprow">
+    <button class="chip" onclick="pickIdType('nric')">Malaysian — NRIC</button>
+    <button class="chip" onclick="pickIdType('passport')">Foreign — Passport</button>
+  </div>`);
+}
+function pickIdType(type){
+  clearWidget();
+  sayMine(type==='nric' ? 'Malaysian — NRIC' : 'Foreign — Passport', history.length-1);
+  travellerData[curT].idType=type;
+  enterStep(curT===0 ? askNricMobile : askNRIC);
+}
+// Field shape for whichever idType was picked above — NRIC only takes 12 digits,
+// passport only takes alphanumeric, so each rejects the other's format outright.
+function idFieldMeta(type){
+  return type==='passport'
+    ? { label:'Passport', fieldLabel:'Passport Number', placeholder:'e.g. A12345678', maxlength:20,
+        format:v=>v.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,20),
+        validate:v=>v.replace(/[^A-Za-z0-9]/g,'').length>=5 }
+    : { label:'NRIC', fieldLabel:'NRIC', placeholder:'000000-00-0000', maxlength:14,
+        format:fmtNRICStr,
+        validate:v=>v.replace(/\D/g,'').length===12 };
+}
+// First traveller only: they're also the contact/proposer, so ID and mobile go together.
 async function askNricMobile(){
-  await sayTheirs('NRIC/ Passport number and mobile number?');
+  const meta=idFieldMeta(travellerData[curT].idType);
+  await sayTheirs(`${meta.label} number and mobile number?`);
   showWidget(`
-    <div class="datefield" style="margin-bottom:.55rem"><label>NRIC / Passport</label><input type="text" id="nmNric" placeholder="000000-00-0000 or passport no." maxlength="20" value="${travellerData[curT]?.idNumber||''}"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>${meta.fieldLabel}</label><input type="text" id="nmNric" placeholder="${meta.placeholder}" maxlength="${meta.maxlength}" value="${travellerData[curT]?.idNumber||''}"></div>
     <div class="datefield" style="margin-bottom:.55rem"><label>Mobile Number</label><input type="tel" id="nmMobile" placeholder="012 345 6789" value="${S.mobile||''}"></div>
     <div class="send-row"><button class="send-btn" id="nmSend" disabled onclick="confirmNricMobile()">→</button></div>`);
-  document.getElementById('nmNric').addEventListener('input', e=>{ e.target.value=fmtIdStr(e.target.value); onNricMobileInput(); });
+  document.getElementById('nmNric').addEventListener('input', e=>{ e.target.value=meta.format(e.target.value); onNricMobileInput(); });
   document.getElementById('nmMobile').addEventListener('input', onNricMobileInput);
   onNricMobileInput();
 }
 function onNricMobileInput(){
+  const meta=idFieldMeta(travellerData[curT].idType);
   const nric=document.getElementById('nmNric').value;
   const mobile=document.getElementById('nmMobile').value.trim();
-  document.getElementById('nmSend').disabled = !(validIdStr(nric) && mobile);
+  document.getElementById('nmSend').disabled = !(meta.validate(nric) && mobile);
 }
 function confirmNricMobile(){
   const nricVal=document.getElementById('nmNric').value.trim();
@@ -1050,7 +1068,7 @@ function confirmNricMobile(){
   clearWidget();
   sayMine(`${nricVal}<br>${S.mobile}`, history.length-1);
   travellerData[curT].idNumber=nricVal;
-  if (isPassportId(nricVal)){
+  if (travellerData[curT].idType==='passport'){
     travellerData[curT].nationality='';
     travellerData[curT].dateOfBirth='';
     travellerData[curT].gender='';
@@ -1133,15 +1151,16 @@ function confirmAddressEmailOccupation(){
 // Every other traveller (senior, child, additional adult): name then NRIC, nothing else —
 // contact details belong to the first traveller only.
 async function askNRIC(){
-  await sayTheirs('NRIC/ Passport number?');
+  const meta=idFieldMeta(travellerData[curT].idType);
+  await sayTheirs(`${meta.label} number?`);
   showTextWidget({
-    placeholder:'000000-00-0000 or passport no.', maxlength:20, format:fmtIdStr,
-    validate:validIdStr,
+    placeholder:meta.placeholder, maxlength:meta.maxlength, format:meta.format,
+    validate:meta.validate,
     value:travellerData[curT]?.idNumber,
     onSend:(v)=>{
       clearWidget(); sayMine(v, history.length-1);
       travellerData[curT].idNumber=v;
-      if (isPassportId(v)){
+      if (travellerData[curT].idType==='passport'){
         travellerData[curT].nationality='';
         travellerData[curT].dateOfBirth='';
         travellerData[curT].gender='';
