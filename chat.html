@@ -235,6 +235,21 @@ body{
 .send-btn:hover{transform:scale(1.06)}
 .send-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 
+/* ── Nominee (multi-beneficiary split) ── */
+.nom-block{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--r);padding:.75rem .85rem;margin-bottom:.55rem}
+.nom-block-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.nom-block-title{font-size:.68rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--text-faint)}
+.nom-remove{background:none;border:none;color:var(--text-faint);font-size:.95rem;cursor:pointer;line-height:1;padding:0 .2rem;font-family:inherit}
+.nom-remove:hover{color:var(--text)}
+.nom-alloc-line{font-size:.72rem;color:var(--text-faint);padding:.1rem 0 .6rem}
+.nom-alloc-line.warn{color:var(--brass-deep)}
+.btn-add-nominee{
+  width:100%;background:transparent;border:1.5px dashed var(--line);border-radius:var(--r);
+  color:var(--text-soft);font-family:inherit;font-size:.8rem;font-weight:600;padding:.6rem;
+  cursor:pointer;margin-bottom:.6rem;
+}
+.btn-add-nominee:hover{border-color:var(--brass);color:var(--brass)}
+
 /* ── Plan cards ── */
 .plancards{display:flex;flex-direction:column;gap:.55rem}
 .plancard{
@@ -1158,33 +1173,84 @@ function skipTravellerNominee(){
   clearWidget(); sayMine('Skip', history.length-1);
   nextTravellerOrContinue();
 }
+// Nominee blocks for the traveller currently being asked. Single nominee defaults to 100%;
+// adding another re-splits evenly (50/50, 34/33/33, …) — the client can then type over any
+// share themselves. nid is a stable per-block id so inputs survive add/remove re-renders.
+let nomBlocks=[], nomNid=0;
 async function travellerNomineeYes(){
   clearWidget(); sayMine('Add nominee', history.length-1);
-  await sayTheirs("Nominee's full name, NRIC, and relationship:");
-  const existing=travellerData[curT].nominee;
-  showWidget(`
-    <div class="datefield" style="margin-bottom:.55rem"><label>Full Name</label><input type="text" id="nomName" placeholder="Full name" value="${existing?.name||''}"></div>
-    <div class="datefield" style="margin-bottom:.55rem"><label>NRIC</label><input type="text" id="nomNRIC" placeholder="000000-00-0000" maxlength="14" value="${existing?.idNumber||''}"></div>
-    <div class="datefield" style="margin-bottom:.55rem"><label>Relationship</label>
-      <select id="nomRel">
-        <option value="">Select…</option>
-        <option>Spouse</option><option>Parent</option><option>Child</option><option>Sibling</option><option>Other</option>
-      </select>
-    </div>
-    <div class="send-row"><button class="send-btn" id="nomineeSend" disabled onclick="confirmTravellerNominee()">→</button></div>`);
-  document.getElementById('nomName').addEventListener('input', onNomineeInput);
-  document.getElementById('nomNRIC').addEventListener('input', e=>{ e.target.value=fmtNRICStr(e.target.value); onNomineeInput(); });
-  document.getElementById('nomRel').addEventListener('change', onNomineeInput);
-  if (existing?.relationship) document.getElementById('nomRel').value=existing.relationship;
-  onNomineeInput();
+  await sayTheirs("Nominee's full name, NRIC, relationship, and allocation %:");
+  const existing=travellerData[curT].nominees;
+  nomBlocks = existing && existing.length
+    ? existing.map(n=>({nid:++nomNid, name:n.name, idNumber:n.idNumber, relationship:n.relationship, share:n.share}))
+    : [{nid:++nomNid, name:'', idNumber:'', relationship:'', share:100}];
+  renderNomBlocks();
 }
-function confirmTravellerNominee(){
-  const name=document.getElementById('nomName').value.trim();
-  const idNumber=document.getElementById('nomNRIC').value.trim();
-  const relationship=document.getElementById('nomRel').value;
+function nomBlockHtml(b, idx){
+  return `
+    <div class="nom-block">
+      <div class="nom-block-head">
+        <span class="nom-block-title">Beneficiary ${idx+1}</span>
+        ${nomBlocks.length>1 ? `<button type="button" class="nom-remove" onclick="removeNomBlock(${b.nid})">✕</button>` : ''}
+      </div>
+      <div class="datefield" style="margin-bottom:.5rem"><label>Full Name</label><input type="text" id="nomName-${b.nid}" placeholder="Full name" value="${b.name||''}"></div>
+      <div class="datefield" style="margin-bottom:.5rem"><label>NRIC</label><input type="text" id="nomNric-${b.nid}" placeholder="000000-00-0000" maxlength="14" value="${b.idNumber||''}"></div>
+      <div class="datefield" style="margin-bottom:.5rem"><label>Relationship</label>
+        <select id="nomRel-${b.nid}">
+          <option value="">Select…</option>
+          <option>Spouse</option><option>Parent</option><option>Child</option><option>Sibling</option><option>Other</option>
+        </select>
+      </div>
+      <div class="datefield"><label>Allocation %</label><input type="number" id="nomShare-${b.nid}" min="1" max="100" value="${b.share}"></div>
+    </div>`;
+}
+function renderNomBlocks(){
   clearWidget();
-  sayMine(`${name}<br>${idNumber}<br>${relationship}`, history.length-1);
-  travellerData[curT].nominee={name, idNumber, relationship, share:100};
+  showWidget(`
+    <div id="nomBlocksWrap"></div>
+    <button type="button" class="btn-add-nominee" onclick="addNomBlock()">+ Add another beneficiary</button>
+    <div class="nom-alloc-line" id="nomAllocLine"></div>
+    <div class="send-row"><button class="send-btn" id="nomineeSend" onclick="confirmTravellerNominees()">→</button></div>`);
+  document.getElementById('nomBlocksWrap').innerHTML = nomBlocks.map((b,i)=>nomBlockHtml(b,i)).join('');
+  nomBlocks.forEach(b=>{
+    document.getElementById(`nomName-${b.nid}`).addEventListener('input', e=>{ b.name=e.target.value; updateNomState(); });
+    document.getElementById(`nomNric-${b.nid}`).addEventListener('input', e=>{ e.target.value=fmtNRICStr(e.target.value); b.idNumber=e.target.value; updateNomState(); });
+    document.getElementById(`nomRel-${b.nid}`).addEventListener('change', e=>{ b.relationship=e.target.value; updateNomState(); });
+    document.getElementById(`nomShare-${b.nid}`).addEventListener('input', e=>{ b.share=parseFloat(e.target.value)||0; updateNomState(); });
+    if (b.relationship) document.getElementById(`nomRel-${b.nid}`).value=b.relationship;
+  });
+  updateNomState();
+}
+// Evenly re-splits 100% across all current blocks, front-loading the remainder
+// (3 blocks -> 34/33/33, not 33/33/33=99) — called on add/remove only, never on a manual edit.
+function redistributeNomShares(){
+  const n=nomBlocks.length;
+  const base=Math.floor(100/n), rem=100-base*n;
+  nomBlocks.forEach((b,i)=>{ b.share = base + (i<rem?1:0); });
+}
+function addNomBlock(){
+  nomBlocks.push({nid:++nomNid, name:'', idNumber:'', relationship:'', share:0});
+  redistributeNomShares();
+  renderNomBlocks();
+}
+function removeNomBlock(nid){
+  nomBlocks = nomBlocks.filter(b=>b.nid!==nid);
+  redistributeNomShares();
+  renderNomBlocks();
+}
+function updateNomState(){
+  const total = Math.round(nomBlocks.reduce((s,b)=>s+(parseFloat(b.share)||0),0)*10)/10;
+  const line = document.getElementById('nomAllocLine');
+  const complete = nomBlocks.every(b=>b.name?.trim() && (b.idNumber||'').replace(/\D/g,'').length===12 && b.relationship && b.share>0);
+  line.textContent = total===100 ? `${total}% allocated` : total>100 ? `⚠ ${total}% allocated — exceeds 100% by ${(total-100).toFixed(1)}%` : `${total}% allocated — ${(100-total).toFixed(1)}% remaining`;
+  line.className = 'nom-alloc-line'+(total!==100?' warn':'');
+  document.getElementById('nomineeSend').disabled = !(complete && total===100);
+}
+function confirmTravellerNominees(){
+  const summary = nomBlocks.map(b=>`${b.name.trim()} (${b.relationship}) — ${b.share}%`).join('<br>');
+  clearWidget();
+  sayMine(summary, history.length-1);
+  travellerData[curT].nominees = nomBlocks.map(b=>({name:b.name.trim(), idNumber:b.idNumber.trim(), relationship:b.relationship, share:b.share}));
   nextTravellerOrContinue();
 }
 
@@ -1213,12 +1279,6 @@ async function confirmFlight(){
 function skipStep(which){
   clearWidget(); sayMine('Skip', history.length-1);
   if (which==='flight') enterStep(askPaymentMethod);
-}
-function onNomineeInput(){
-  const name=document.getElementById('nomName').value.trim();
-  const nric=document.getElementById('nomNRIC').value.replace(/\D/g,'');
-  const rel=document.getElementById('nomRel').value;
-  document.getElementById('nomineeSend').disabled = !(name && nric.length===12 && rel);
 }
 
 // ═══════════ PAYMENT ═══════════
@@ -1319,7 +1379,7 @@ function buildPayload(){
     quote:{ total:d.total, items },
     paymentMethod:S.payMethod,
     insuredTravellers:travellersOut,
-    nominees: travellerData.flatMap((t,i)=>t.nominee ? [{travellerIndex:i, name:t.nominee.name, idNumber:t.nominee.idNumber||'', relationship:t.nominee.relationship, share:t.nominee.share}] : []),
+    nominees: travellerData.flatMap((t,i)=>(t.nominees||[]).map(n=>({travellerIndex:i, name:n.name, idNumber:n.idNumber||'', relationship:n.relationship, share:n.share}))),
     flights: S.flight ? [S.flight] : []
   };
 }
