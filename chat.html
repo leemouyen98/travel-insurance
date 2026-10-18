@@ -1088,7 +1088,7 @@ function confirmNationalityGenderDob(){
   const t=travellerData[curT];
   t.nationality=nationality; t.gender=gender; t.dateOfBirth=dobFmt; t.dobRaw=dobRaw;
   const age=ageFromParts(yr,mo,da);
-  checkEligibilityThen(age, curT===0 ? ()=>enterStep(askAddressEmailOccupation) : nextTravellerOrContinue);
+  checkEligibilityThen(age, curT===0 ? ()=>enterStep(askAddressEmailOccupation) : ()=>enterStep(askTravellerNomineeOptional));
 }
 // First traveller only, right after NRIC + mobile.
 async function askAddressEmailOccupation(){
@@ -1113,7 +1113,7 @@ function confirmAddressEmailOccupation(){
   S.occupation=document.getElementById('aeoOccupation').value.trim();
   clearWidget();
   sayMine(`${S.address}<br>${S.email}<br>${S.occupation}`, history.length-1);
-  nextTravellerOrContinue();
+  enterStep(askTravellerNomineeOptional);
 }
 // Every other traveller (senior, child, additional adult): name then NRIC, nothing else —
 // contact details belong to the first traveller only.
@@ -1138,13 +1138,54 @@ async function askNRIC(){
       travellerData[curT].dateOfBirth=info?info.dob:'';
       travellerData[curT].gender=info?info.gender:'';
       const age=info?ageFromParts(info.year,info.month,info.day):null;
-      checkEligibilityThen(age, nextTravellerOrContinue);
+      checkEligibilityThen(age, ()=>enterStep(askTravellerNomineeOptional));
     }});
 }
 function nextTravellerOrContinue(){
   curT++;
   if (curT < travellers.length) enterStep(askTravellerName);
   else enterStep(askFlightOptional);
+}
+// Asked once per traveller, right after their own details — each insured person nominates
+// their own claim-payout beneficiary rather than one nominee covering the whole policy.
+async function askTravellerNomineeOptional(){
+  const t=travellerData[curT];
+  const who = curT===0 ? 'your' : `${t.fullName}'s`;
+  await sayTheirs(`Add a nominee for ${who} claim payout? Optional.`);
+  showWidget(`<div class="chiprow"><button class="chip" onclick="travellerNomineeYes()">Add nominee</button><button class="chip" onclick="skipTravellerNominee()">Skip</button></div>`);
+}
+function skipTravellerNominee(){
+  clearWidget(); sayMine('Skip', history.length-1);
+  nextTravellerOrContinue();
+}
+async function travellerNomineeYes(){
+  clearWidget(); sayMine('Add nominee', history.length-1);
+  await sayTheirs("Nominee's full name, NRIC, and relationship:");
+  const existing=travellerData[curT].nominee;
+  showWidget(`
+    <div class="datefield" style="margin-bottom:.55rem"><label>Full Name</label><input type="text" id="nomName" placeholder="Full name" value="${existing?.name||''}"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>NRIC</label><input type="text" id="nomNRIC" placeholder="000000-00-0000" maxlength="14" value="${existing?.idNumber||''}"></div>
+    <div class="datefield" style="margin-bottom:.55rem"><label>Relationship</label>
+      <select id="nomRel">
+        <option value="">Select…</option>
+        <option>Spouse</option><option>Parent</option><option>Child</option><option>Sibling</option><option>Other</option>
+      </select>
+    </div>
+    <div class="send-row"><button class="send-btn" id="nomineeSend" disabled onclick="confirmTravellerNominee()">→</button></div>`);
+  document.getElementById('nomName').addEventListener('input', onNomineeInput);
+  document.getElementById('nomNRIC').addEventListener('input', e=>{ e.target.value=fmtNRICStr(e.target.value); onNomineeInput(); });
+  document.getElementById('nomRel').addEventListener('change', onNomineeInput);
+  if (existing?.relationship) document.getElementById('nomRel').value=existing.relationship;
+  onNomineeInput();
+}
+function confirmTravellerNominee(){
+  const name=document.getElementById('nomName').value.trim();
+  const idNumber=document.getElementById('nomNRIC').value.trim();
+  const relationship=document.getElementById('nomRel').value;
+  clearWidget();
+  sayMine(`${name}<br>${idNumber}<br>${relationship}`, history.length-1);
+  travellerData[curT].nominee={name, idNumber, relationship, share:100};
+  nextTravellerOrContinue();
 }
 
 // ═══════════ OPTIONAL EXTRAS ═══════════
@@ -1167,48 +1208,17 @@ async function confirmFlight(){
   const date=document.getElementById('wFlightDate').value;
   S.flight={departureFlightNumber:num, departureDate:fmtDate(date)};
   clearWidget(); sayMine(`${num||'Flight'} · ${fmtDate(date)}`, history.length-1);
-  enterStep(askNomineeOptional);
+  enterStep(askPaymentMethod);
 }
 function skipStep(which){
   clearWidget(); sayMine('Skip', history.length-1);
-  if (which==='flight') enterStep(askNomineeOptional);
-  else if (which==='nominee') enterStep(askPaymentMethod);
-}
-async function askNomineeOptional(){
-  await sayTheirs('Add a nominee for claim payout? Optional.');
-  showWidget(`<div class="chiprow"><button class="chip" onclick="nomineeYes()">Add nominee</button><button class="chip" onclick="skipStep('nominee')">Skip</button></div>`);
-}
-async function nomineeYes(){
-  clearWidget(); sayMine('Add nominee', history.length-1);
-  await sayTheirs("Nominee's full name, NRIC, and relationship to you:");
-  showWidget(`
-    <div class="datefield" style="margin-bottom:.55rem"><label>Full Name</label><input type="text" id="nomName" placeholder="Full name"></div>
-    <div class="datefield" style="margin-bottom:.55rem"><label>NRIC</label><input type="text" id="nomNRIC" placeholder="000000-00-0000" maxlength="14"></div>
-    <div class="datefield" style="margin-bottom:.55rem"><label>Relationship</label>
-      <select id="nomRel">
-        <option value="">Select…</option>
-        <option>Spouse</option><option>Parent</option><option>Child</option><option>Sibling</option>
-      </select>
-    </div>
-    <div class="send-row"><button class="send-btn" id="nomineeSend" disabled onclick="confirmNominee()">→</button></div>`);
-  document.getElementById('nomName').addEventListener('input', onNomineeInput);
-  document.getElementById('nomNRIC').addEventListener('input', e=>{ e.target.value=fmtNRICStr(e.target.value); onNomineeInput(); });
-  document.getElementById('nomRel').addEventListener('change', onNomineeInput);
+  if (which==='flight') enterStep(askPaymentMethod);
 }
 function onNomineeInput(){
   const name=document.getElementById('nomName').value.trim();
   const nric=document.getElementById('nomNRIC').value.replace(/\D/g,'');
   const rel=document.getElementById('nomRel').value;
   document.getElementById('nomineeSend').disabled = !(name && nric.length===12 && rel);
-}
-function confirmNominee(){
-  const name=document.getElementById('nomName').value.trim();
-  const idNumber=document.getElementById('nomNRIC').value.trim();
-  const relationship=document.getElementById('nomRel').value;
-  S.nominee={name, idNumber, relationship, share:100};
-  clearWidget();
-  sayMine(`${name}<br>${idNumber}<br>${relationship}`, history.length-1);
-  enterStep(askPaymentMethod);
 }
 
 // ═══════════ PAYMENT ═══════════
@@ -1309,7 +1319,7 @@ function buildPayload(){
     quote:{ total:d.total, items },
     paymentMethod:S.payMethod,
     insuredTravellers:travellersOut,
-    nominees: S.nominee ? [{travellerIndex:0, name:S.nominee.name, idNumber:S.nominee.idNumber||'', relationship:S.nominee.relationship, share:S.nominee.share}] : [],
+    nominees: travellerData.flatMap((t,i)=>t.nominee ? [{travellerIndex:i, name:t.nominee.name, idNumber:t.nominee.idNumber||'', relationship:t.nominee.relationship, share:t.nominee.share}] : []),
     flights: S.flight ? [S.flight] : []
   };
 }
