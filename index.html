@@ -125,48 +125,47 @@ body{
 /* ── Layout ── */
 .wrap{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:0 1.25rem 5rem}
 
-/* ── Header ── */
-.site-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:1.5rem 0 2.75rem;
+/* ── Nav bar (sticky: back chevron, compact title, progress) ── */
+.nav-wrap{
+  position:sticky;top:0;z-index:30;margin:0 -1.25rem;
+  background:color-mix(in srgb,var(--bg) 78%,transparent);
+  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--border);
 }
-.logo-name{
-  font-size:1.15rem;font-weight:700;color:var(--text);letter-spacing:-.01em;display:block;
+.nav-bar{display:flex;align-items:center;gap:.4rem;padding:.6rem 1.25rem}
+.nav-back{
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  width:30px;height:30px;margin-left:-.45rem;
+  background:none;border:none;color:var(--gold);cursor:pointer;
+  opacity:0;pointer-events:none;transition:opacity var(--ease);
 }
-.logo-sub{
-  font-size:.68rem;font-weight:600;color:var(--gold);
-  letter-spacing:.09em;text-transform:uppercase;display:block;margin-top:1px;
+.nav-back.show{opacity:1;pointer-events:auto}
+.nav-back svg{width:19px;height:19px}
+.nav-title{flex:1;min-width:0;text-align:center;display:flex;flex-direction:column;line-height:1.2}
+.nav-title-name{font-size:.78rem;font-weight:600;color:var(--text)}
+.nav-title-step{font-size:.68rem;color:var(--text-2)}
+.nav-wa{
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--surface-2);color:var(--text-2);transition:opacity var(--ease);
 }
-.wa-btn{
-  display:flex;align-items:center;gap:.4rem;
-  padding:.5rem 1rem;background:var(--surface);
-  border:none;box-shadow:0 0 0 .5px var(--border);border-radius:50px;
-  color:var(--text-2);font-size:.82rem;font-weight:500;
-  text-decoration:none;transition:opacity var(--ease);white-space:nowrap;
-}
-.wa-btn:hover{opacity:.7}
-.wa-btn svg{width:15px;height:15px;fill:currentColor;flex-shrink:0}
+.nav-wa:hover{opacity:.7}
+.nav-wa svg{width:15px;height:15px;fill:currentColor}
 
-/* ── Step track ── */
-.step-track{display:flex;align-items:flex-start;margin-bottom:2.5rem}
-.step-item{display:flex;align-items:flex-start;flex:1}
-.step-item-inner{display:flex;flex-direction:column;align-items:center;gap:5px}
-.step-dot{
-  width:28px;height:28px;border-radius:50%;border:none;box-shadow:0 0 0 1.5px var(--border-light);
-  background:var(--surface);color:var(--text-3);font-size:.72rem;font-weight:700;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .35s var(--ease);flex-shrink:0;
-}
-.step-dot.active{box-shadow:0 0 0 2px var(--gold),0 0 0 5px var(--gold-dim);background:var(--gold-dim);color:var(--gold)}
-.step-dot.done{box-shadow:none;background:var(--green);color:#fff}
-.step-label{font-size:.62rem;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;font-weight:600;white-space:nowrap}
-.step-dot.active~.step-label,.step-dot.done~.step-label{color:var(--text-2)}
-.step-line{flex:1;height:1px;background:var(--border);margin:14px 5px 0;transition:background .35s ease}
-.step-line.done{background:var(--green)}
+/* ── Progress track ── */
+.progress-track{display:flex;gap:4px;padding:0 1.25rem .6rem}
+.progress-seg{flex:1;height:3px;border-radius:2px;background:var(--surface-2);transition:background .35s var(--ease)}
+.progress-seg.active{background:var(--gold)}
+.progress-seg.done{background:var(--gold)}
+
+/* ── Large title (first screen only, like a collapsible nav large title) ── */
+.large-title{padding:1.4rem 0 1.75rem}
+.large-title-name{font-size:1.7rem;font-weight:700;color:var(--text);letter-spacing:-.02em;display:block}
+.large-title-sub{font-size:.75rem;font-weight:600;color:var(--gold);letter-spacing:.07em;text-transform:uppercase;display:block;margin-top:.3rem}
 
 /* ── Sticky pill ── */
 .premium-pill{
-  position:sticky;top:.75rem;z-index:20;
+  position:sticky;top:calc(64px + .6rem);z-index:20;
   display:flex;align-items:center;justify-content:space-between;
   background:color-mix(in srgb,var(--surface) 78%,transparent);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
   border:none;box-shadow:0 0 0 .5px var(--border),0 8px 24px -12px rgba(0,0,0,.25);border-radius:50px;
@@ -446,14 +445,7 @@ body{
 .btn-primary:hover{opacity:.9}
 .btn-primary:active{transform:scale(.98)}
 .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn-back{
-  display:flex;align-items:center;justify-content:center;gap:.4rem;
-  width:100%;padding:.8rem;background:transparent;color:var(--gold);
-  font-size:.88rem;font-weight:500;border:none;
-  border-radius:50px;cursor:pointer;transition:opacity var(--ease);font-family:inherit;
-}
-.btn-back:hover{opacity:.7}
-.nav-btns{display:flex;flex-direction:column;gap:.5rem;margin-top:1.5rem}
+.nav-btns{margin-top:1.5rem}
 
 /* ── Nominee ── */
 .nominee-section{margin-bottom:1rem}
@@ -597,7 +589,11 @@ body{
 /* ── Tablet & desktop scale-up ── */
 @media(min-width:700px){
   .wrap{max-width:740px;padding:0 2rem 6rem}
-  .site-header{padding:2rem 0 3rem}
+  .nav-wrap{margin:0 -2rem}
+  .nav-bar{padding:.6rem 2rem}
+  .progress-track{padding:0 2rem .6rem}
+  .large-title{padding:1.75rem 0 2rem}
+  .large-title-name{font-size:1.9rem}
   .hero-title{font-size:1.7rem}
   .panel-title{font-size:1.7rem}
   .plans-grid{gap:.9rem}
@@ -606,7 +602,11 @@ body{
 @media(min-width:1000px){
   html{font-size:17px}
   .wrap{max-width:800px;padding:0 2.5rem 7rem}
-  .site-header{padding:2.25rem 0 3.25rem}
+  .nav-wrap{margin:0 -2.5rem}
+  .nav-bar{padding:.6rem 2.5rem}
+  .progress-track{padding:0 2.5rem .6rem}
+  .large-title{padding:2rem 0 2.25rem}
+  .large-title-name{font-size:2.1rem}
   .hero-overlay{padding:2rem 2.25rem}
   .hero-title{font-size:1.95rem}
   .panel-title{font-size:1.9rem}
@@ -621,46 +621,25 @@ body{
 <body>
 <div class="wrap">
 
-<!-- Header -->
-<header class="site-header">
-  <div class="logo">
-    <span class="logo-name">Henry Lee</span>
-    <span class="logo-sub">Tokio Marine · Travel Insurance</span>
-  </div>
-  <a href="https://wa.me/60126123540" class="wa-btn" target="_blank" rel="noopener">
-    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.535 4.07 1.475 5.793L0 24l6.348-1.453A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.791 9.791 0 01-5.013-1.373l-.36-.213-3.727.853.876-3.618-.234-.371A9.778 9.778 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg>
-    WhatsApp Henry
-  </a>
-</header>
-
-<!-- Step track -->
-<div class="step-track" id="stepTrack">
-  <div class="step-item">
-    <div class="step-item-inner">
-      <div class="step-dot active" id="dot-1">1</div>
-      <div class="step-label">Trip</div>
+<!-- Nav bar: back chevron, compact title, progress -->
+<div class="nav-wrap">
+  <div class="nav-bar">
+    <button class="nav-back" id="navBack" onclick="goStep(cur-1)" aria-label="Back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="nav-title">
+      <span class="nav-title-name">Henry Lee</span>
+      <span class="nav-title-step" id="navStepLabel">Trip</span>
     </div>
-    <div class="step-line" id="line-1"></div>
+    <a href="https://wa.me/60126123540" class="nav-wa" target="_blank" rel="noopener" aria-label="WhatsApp Henry">
+      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.535 4.07 1.475 5.793L0 24l6.348-1.453A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.791 9.791 0 01-5.013-1.373l-.36-.213-3.727.853.876-3.618-.234-.371A9.778 9.778 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg>
+    </a>
   </div>
-  <div class="step-item">
-    <div class="step-item-inner">
-      <div class="step-dot" id="dot-2">2</div>
-      <div class="step-label">Plan</div>
-    </div>
-    <div class="step-line" id="line-2"></div>
-  </div>
-  <div class="step-item">
-    <div class="step-item-inner">
-      <div class="step-dot" id="dot-3">3</div>
-      <div class="step-label">Details</div>
-    </div>
-    <div class="step-line" id="line-3"></div>
-  </div>
-  <div class="step-item">
-    <div class="step-item-inner">
-      <div class="step-dot" id="dot-4">4</div>
-      <div class="step-label">Pay</div>
-    </div>
+  <div class="progress-track" id="progressTrack" aria-hidden="true">
+    <div class="progress-seg active" id="pseg-1"></div>
+    <div class="progress-seg" id="pseg-2"></div>
+    <div class="progress-seg" id="pseg-3"></div>
+    <div class="progress-seg" id="pseg-4"></div>
   </div>
 </div>
 
@@ -675,6 +654,12 @@ body{
 
 <!-- ═══════════ STEP 1: TRIP ═══════════ -->
 <div class="step-panel active" id="step-1">
+
+  <!-- Large title (first screen only) -->
+  <div class="large-title">
+    <span class="large-title-name">Henry Lee</span>
+    <span class="large-title-sub">Tokio Marine · Travel Insurance</span>
+  </div>
 
   <!-- Hero image -->
   <div class="hero">
@@ -865,7 +850,6 @@ body{
 
   <div class="nav-btns">
     <button class="btn-primary" onclick="goStep(3)">Continue · Traveller Details</button>
-    <button class="btn-back" onclick="goStep(1)">Back</button>
   </div>
 </div>
 
@@ -933,7 +917,6 @@ body{
 
   <div class="nav-btns">
     <button class="btn-primary" onclick="goStep(4)">Continue · Review &amp; Pay</button>
-    <button class="btn-back" onclick="goStep(2)">Back</button>
   </div>
 </div>
 
@@ -1020,7 +1003,6 @@ body{
   <div id="turnstileBox" style="margin-bottom:1rem"></div>
   <div class="nav-btns">
     <button class="btn-primary" id="submitBtn" onclick="doSubmit()" disabled>Submit Application</button>
-    <button class="btn-back" onclick="goStep(3)">Back</button>
   </div>
 </div>
 
@@ -1130,13 +1112,15 @@ const S={
 
 // ═══════════ NAVIGATION ═══════════
 let cur=1;
+const STEP_LABELS=['Trip','Plan','Traveller Details','Review & Pay'];
 
 function goStep(n){
+  if(n<1)return;
   if(n>cur&&!validateStep(cur))return;
   document.getElementById('step-'+cur).classList.remove('active');
   cur=n;
   document.getElementById('step-'+cur).classList.add('active');
-  updateDots();
+  updateNav();
   if(n===2)renderPlans();
   if(n===3){renderTravBlocks();renderNomineeSections();}
   if(n===4){renderReview();if(!wizardTurnstileRendered)renderWizardTurnstile();}
@@ -1229,16 +1213,13 @@ function validateStep(n){
   return true;
 }
 
-function updateDots(){
+function updateNav(){
   for(let i=1;i<=4;i++){
-    const d=document.getElementById('dot-'+i);
-    const l=document.getElementById('line-'+i);
-    d.className='step-dot';
-    if(i<cur){d.classList.add('done');d.textContent='✓';}
-    else if(i===cur){d.classList.add('active');d.textContent=i;}
-    else{d.textContent=i;}
-    if(l){l.className='step-line';if(i<cur)l.classList.add('done');}
+    const seg=document.getElementById('pseg-'+i);
+    seg.className='progress-seg'+(i<cur?' done':i===cur?' active':'');
   }
+  document.getElementById('navStepLabel').textContent=STEP_LABELS[cur-1];
+  document.getElementById('navBack').classList.toggle('show',cur>1);
   const pill=document.getElementById('premiumPill');
   if(cur>=2&&S.totals.essential>0){
     pill.classList.add('visible');
@@ -1499,7 +1480,7 @@ function selPlan(plan,el){
   S.plan=plan;
   document.querySelectorAll('.plan-card').forEach(c=>{c.classList.remove('sel');c.setAttribute('aria-checked','false');});
   el.classList.add('sel');el.setAttribute('aria-checked','true');
-  updateDots();
+  updateNav();
   updateCfarNote();
 }
 
@@ -2247,7 +2228,7 @@ async function doSubmit(){
     }
     // Success
     document.getElementById('step-4').classList.remove('active');
-    document.getElementById('stepTrack').style.display='none';
+    document.querySelector('.nav-wrap').style.display='none';
     document.getElementById('premiumPill').classList.remove('visible');
     document.getElementById('successScreen').classList.add('active');
     window.scrollTo({top:0,behavior:'smooth'});
