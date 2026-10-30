@@ -111,8 +111,9 @@
   }
 }
 
-html{font-size:16px;scroll-behavior:smooth}
+html{font-size:16px;scroll-behavior:smooth;overflow-x:clip}
 body{
+  overflow-x:clip;
   background:var(--bg);
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',Arial,sans-serif;
@@ -170,7 +171,7 @@ body{
   background:color-mix(in srgb,var(--surface) 78%,transparent);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
   border:none;box-shadow:0 0 0 .5px var(--border),0 8px 24px -12px rgba(0,0,0,.25);border-radius:50px;
   padding:.55rem 1.1rem;margin-bottom:1.75rem;gap:1rem;
-  opacity:0;transform:translateY(-6px);transition:all .3s var(--ease);pointer-events:none;
+  opacity:0;transform:translateY(-6px);transition:opacity .3s var(--ease),transform .3s var(--ease);pointer-events:none;
 }
 .premium-pill.visible{opacity:1;transform:none;pointer-events:auto}
 .pill-left{display:flex;flex-direction:column;gap:1px}
@@ -190,14 +191,14 @@ body{
 
 /* ── Card ── */
 .card{background:var(--surface);border:none;box-shadow:0 0 0 .5px var(--border);border-radius:var(--r);padding:1.4rem;margin-bottom:1rem}
-.card-label{font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2);margin-bottom:.9rem}
+.card-label{font-size:.72rem;font-weight:600;color:var(--text-2);margin-bottom:.9rem}
 
 /* ── Toggle group ── */
 .toggle-group{display:flex;background:var(--surface-2);border-radius:10px;padding:2px;gap:0;width:fit-content;margin-bottom:1.5rem}
 .tgl-btn{
   padding:.4rem 1.1rem;border-radius:8px;border:none;background:transparent;
   color:var(--text);font-size:.88rem;font-weight:500;cursor:pointer;
-  transition:all var(--ease);font-family:inherit;
+  transition:background-color var(--ease),color var(--ease),box-shadow var(--ease);font-family:inherit;
 }
 .tgl-btn.active{background:var(--surface);color:var(--gold);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 
@@ -224,7 +225,7 @@ body{
 .area-opt{
   display:flex;flex-direction:column;gap:.35rem;
   padding:.85rem 1rem;background:var(--surface);border:none;box-shadow:0 0 0 .5px var(--border);
-  border-radius:var(--r-sm);cursor:pointer;transition:all var(--ease);position:relative;
+  border-radius:var(--r-sm);cursor:pointer;transition:background-color var(--ease),box-shadow var(--ease);position:relative;
 }
 .area-opt:hover{background:var(--surface-2)}
 .area-opt:focus-visible,.plan-card:focus-visible,.pay-opt:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -265,7 +266,7 @@ body{
   background:var(--gold-dim);border:none;
   border-radius:var(--r-sm);padding:.95rem 1.1rem;margin-top:1.2rem;gap:1rem;
 }
-.pbox-label{font-size:.72rem;font-weight:600;color:var(--gold);letter-spacing:.04em;text-transform:uppercase}
+.pbox-label{font-size:.72rem;font-weight:600;color:var(--gold)}
 .pbox-note{font-size:.7rem;color:var(--text-2);margin-top:2px}
 .pbox-amount{font-size:1.45rem;font-weight:700;color:var(--gold);text-align:right;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .pbox-sub{font-size:.68rem;color:var(--text-2);margin-top:1px;text-align:right}
@@ -285,11 +286,11 @@ body{
 .plan-card.sel{box-shadow:0 0 0 2px var(--gold);background:var(--gold-dim)}
 .plan-badge{
   position:absolute;top:-11px;left:50%;transform:translateX(-50%);
-  font-size:.6rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  font-size:.6rem;font-weight:700;
   padding:3px 10px;border-radius:20px;white-space:nowrap;
 }
 .b-pop{background:var(--gold);color:#fff}
-.plan-name{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:.6rem}
+.plan-name{font-size:.68rem;font-weight:700;color:var(--text-2);margin-bottom:.6rem}
 .plan-price{font-size:1.4rem;font-weight:700;color:var(--text);line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 .plan-card.sel .plan-price{color:var(--gold)}
 .plan-price-note{font-size:.7rem;color:var(--text-2);margin:.25rem 0 .9rem}
@@ -302,7 +303,7 @@ body{
 .cov-table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.9rem}
 .cov-table th{
   padding:.45rem .5rem;border-bottom:.5px solid var(--border);
-  font-size:.66rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2);
+  font-size:.66rem;font-weight:600;color:var(--text-2);
   text-align:right;
 }
 .cov-table th:first-child{text-align:left}
@@ -320,7 +321,7 @@ body{
   border-radius:var(--r-sm);padding:1.1rem;margin-bottom:.75rem;
 }
 .trav-block:last-child{margin-bottom:0}
-.trav-title{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);margin-bottom:.85rem}
+.trav-title{font-size:.7rem;font-weight:700;color:var(--gold);margin-bottom:.85rem}
 .autofill-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-top:.85rem}
 .af-field{
   padding:.7rem .9rem;background:var(--surface-2);border:none;
@@ -369,7 +370,7 @@ body{
   padding:.95rem 1.1rem;background:var(--gold-dim);border:none;
   border-radius:var(--r-sm);margin-top:1rem;gap:1rem;
 }
-.rv-total-label{font-size:.72rem;font-weight:600;color:var(--gold);letter-spacing:.04em;text-transform:uppercase}
+.rv-total-label{font-size:.72rem;font-weight:600;color:var(--gold)}
 .rv-total-amount{font-size:1.5rem;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 
 /* ── Issuance note ── */
@@ -378,13 +379,14 @@ body{
   padding:.85rem 1rem;background:var(--green-dim);border:none;
   border-radius:var(--r-sm);font-size:.9rem;line-height:1.55;color:var(--green);margin-bottom:1.2rem;
 }
+.issuance-icon{width:18px;height:18px;flex-shrink:0;margin-top:.1rem}
 
 /* ── Payment options ── */
 .pay-grid{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.2rem}
 .pay-opt{
   display:flex;flex-direction:column;align-items:flex-start;gap:.2rem;
   padding:.9rem 1rem;background:var(--surface);border:none;box-shadow:0 0 0 .5px var(--border);
-  border-radius:var(--r-sm);cursor:pointer;transition:all var(--ease);position:relative;
+  border-radius:var(--r-sm);cursor:pointer;transition:background-color var(--ease),box-shadow var(--ease);position:relative;
 }
 .pay-opt:hover{background:var(--surface-2)}
 .pay-opt.sel{box-shadow:0 0 0 2px var(--gold);background:var(--gold-dim)}
@@ -399,7 +401,7 @@ body{
 }
 .pay-name-row{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
 .pay-name{font-size:.9rem;font-weight:600;color:var(--text)}
-.pay-rec{font-size:.58rem;background:var(--gold);color:#fff;padding:2px 7px;border-radius:20px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.pay-rec{font-size:.58rem;background:var(--gold);color:#fff;padding:2px 7px;border-radius:20px;font-weight:700}
 .pay-detail{font-size:.78rem;color:var(--text-2)}
 .pay-inst{
   padding:1rem 1.1rem;background:var(--surface-2);border:none;
@@ -440,7 +442,7 @@ body{
   display:flex;align-items:center;justify-content:center;gap:.45rem;
   width:100%;padding:.9rem 1.5rem;background:var(--gold);color:#fff;
   font-size:.97rem;font-weight:600;border:none;border-radius:50px;
-  cursor:pointer;transition:all var(--ease);font-family:inherit;letter-spacing:-.005em;
+  cursor:pointer;transition:opacity var(--ease),transform var(--ease);font-family:inherit;letter-spacing:-.005em;
 }
 .btn-primary:hover{opacity:.9}
 .btn-primary:active{transform:scale(.98)}
@@ -451,14 +453,14 @@ body{
 .nominee-section{margin-bottom:1rem}
 .nominee-section:last-child{margin-bottom:0}
 .nominee-section-header{
-  font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  font-size:.68rem;font-weight:700;
   color:var(--gold);margin-bottom:.65rem;
 }
 .nom-block{
   background:var(--surface);border:none;box-shadow:0 0 0 .5px var(--border);
   border-radius:var(--r-sm);padding:.9rem;margin-bottom:.5rem;position:relative;
 }
-.nom-block-title{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);margin-bottom:.75rem}
+.nom-block-title{font-size:.68rem;font-weight:700;color:var(--text-2);margin-bottom:.75rem}
 .nom-remove{
   position:absolute;top:.7rem;right:.7rem;
   background:none;border:none;color:var(--text-3);font-size:.85rem;
@@ -481,7 +483,7 @@ body{
   width:100%;padding:.55rem;background:transparent;
   border:1px dashed var(--border-light);border-radius:var(--r-sm);
   color:var(--gold);font-size:.84rem;font-weight:500;cursor:pointer;
-  transition:all var(--ease);font-family:inherit;
+  transition:background-color var(--ease);font-family:inherit;
 }
 .btn-add-nominee:hover{background:var(--gold-dim)}
 
@@ -491,7 +493,7 @@ body{
   border-radius:var(--r-sm);padding:.9rem;margin-bottom:.65rem;position:relative;
 }
 .flight-block:last-of-type{margin-bottom:.75rem}
-.flight-block-title{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);margin-bottom:.75rem}
+.flight-block-title{font-size:.68rem;font-weight:700;color:var(--text-2);margin-bottom:.75rem}
 .flight-remove{
   position:absolute;top:.7rem;right:.7rem;
   background:none;border:none;color:var(--text-3);font-size:.85rem;cursor:pointer;
@@ -502,7 +504,7 @@ body{
   width:100%;padding:.55rem;background:transparent;
   border:1px dashed var(--border-light);border-radius:var(--r-sm);
   color:var(--gold);font-size:.84rem;font-weight:500;cursor:pointer;
-  transition:all var(--ease);font-family:inherit;margin-top:0;
+  transition:background-color var(--ease);font-family:inherit;margin-top:0;
 }
 .btn-add-flight:hover{background:var(--gold-dim)}
 
@@ -521,7 +523,6 @@ body{
 
 /* ── Product video ── */
 .video-section{margin-bottom:2rem}
-.video-eyebrow{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem}
 .video-wrap{position:relative;padding-bottom:56.25%;height:0;border-radius:var(--r);overflow:hidden;box-shadow:0 0 0 .5px var(--border)}
 .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
 
@@ -671,7 +672,6 @@ body{
 
   <!-- Product video -->
   <div class="video-section">
-    <div class="video-eyebrow">Product Overview</div>
     <div class="video-wrap">
       <iframe src="https://www.youtube.com/embed/Rrm4uBH7mvk"
         title="All-New Tokio Marine Explorer"
@@ -844,8 +844,8 @@ body{
         <tr class="hl"><td>Cancel for Any Reason (CFAR)</td><td class="cov-na">—</td><td class="cov-na">—</td><td>up to RM5k</td></tr>
       </tbody>
     </table>
-    <div class="cov-link">Full list of benefits in the <a href="/assets/Explorer.pdf" target="_blank" rel="noopener">Explorer brochure ↗</a></div>
-    <div class="cov-link">Lounge Access (Essential &amp; Deluxe): <a href="https://flightdelaylounge.mastercard.com/tokiomarine/content/faq" target="_blank" rel="noopener">Mastercard Flight Delay Lounge FAQ ↗</a></div>
+    <div class="cov-link">Full list of benefits in the <a href="/assets/Explorer.pdf" target="_blank" rel="noopener">Explorer brochure</a></div>
+    <div class="cov-link">Lounge Access (Essential &amp; Deluxe): <a href="https://flightdelaylounge.mastercard.com/tokiomarine/content/faq" target="_blank" rel="noopener">Mastercard Flight Delay Lounge FAQ</a></div>
   </div>
 
   <div class="nav-btns">
@@ -890,8 +890,6 @@ body{
 
   <!-- Optional fields -->
   <div style="margin-bottom:1rem">
-    <div style="font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);margin-bottom:.6rem">Optional Details</div>
-
     <div class="accordion" id="accFlight">
       <div class="acc-head" onclick="togAcc('accFlight')">
         <span class="acc-title"><svg class="acc-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 3L2 10.5l7.5 3L13 21l3-6.5L21 3z"/></svg>Flight Details <span class="opt-tag">Optional</span></span>
@@ -942,7 +940,7 @@ body{
     </div>
   </div>
 
-  <div class="issuance-note">⏱️ Once your payment is received and confirmed, your policy is typically issued via WhatsApp within 2 working hours. Cover only begins once payment is received, so please review everything below carefully before submitting.</div>
+  <div class="issuance-note"><svg class="issuance-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>Once your payment is received and confirmed, your policy is typically issued via WhatsApp within 2 working hours. Cover only begins once payment is received, so please review everything below carefully before submitting.</div>
 
   <!-- Payment method -->
   <div class="field">
@@ -979,7 +977,7 @@ body{
     <div class="upload-zone" onclick="document.getElementById('file-input').click()">
       <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M12 4l-4 4M12 4l4 4"/><path d="M5 15v3a2 2 0 002 2h10a2 2 0 002-2v-3"/></svg></div>
       <div class="upload-text">Tap to upload payment slip</div>
-      <div class="upload-hint">JPG, PNG or PDF · Max 5MB</div>
+      <div class="upload-hint">JPG, PNG or PDF, max 5MB</div>
     </div>
     <input type="file" id="file-input" accept="image/*,.pdf" onchange="onUpload(this)">
     <div class="upload-preview" id="uploadPreview">
@@ -1427,7 +1425,7 @@ function planLabel(){
 
 function renderPlans(){
   const groupEligible = S.policyType !== 'family' && S.adults >= 2;
-  const discountNote = groupEligible ? ' · 5% group discount applied' : '';
+  const discountNote = groupEligible ? '5% group discount, ' : '';
 
   if(S.area==='D'){
     document.getElementById('planSubnote').textContent='Domestic trips are covered by a single plan — no tiers to pick between.';
@@ -1436,7 +1434,7 @@ function renderPlans(){
       <div class="plan-card sel" style="cursor:default">
         <div class="plan-name">Domestic Plan</div>
         <div class="plan-price">RM ${S.premiums.essential>0?S.premiums.essential.toFixed(2):'—'}</div>
-        <div class="plan-price-note">${paxStr()}${discountNote} · +8% SST &amp; stamp duty</div>
+        <div class="plan-price-note">${paxStr()} · ${discountNote}+8% SST &amp; stamp duty</div>
         <ul class="plan-feats">
           <li><span class="fy feat-icon">✓</span>RM200k Personal Accident Cover</li>
           <li><span class="fy feat-icon">✓</span>RM50k Medical Expenses</li>
@@ -1458,7 +1456,7 @@ function renderPlans(){
       ${reco&&reco.key===p.key?`<div class="plan-badge b-pop">Recommended</div>`:''}
       <div class="plan-name">${p.name}</div>
       <div class="plan-price">RM ${S.premiums[p.key]>0?S.premiums[p.key].toFixed(2):'—'}</div>
-      <div class="plan-price-note">${paxStr()}${discountNote} · ${taxNote}</div>
+      <div class="plan-price-note">${paxStr()} · ${discountNote}${taxNote}</div>
       ${reco&&reco.key===p.key?`<div class="plan-reco-note">${reco.reason}</div>`:''}
       <ul class="plan-feats">
         ${p.feats.map(f=>{
