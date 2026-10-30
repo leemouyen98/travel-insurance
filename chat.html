@@ -101,8 +101,9 @@
     --star:#ffd60a;
   }
 }
-html{font-size:16px}
+html{font-size:16px;overflow-x:clip}
 body{
+  overflow-x:clip;
   background:var(--bg);
   color:var(--label); font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',Arial,sans-serif;
   min-height:100vh; -webkit-font-smoothing:antialiased;
@@ -284,7 +285,7 @@ body{
 /* ── Nominee (multi-beneficiary split) ── */
 .nom-block{background:var(--bg-elevated);border:none;box-shadow:0 0 0 .5px var(--separator);border-radius:var(--r);padding:.75rem .85rem;margin-bottom:.55rem}
 .nom-block-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
-.nom-block-title{font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--label-2)}
+.nom-block-title{font-size:.7rem;font-weight:600;color:var(--label-2)}
 .nom-remove{background:none;border:none;color:var(--label-3);font-size:.95rem;cursor:pointer;line-height:1;padding:0 .2rem;font-family:inherit}
 .nom-remove:hover{color:var(--destructive)}
 .nom-alloc-line{font-size:.76rem;color:var(--label-2);padding:.1rem 0 .6rem}
@@ -316,7 +317,7 @@ body{
 }
 .plancard.sel .plan-confirm{display:block}
 .plan-confirm:active{opacity:.85}
-.plancard .pname{font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--label-2)}
+.plancard .pname{font-size:.7rem;font-weight:600;color:var(--label-2)}
 .plancard.pop .pname{color:var(--tint)}
 .plancard .pprice{font-weight:700;font-size:1.1rem;color:var(--label);flex-shrink:0;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .plan-reco-note{font-size:.78rem;color:var(--tint);line-height:1.4;margin:-.25rem 0 .55rem}
@@ -336,20 +337,21 @@ body{
 .ticket::before{content:'';position:absolute;left:0;right:0;top:0;height:4px;background:var(--tint)}
 .ticket-body{padding:1.05rem 1.15rem .95rem}
 .ticket-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.7rem}
-.ticket-eyebrow{font-size:.72rem;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--tint);display:flex;align-items:center;gap:.4rem}
-.ticket-stamp{font-size:.62rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--success-deep);background:rgba(52,199,89,.12);border:none;box-shadow:0 0 0 1px rgba(52,199,89,.35);border-radius:6px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
+.ticket-eyebrow{font-size:.72rem;font-weight:600;color:var(--tint);display:flex;align-items:center;gap:.4rem}
+.ticket-eyebrow svg{width:14px;height:14px;flex-shrink:0}
+.ticket-stamp{font-size:.62rem;font-weight:700;color:var(--success-deep);background:rgba(52,199,89,.12);border:none;box-shadow:0 0 0 1px rgba(52,199,89,.35);border-radius:6px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
 .ticket-amount{font-weight:700;font-size:2.1rem;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .ticket-currency{font-size:.9rem;font-weight:600;color:var(--label-2);margin-right:.2rem}
-.ticket-amount-caption{font-size:.68rem;font-weight:500;color:var(--label-2);text-transform:uppercase;letter-spacing:.04em;margin-top:.25rem}
+.ticket-amount-caption{font-size:.68rem;font-weight:500;color:var(--label-2);margin-top:.25rem}
 .ticket-perf{position:relative;margin:.9rem -1.15rem;border-top:1px dashed var(--separator)}
 .ticket-perf::before,.ticket-perf::after{content:'';position:absolute;top:50%;width:18px;height:18px;background:var(--bg);border-radius:50%;transform:translateY(-50%)}
 .ticket-perf::before{left:-9px}
 .ticket-perf::after{right:-9px}
 .ticket-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem 1rem;margin-bottom:.95rem}
 .ticket-grid .full{grid-column:1/-1}
-.ticket-cell-label{font-size:.66rem;font-weight:500;letter-spacing:.03em;text-transform:uppercase;color:var(--label-2);margin-bottom:.18rem}
+.ticket-cell-label{font-size:.66rem;font-weight:500;color:var(--label-2);margin-bottom:.18rem}
 .ticket-cell-value{font-size:.9rem;font-weight:600;color:var(--label);line-height:1.3}
-.ticket-breakdown-label{font-size:.66rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--tint);margin-bottom:.3rem}
+.ticket-breakdown-label{font-size:.66rem;font-weight:600;color:var(--tint);margin-bottom:.3rem}
 .ticket-row{display:flex;justify-content:space-between;align-items:baseline;font-size:.82rem;color:var(--label-2);padding:.32rem 0}
 .ticket-row+.ticket-row{border-top:.5px dashed var(--separator)}
 .ticket-row span:last-child{font-weight:600;color:var(--label);text-align:right;font-variant-numeric:tabular-nums}
@@ -381,7 +383,8 @@ body{
   text-align:center;cursor:pointer;transition:background .15s ease;
 }
 .upload-zone:hover{background:var(--bg-tertiary)}
-.upload-icon{font-size:1.3rem;margin-bottom:.35rem;color:var(--tint)}
+.upload-icon{display:flex;justify-content:center;margin-bottom:.35rem;color:var(--tint)}
+.upload-icon svg{width:22px;height:22px}
 .upload-text{font-size:.86rem;color:var(--label);font-weight:500}
 .upload-hint{font-size:.72rem;color:var(--label-2);margin-top:.2rem}
 
@@ -948,7 +951,7 @@ async function showPlans(){
       </div>
       <div class="note-block">
         <p>Domestic cover applies to accidental causes only, not illness.</p>
-        <p class="note-link">T&amp;C applied. <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">Refer Explorer brochure ↗</a></p>
+        <p class="note-link">T&amp;C applied. <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">Refer Explorer brochure</a></p>
       </div>`);
     return;
   }
@@ -985,10 +988,10 @@ async function showPlans(){
           <li><span class="fy">✓</span>Extreme Activities included</li>`)}
     </div>
     <div class="note-block">
-      <p><b>Lounge Access:</b> a complimentary Mastercard airport lounge pass if your flight's delayed. <a href="https://flightdelaylounge.mastercard.com/tokiomarine/content/faq" target="_blank" rel="noopener" style="color:var(--brass)">FAQ ↗</a></p>
-      <p><b>CFAR</b> (Cancel For Any Reason): recover 75% of flight &amp; accommodation expenses, up to RM5,000. <a href="/assets/Explorer.pdf#page=8" target="_blank" rel="noopener" style="color:var(--brass)">See example ↗</a></p>
+      <p><b>Lounge Access:</b> a complimentary Mastercard airport lounge pass if your flight's delayed. <a href="https://flightdelaylounge.mastercard.com/tokiomarine/content/faq" target="_blank" rel="noopener" style="color:var(--brass)">FAQ</a></p>
+      <p><b>CFAR</b> (Cancel For Any Reason): recover 75% of flight &amp; accommodation expenses, up to RM5,000. <a href="/assets/Explorer.pdf#page=8" target="_blank" rel="noopener" style="color:var(--brass)">See example</a></p>
       <p><b>Extreme Activities:</b> scuba diving, skiing &amp; similar.</p>
-      <p class="note-link">T&amp;C applied. <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">Refer Explorer brochure ↗</a></p>
+      <p class="note-link">T&amp;C applied. <a href="/assets/Explorer.pdf" target="_blank" rel="noopener" style="color:var(--brass)">Refer Explorer brochure</a></p>
     </div>`);
 }
 // Selecting a card just highlights it and reveals its own Confirm button —
@@ -1022,7 +1025,7 @@ async function pickPlan(plan, amount){
     <div class="ticket">
       <div class="ticket-body">
         <div class="ticket-top">
-          <div class="ticket-eyebrow">✈ Tokio Marine Explorer · ${plan.charAt(0).toUpperCase()+plan.slice(1)}</div>
+          <div class="ticket-eyebrow"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 3L2 10.5l7.5 3L13 21l3-6.5L21 3z"/></svg>Tokio Marine Explorer · ${plan.charAt(0).toUpperCase()+plan.slice(1)}</div>
           <div class="ticket-stamp">Confirmed</div>
         </div>
         <div class="ticket-amount"><span class="ticket-currency">RM</span>${amount.toFixed(2)}</div>
@@ -1192,7 +1195,7 @@ function confirmTravellerCard(){
   const summary=[t.fullName];
   if (curT===0) summary.push(S.mobile);
   summary.push(t.idNumber);
-  if (cardDraft.idType==='passport') summary.push(`${t.nationality} · ${t.gender} · ${t.dateOfBirth}`);
+  if (cardDraft.idType==='passport') summary.push(`${t.nationality}, ${t.gender} · ${t.dateOfBirth}`);
   if (t.nominees) summary.push(t.nominees.map(n=>`${n.name} (${n.relationship}) — ${n.share}%`).join(', '));
   sayMine(summary.join('<br>'), history.length-1);
   checkEligibilityThen(age, curT===0 ? ()=>enterStep(askAddressEmailOccupation) : nextTravellerOrContinue);
@@ -1319,9 +1322,9 @@ async function pickPayment(method){
 async function askUploadSlip(){
   showWidget(`
     <div class="upload-zone" onclick="document.getElementById('wFile').click()">
-      <div class="upload-icon">📎</div>
+      <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M12 4l-4 4M12 4l4 4"/><path d="M5 15v3a2 2 0 002 2h10a2 2 0 002-2v-3"/></svg></div>
       <div class="upload-text" id="uploadLabel">Tap to upload your payment receipt</div>
-      <div class="upload-hint">JPG, PNG or PDF · Max 5MB</div>
+      <div class="upload-hint">JPG, PNG or PDF, max 5MB</div>
     </div>
     <input type="file" id="wFile" accept="image/*,.pdf" style="display:none" onchange="onFileChosen()">
     <div class="send-row"><button class="send-btn" id="fileSend" disabled onclick="confirmSlip()">→</button></div>`);
