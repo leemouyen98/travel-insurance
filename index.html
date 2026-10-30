@@ -420,6 +420,15 @@ body{
   padding:1rem 1.1rem;background:var(--surface-2);border:none;
   border-radius:var(--r-sm);font-size:.85rem;color:var(--text-2);line-height:1.6;margin-bottom:1rem;display:none;
 }
+.qr-download{
+  display:inline-flex;align-items:center;justify-content:center;gap:.35rem;
+  min-height:44px;margin-top:.65rem;padding:.5rem 1rem;border-radius:20px;
+  background:var(--gold-dim);color:var(--gold);
+  font-size:.82rem;font-weight:600;text-decoration:none;cursor:pointer;
+  transition:background-color var(--ease);
+}
+.qr-download:hover{background:var(--gold-border)}
+.qr-download svg{width:16px;height:16px;flex-shrink:0}
 
 /* ── Upload ── */
 .upload-zone{
@@ -982,6 +991,10 @@ body{
     <img src="/duitnow-qr.png" alt="DuitNow QR Code"
       style="max-width:220px;width:100%;border-radius:var(--r);border:1px solid var(--border)">
     <div style="font-size:.75rem;color:var(--text-3);margin-top:.5rem">Scan with your banking app to pay</div>
+    <a href="/duitnow-qr.png" download="DuitNow-QR-TokioMarine.png" class="qr-download">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M12 15l-4-4M12 15l4-4"/><path d="M5 19h14"/></svg>
+      Download QR to scan on your phone
+    </a>
   </div>
 
   <!-- Upload slip -->
