@@ -68,10 +68,14 @@
   --text:#000000;           /* label */
   --text-2:rgba(60,60,67,.6);      /* secondaryLabel */
   --text-3:rgba(60,60,67,.32);     /* tertiaryLabel */
-  --gold:#007aff;           /* systemBlue — primary tint */
+  --gold:#0066cc;           /* systemBlue — primary tint (darkened from #007aff for AA text contrast) */
   --gold-light:#0040dd;
   --gold-dim:rgba(0,122,255,.1);
   --gold-border:rgba(0,122,255,.28);
+  --gold-fill:var(--gold);  /* solid fills with white text; overridden in dark mode */
+  --badge-teal:#056e91;     /* darker than --teal so badge text keeps AA contrast on light bg */
+  --badge-green:#197832;
+  --badge-orange:#a55500;
   --green:#1f8a3b;
   --green-dim:rgba(52,199,89,.1);
   --green-border:rgba(52,199,89,.28);
@@ -99,6 +103,10 @@
     --gold-light:#5ab0ff;
     --gold-dim:rgba(10,132,255,.16);
     --gold-border:rgba(10,132,255,.35);
+    --gold-fill:#0066cc;      /* darker than --gold so white button text keeps AA contrast */
+    --badge-teal:var(--teal);     /* original tints already pass AA on dark badge backgrounds */
+    --badge-green:var(--green);
+    --badge-orange:var(--orange);
     --green:#30d158;
     --green-dim:rgba(48,209,88,.14);
     --green-border:rgba(48,209,88,.3);
@@ -106,7 +114,7 @@
     --red-dim:rgba(255,69,58,.14);
     --red-border:rgba(255,69,58,.32);
     --teal:#64d2ff;--teal-dim:rgba(100,210,255,.16);
-    --indigo:#7d7aff;--indigo-dim:rgba(125,122,255,.16);
+    --indigo:#8c8aff;--indigo-dim:rgba(125,122,255,.16);
     --orange:#ff9f0a;--orange-dim:rgba(255,159,10,.16);
   }
 }
@@ -239,10 +247,10 @@ body{
 .area-opt-name{font-size:.9rem;font-weight:600;color:var(--text)}
 .area-opt-desc{font-size:.82rem;color:var(--text-2);line-height:1.5;padding-right:1.5rem}
 .area-pill{font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.03em;flex-shrink:0}
-.a-D{background:var(--teal-dim);color:var(--teal)}
-.a-1{background:var(--green-dim);color:var(--green)}
+.a-D{background:var(--teal-dim);color:var(--badge-teal)}
+.a-1{background:var(--green-dim);color:var(--badge-green)}
 .a-2{background:var(--indigo-dim);color:var(--indigo)}
-.a-3{background:var(--orange-dim);color:var(--orange)}
+.a-3{background:var(--orange-dim);color:var(--badge-orange)}
 
 /* ── Stepper ── */
 .stepper-row{
@@ -294,7 +302,7 @@ body{
   font-size:.6rem;font-weight:700;
   padding:3px 10px;border-radius:20px;white-space:nowrap;
 }
-.b-pop{background:var(--gold);color:#fff}
+.b-pop{background:var(--gold-fill);color:#fff}
 .plan-name{font-size:.68rem;font-weight:700;color:var(--text-2);margin-bottom:.6rem}
 .plan-price{font-size:1.4rem;font-weight:700;color:var(--text);line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 .plan-card.sel .plan-price{color:var(--gold)}
@@ -406,7 +414,7 @@ body{
 }
 .pay-name-row{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
 .pay-name{font-size:.9rem;font-weight:600;color:var(--text)}
-.pay-rec{font-size:.58rem;background:var(--gold);color:#fff;padding:2px 7px;border-radius:20px;font-weight:700}
+.pay-rec{font-size:.58rem;background:var(--gold-fill);color:#fff;padding:2px 7px;border-radius:20px;font-weight:700}
 .pay-detail{font-size:.78rem;color:var(--text-2)}
 .pay-inst{
   padding:1rem 1.1rem;background:var(--surface-2);border:none;
@@ -445,7 +453,7 @@ body{
 /* ── Buttons ── */
 .btn-primary{
   display:flex;align-items:center;justify-content:center;gap:.45rem;
-  width:100%;padding:.9rem 1.5rem;background:var(--gold);color:#fff;
+  width:100%;padding:.9rem 1.5rem;background:var(--gold-fill);color:#fff;
   font-size:.97rem;font-weight:600;border:none;border-radius:50px;
   cursor:pointer;transition:opacity var(--ease),transform var(--ease);font-family:inherit;letter-spacing:-.005em;
 }
