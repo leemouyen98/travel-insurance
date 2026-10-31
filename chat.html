@@ -835,6 +835,7 @@ function onDateInput(){
 }
 async function confirmDates(){
   const f=document.getElementById('wDateFrom').value, t=document.getElementById('wDateTo').value;
+  if (f<todayStr){ await sayTheirs("Departure date can't be in the past — mind picking a date from today onwards?"); return; }
   const d1=new Date(f), d2=new Date(t);
   const days=Math.max(0, Math.ceil((d2-d1)/86400000)+1);
   if (days>180){ await sayTheirs("That's over 180 days, which is the max I can cover in one trip. Mind picking a shorter return date, or WhatsApp me for a custom plan?"); return; }
@@ -846,6 +847,7 @@ async function confirmDates(){
 function onAnnualInput(){ document.getElementById('annualSend').disabled = !document.getElementById('wAnnualStart').value; }
 async function confirmAnnual(){
   const val=document.getElementById('wAnnualStart').value;
+  if (val<todayStr){ await sayTheirs("Policy start date can't be in the past — mind picking a date from today onwards?"); return; }
   const start=new Date(val); const end=new Date(start); end.setFullYear(end.getFullYear()+1); end.setDate(end.getDate()-1);
   S.annualStart=val; S.annualEnd=end.toISOString().slice(0,10); S.days=365;
   clearWidget();

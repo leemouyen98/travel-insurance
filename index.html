@@ -1198,6 +1198,11 @@ function validateStep(n){
       showFieldError(document.getElementById('dateSection'),'Please select both your departure and return dates.');
       return false;
     }
+    if(S.tripType==='single'&&S.dateFrom&&S.dateFrom<todayStr){
+      document.getElementById('dateFrom').classList.add('err');
+      showFieldError(document.getElementById('dateSection'),'Departure date cannot be in the past.');
+      return false;
+    }
     if(S.tripType==='single'&&S.days<1){
       document.getElementById('dateTo').classList.add('err');
       showFieldError(document.getElementById('dateSection'),'Return date must be after departure date.');
@@ -1212,6 +1217,11 @@ function validateStep(n){
       const startEl=document.getElementById('annualStart');
       startEl.classList.add('err');
       showFieldError(document.getElementById('annualDateSection'),'Please select a policy start date for the Annual plan.');
+      return false;
+    }
+    if(S.tripType==='annual'&&S.annualStart&&S.annualStart<todayStr){
+      document.getElementById('annualStart').classList.add('err');
+      showFieldError(document.getElementById('annualDateSection'),'Policy start date cannot be in the past.');
       return false;
     }
   }
@@ -1322,6 +1332,7 @@ function selArea(area,el){
 const todayStr=new Date().toISOString().split('T')[0];
 document.getElementById('dateFrom').min=todayStr;
 document.getElementById('dateTo').min=todayStr;
+document.getElementById('annualStart').min=todayStr;
 
 function onDate(){
   const fromEl=document.getElementById('dateFrom');
