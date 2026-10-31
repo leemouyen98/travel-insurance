@@ -1106,7 +1106,7 @@ function renderTravellerCard(){
     <div id="nomBlocksWrap">${nomBlocks.map((b,i)=>nomBlockHtml(b,i)).join('')}</div>
     <button type="button" class="btn-add-nominee" onclick="addNomBlock()">+ Add another beneficiary</button>
     <div class="nom-alloc-line" id="nomAllocLine"></div>` :
-    `<button type="button" class="btn-add-nominee" onclick="openCardNominee()">+ Add beneficiary (optional)</button>`;
+    `<button type="button" class="inline-toggle" onclick="openCardNominee()">+ Add beneficiary (optional)</button>`;
 
   clearWidget();
   showWidget(`
