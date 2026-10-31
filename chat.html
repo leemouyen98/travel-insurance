@@ -1239,7 +1239,7 @@ function nomBlockHtml(b, idx){
     <div class="nom-block">
       <div class="nom-block-head">
         <span class="nom-block-title">Beneficiary ${idx+1}</span>
-        ${nomBlocks.length>1 ? `<button type="button" class="nom-remove" onclick="removeNomBlock(${b.nid})">✕</button>` : ''}
+        <button type="button" class="nom-remove" onclick="removeNomBlock(${b.nid})">✕</button>
       </div>
       <div class="datefield" style="margin-bottom:.5rem"><label>Full Name</label><input type="text" id="nomName-${b.nid}" placeholder="Full name" value="${b.name||''}"></div>
       <div class="datefield" style="margin-bottom:.5rem"><label>NRIC</label><input type="text" id="nomNric-${b.nid}" placeholder="000000-00-0000" maxlength="14" value="${b.idNumber||''}"></div>
