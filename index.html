@@ -1888,14 +1888,34 @@ function syncTravName(id, ti) {
 function togAcc(id){document.getElementById(id).classList.toggle('open');}
 
 // ═══════════ PAYMENT ═══════════
+function copyPayNumber(text,btn){
+  const flash=(label)=>{
+    const original=btn.innerHTML;
+    btn.innerHTML=label;
+    btn.disabled=true;
+    setTimeout(()=>{ btn.innerHTML=original; btn.disabled=false; }, 1500);
+  };
+  const fallback=()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); flash('Copied!'); }
+    catch(e){ flash('Copy failed'); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>flash('Copied!')).catch(fallback);
+  } else fallback();
+}
 function selPay(method,el){
   S.payMethod=method;
   document.querySelectorAll('.pay-opt').forEach(o=>{o.classList.remove('sel');o.setAttribute('aria-checked','false');});
   el.classList.add('sel');el.setAttribute('aria-checked','true');
+  const copyIcon=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy number`;
   const inst={
     duitnow:"Scan the QR code below with your banking app and upload your payment receipt once done.",
-    tng:`Transfer via Touch 'n Go and upload your receipt below.<div style="margin:.75rem 0 .25rem;font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.01em">012 612 3540</div><div style="font-size:.78rem;color:var(--text-3)">Lee Mou Yen</div>`,
-    bank:`Transfer via online banking and upload your receipt below.<div style="margin:.75rem 0 .1rem;font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.01em">1040 2700 307120</div><div style="font-size:.78rem;color:var(--text-3)">RHB Bank · Lee Mou Yen</div>`,
+    tng:`Transfer via Touch 'n Go and upload your receipt below.<div style="margin:.75rem 0 .25rem;font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.01em">012 612 3540</div><div style="font-size:.88rem;font-weight:600;color:var(--text)">Lee Mou Yen</div><button type="button" class="qr-download" onclick="copyPayNumber('126123540', this)">${copyIcon}</button>`,
+    bank:`Transfer via online banking and upload your receipt below.<div style="margin:.75rem 0 .1rem;font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.01em">1040 2700 307120</div><div style="font-size:.88rem;font-weight:600;color:var(--text)">RHB Bank · Lee Mou Yen</div><button type="button" class="qr-download" onclick="copyPayNumber('10402700307120', this)">${copyIcon}</button>`,
   };
   const pi=document.getElementById('payInst');
   const us=document.getElementById('uploadSection');

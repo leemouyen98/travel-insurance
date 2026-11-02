@@ -619,6 +619,25 @@ function onOptKey(e){
 
 let suppressAsk=false;
 function sleep(ms){ return suppressAsk ? Promise.resolve() : new Promise(resolve=>setTimeout(resolve, ms)); }
+function copyPayNumber(text, btn){
+  const flash=(label)=>{
+    const original=btn.innerHTML;
+    btn.innerHTML=label;
+    btn.disabled=true;
+    setTimeout(()=>{ btn.innerHTML=original; btn.disabled=false; }, 1500);
+  };
+  const fallback=()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); flash('Copied!'); }
+    catch(e){ flash('Copy failed'); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>flash('Copied!')).catch(fallback);
+  } else fallback();
+}
 // Typing delay scales with how much there is to "type", instead of one fixed
 // duration for every message regardless of length. Floored so short messages
 // still read as a deliberate pause rather than a flicker, and capped so a
@@ -1324,8 +1343,8 @@ async function pickPayment(method){
   sayMine(labels[method], history.length-1);
   const insts={
     duitnow:'Scan this QR code with your banking app, then upload your receipt below.<br><img src="/duitnow-qr.png" style="max-width:200px;border-radius:12px;margin-top:.5rem" alt="DuitNow QR"><br><a href="/duitnow-qr.png" download="DuitNow-QR-TokioMarine.png" class="qr-download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M12 15l-4-4M12 15l4-4"/><path d="M5 19h14"/></svg>Download QR to scan on your phone</a>',
-    tng:"Transfer to <strong>012 612 3540</strong> (Lee Mou Yen) via Touch 'n Go, then upload your receipt below.",
-    bank:'Transfer to <strong>1040 2700 307120</strong> (RHB Bank, Lee Mou Yen), then upload your receipt below.'
+    tng:"Transfer to <strong>012 612 3540</strong> (Lee Mou Yen) via Touch 'n Go, then upload your receipt below.<br><button type=\"button\" class=\"qr-download\" onclick=\"copyPayNumber('126123540', this)\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"9\" width=\"11\" height=\"11\" rx=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>Copy number</button>",
+    bank:'Transfer to <strong>1040 2700 307120</strong> (RHB Bank, Lee Mou Yen), then upload your receipt below.<br><button type="button" class="qr-download" onclick="copyPayNumber(\'10402700307120\', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy number</button>'
   };
   await sayTheirs(insts[method]);
   enterStep(askUploadSlip);
