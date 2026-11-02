@@ -864,10 +864,13 @@ body{
         <tr><td>Medical Expenses</td><td>RM750k</td><td>RM1M</td><td>RM1M</td></tr>
         <tr><td>Lounge Access</td><td class="cov-na">—</td><td>✓</td><td>✓</td></tr>
         <tr class="hl"><td>Cancel for Any Reason (CFAR)</td><td class="cov-na">—</td><td class="cov-na">—</td><td>up to RM5k</td></tr>
+        <tr><td>Extreme Activities</td><td class="cov-na">—</td><td class="cov-na">—</td><td>✓</td></tr>
       </tbody>
     </table>
     <div class="cov-link">Full list of benefits in the <a href="/assets/Explorer.pdf" target="_blank" rel="noopener">Explorer brochure</a></div>
     <div class="cov-link">Lounge Access (Essential &amp; Deluxe): <a href="https://flightdelaylounge.mastercard.com/tokiomarine/content/faq" target="_blank" rel="noopener">Mastercard Flight Delay Lounge FAQ</a></div>
+    <div class="cov-link">CFAR (Cancel For Any Reason): recover 75% of flight &amp; accommodation expenses, up to RM5,000. <a href="/assets/Explorer.pdf#page=8" target="_blank" rel="noopener">See example</a></div>
+    <div class="cov-link">Extreme Activities: scuba diving, skiing &amp; similar.</div>
   </div>
 
   <div class="nav-btns">
@@ -1440,9 +1443,9 @@ function paxStr(){
 
 // ═══════════ PLAN CARDS ═══════════
 const PLAN_META=[
-  {key:'basic',name:'Basic',feats:['RM350k Accidental Death','RM750k Medical Expenses','RM1M Emergency Evacuation','No Lounge Access','No CFAR cover']},
-  {key:'essential',name:'Essential',feats:['RM550k Accidental Death','RM1M Medical Expenses','Unlimited Evacuation','Lounge Access included','No CFAR cover']},
-  {key:'deluxe',name:'Deluxe',feats:['RM550k Accidental Death','RM1M Medical Expenses','Unlimited Evacuation','Lounge Access included','CFAR up to RM5k']},
+  {key:'basic',name:'Basic',feats:['RM350k Accidental Death','RM750k Medical Expenses','No Lounge Access','No CFAR cover','No Extreme Activities']},
+  {key:'essential',name:'Essential',feats:['RM550k Accidental Death','RM1M Medical Expenses','Lounge Access included','No CFAR cover','No Extreme Activities']},
+  {key:'deluxe',name:'Deluxe',feats:['RM550k Accidental Death','RM1M Medical Expenses','Lounge Access included','CFAR up to RM5k','Extreme Activities included']},
 ];
 
 // Picks the best-fit tier for the trip in state — domestic has only one real plan, so it
