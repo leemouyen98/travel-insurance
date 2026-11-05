@@ -912,7 +912,7 @@ async function askAdults(){
     <div class="stepper-card" style="margin-top:.5rem">
       <div><div class="stepper-name">Seniors</div><div class="stepper-desc">Age 71 – 85</div></div>
       <div class="stepper-ctrl">
-        <button class="stp-btn" id="sMinus" onclick="adjStep('seniors',-1,10)" ${S.seniors<=0?'disabled':''}>−</button>
+        <button class="stp-btn" id="sMinus" onclick="adjStep('seniors',-1,10)" ${S.seniors<=travellerMin('seniors')?'disabled':''}>−</button>
         <span class="stp-val" id="sVal">${S.seniors}</span>
         <button class="stp-btn" onclick="adjStep('seniors',1,10)">+</button>
       </div>
@@ -930,7 +930,7 @@ async function askAdults(){
     <div class="stepper-card">
       <div><div class="stepper-name">Adults</div><div class="stepper-desc">${isFamily?'Age 18 – 70':'Age 30 days – 70'}</div></div>
       <div class="stepper-ctrl">
-        <button class="stp-btn" id="aMinus" onclick="adjStep('adults',-1,${max})" ${S.adults<=1?'disabled':''}>−</button>
+        <button class="stp-btn" id="aMinus" onclick="adjStep('adults',-1,${max})" ${S.adults<=travellerMin('adults')?'disabled':''}>−</button>
         <span class="stp-val" id="aVal">${S.adults}</span>
         <button class="stp-btn" onclick="adjStep('adults',1,${max})">+</button>
       </div>
@@ -939,14 +939,27 @@ async function askAdults(){
     ${childrenCard}
     <div class="send-row"><button class="send-btn" onclick="confirmAdults()">→</button></div>`);
 }
+// An Individual/Group policy can be a single senior travelling alone (0 adults is fine),
+// but needs at least 1 insured person total — so a bucket can only hit 0 if the other
+// one doesn't. Family policies still require >=1 adult as parent/legal guardian.
+function travellerMin(key){
+  if(key==='children')return 0;
+  if(S.policyType==='family')return key==='adults'?1:0;
+  const other=key==='adults'?S.seniors:S.adults;
+  return other>0?0:1;
+}
 function adjStep(key,d,max){
-  const min = key==='adults'?1:0;
-  S[key]=Math.max(min,Math.min(max,S[key]+d));
+  S[key]=Math.max(travellerMin(key),Math.min(max,S[key]+d));
   const idMap={adults:'aVal',seniors:'sVal',children:'cVal'};
-  document.getElementById(idMap[key]).textContent=S[key];
+  const valEl=document.getElementById(idMap[key]);
+  if(valEl)valEl.textContent=S[key];
+  // Adults and Seniors share a floor (each depends on the other's count), so changing
+  // one can flip the other's minus-button disabled state.
   const minusMap={adults:'aMinus',seniors:'sMinus',children:'cMinus'};
-  const btn=document.getElementById(minusMap[key]);
-  if(btn) btn.disabled = S[key]<=min;
+  Object.keys(minusMap).forEach(k=>{
+    const btn=document.getElementById(minusMap[k]);
+    if(btn) btn.disabled = S[k]<=travellerMin(k);
+  });
 }
 async function confirmAdults(){
   clearWidget();

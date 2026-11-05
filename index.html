@@ -571,6 +571,10 @@ body{
   mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5L1.5 21h21L12 2.5zm0 6a1 1 0 011 1v5a1 1 0 01-2 0V9.5a1 1 0 011-1zm0 9.3a1.1 1.1 0 110 2.2 1.1 1.1 0 010-2.2z'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 .area-grid.err{outline:1.5px solid var(--red);outline-offset:5px;border-radius:var(--r-sm)}
+.age-note{
+  font-size:.82rem;color:var(--green);margin-top:.5rem;line-height:1.45;
+  display:flex;align-items:flex-start;gap:.4rem;animation:fadeUp .25s ease;
+}
 
 /* ── Success ── */
 .success-screen{display:none;text-align:center;padding:3rem 1rem;animation:fadeUp .5s var(--ease)}
@@ -1286,16 +1290,12 @@ function setPolicyType(type,btn){
   document.getElementById('familyNote').style.display=isFamily?'block':'none';
   if(isFamily){
     S.seniors=0;
-    document.getElementById('seniorVal').textContent='0';
-    if(S.adults>2){
-      S.adults=2;
-      document.getElementById('adultVal').textContent='2';
-      document.getElementById('adultMinus').disabled=false;
-    }
+    if(S.adults<1)S.adults=1; // family always needs a parent/legal guardian
+    if(S.adults>2)S.adults=2;
   }else{
     S.children=0;
-    document.getElementById('childVal').textContent='0';
   }
+  syncStepperUI();
   calcPremium();
 }
 
@@ -1305,17 +1305,39 @@ function toggleBtns(btn){
 }
 
 // ═══════════ COUNTERS ═══════════
+// An Individual/Group policy can be a single senior travelling alone (0 adults is fine),
+// but needs at least 1 insured person total — so a bucket can only hit 0 if the other
+// one doesn't. Family policies still require >=1 adult as parent/legal guardian.
+function travellerMin(key){
+  if(key==='children')return 0;
+  if(S.policyType==='family')return key==='adults'?1:0;
+  const other=key==='adults'?S.seniors:S.adults;
+  return other>0?0:1;
+}
 function adj(key,d){
-  const min=key==='adults'?1:0;
+  const min=travellerMin(key);
   const max=key==='adults'&&S.policyType==='family'?2:10;
   S[key]=Math.max(min,Math.min(max,S[key]+d));
+  // Adults and Seniors share a floor (each depends on the other's count), so changing
+  // one can flip the other's minus-button disabled state — sync both, not just key.
+  syncStepperUI();
+  calcPremium();
+}
+// Keeps Step 1's traveller steppers in sync with S — needed both after a manual +/- and
+// after reclassifyTraveller() moves someone between bands behind the scenes.
+function syncStepperUI(key){
   const ids={adults:'adultVal',seniors:'seniorVal',children:'childVal'};
   const minIds={adults:'adultMinus',seniors:'seniorMinus',children:'childMinus'};
   const maxBtns={adults:document.querySelector('#adultMinus+span+button'),seniors:document.querySelector('#seniorMinus+span+button'),children:document.querySelector('#childMinus+span+button')};
-  document.getElementById(ids[key]).textContent=S[key];
-  document.getElementById(minIds[key]).disabled=S[key]<=min;
-  if(maxBtns[key])maxBtns[key].disabled=S[key]>=max;
-  calcPremium();
+  const keys=key?[key]:['adults','seniors','children'];
+  keys.forEach(k=>{
+    const valEl=document.getElementById(ids[k]);
+    if(valEl)valEl.textContent=S[k];
+    const minBtn=document.getElementById(minIds[k]);
+    if(minBtn)minBtn.disabled=S[k]<=travellerMin(k);
+    const maxVal=k==='adults'&&S.policyType==='family'?2:10;
+    if(maxBtns[k])maxBtns[k].disabled=S[k]>=maxVal;
+  });
 }
 
 // ═══════════ COVERAGE AREA ═══════════
@@ -1525,9 +1547,11 @@ function selPlan(plan,el){
 function renderTravBlocks(){
   const total=S.adults+S.seniors+S.children;
   document.getElementById('detailsSubnote').textContent=`Fill in details for ${total} traveller${total>1?'s':''}.`;
+  // The main insured is whichever traveller is first overall (ti===0) — an Individual/Group
+  // policy can be a senior travelling alone, so this isn't always the first Adult.
   let html='',idx=1,ti=0;
-  for(let i=0;i<S.adults;i++){html+=travBlock(idx++,i===0?'Adult (Main Insured)':'Adult',`a${i}`,ti++);}
-  for(let i=0;i<S.seniors;i++){html+=travBlock(idx++,'Senior (71–85)',`s${i}`,ti++);}
+  for(let i=0;i<S.adults;i++){html+=travBlock(idx++,ti===0?'Adult (Main Insured)':'Adult',`a${i}`,ti++);}
+  for(let i=0;i<S.seniors;i++){html+=travBlock(idx++,ti===0?'Senior (Main Insured)':'Senior (71–85)',`s${i}`,ti++);}
   for(let i=0;i<S.children;i++){html+=travBlock(idx++,'Child (30 days–23 yrs)',`c${i}`,ti++);}
   document.getElementById('travBlocks').innerHTML=html;
 }
@@ -1771,7 +1795,125 @@ function travBlock(idx,type,id,ti){
         </div>
       </div>
     </div>
+    <div class="field-err" id="age-warn-${id}" style="display:none"></div>
   </div>`;
+}
+
+// ═══════════ AGE / ELIGIBILITY CROSS-CHECK ═══════════
+// Catches a traveller counted under the wrong age band (e.g. a senior counted as an
+// adult), which would otherwise silently price them off the wrong rate table row.
+// Mirrors chat.html's ageFromParts/eligibilityIssue so both widgets agree.
+function ageFromParts(year,month,day){
+  if(!year||!month||!day)return null;
+  const today=new Date();
+  let age=today.getFullYear()-year;
+  const beforeBirthdayThisYear=(today.getMonth()+1<month)||(today.getMonth()+1===month&&today.getDate()<day);
+  if(beforeBirthdayThisYear)age--;
+  return age;
+}
+function ageBandFromId(id){
+  if(id.startsWith('a'))return'Adult';
+  if(id.startsWith('s'))return'Senior';
+  if(id.startsWith('c'))return'Child';
+  return null;
+}
+function eligibilityIssue(ageBand,age,policyType){
+  if(age==null||age<0)return null;
+  if(ageBand==='Senior'&&(age<71||age>85))return `age ${age} is outside the Senior band (71–85)`;
+  if(ageBand==='Adult'){
+    const min=policyType==='family'?18:0;
+    if(age<min||age>70)return `age ${age} is outside the Adult band (${policyType==='family'?'18–70':'under 70'})`;
+  }
+  if(ageBand==='Child'&&age>23)return `age ${age} is outside the Child band (23 or under)`;
+  return null;
+}
+function clearAgeWarning(id){
+  const warnEl=document.getElementById(`age-warn-${id}`);
+  if(warnEl){warnEl.style.display='none';warnEl.className='field-err';warnEl.textContent='';}
+}
+function checkTravellerAge(id,year,month,day){
+  const warnEl=document.getElementById(`age-warn-${id}`);
+  if(!warnEl)return;
+  const ageBand=ageBandFromId(id);
+  const age=ageFromParts(year,month,day);
+  const issue=ageBand&&age!=null?eligibilityIssue(ageBand,age,S.policyType):null;
+  if(!issue){clearAgeWarning(id);return;}
+
+  // Adult <-> Senior mixups auto-correct — an Individual/Group policy can be a senior
+  // travelling alone, so moving the last adult to Senior is fine; anything else (Child
+  // band, or a family policy where an adult is required) just gets a short note.
+  if(S.policyType!=='family'){
+    if(ageBand==='Adult'&&age>=71&&age<=85)return reclassifyTraveller(id,'Senior');
+    if(ageBand==='Senior'&&age>=0&&age<=70)return reclassifyTraveller(id,'Adult');
+  }
+  warnEl.className='field-err';
+  warnEl.textContent=`Age ${age} doesn't match this traveller's count — please check.`;
+  warnEl.style.display='flex';
+}
+// Moves one traveller between the Adult/Senior count buckets, re-renders the traveller
+// blocks (which rebuilds every id), and restores everyone's already-entered details —
+// renderTravBlocks() wipes the whole section, so every traveller needs restoring, not
+// just the one that moved.
+function reclassifyTraveller(id,newBand){
+  const snap=[];
+  const pull=(pfx,band)=>snap.push({
+    band,origId:pfx,
+    name:document.getElementById(`name-${pfx}`)?.value||'',
+    country:document.getElementById(`country-${pfx}`)?.value||'MY',
+    nric:document.getElementById(`nric-${pfx}`)?.value||'',
+    dobText:document.getElementById(`dob-${pfx}`)?.textContent||'',
+    genderText:document.getElementById(`gender-${pfx}`)?.textContent||'',
+    dobInput:document.getElementById(`dob-input-${pfx}`)?.value||'',
+    genderSelect:document.getElementById(`gender-select-${pfx}`)?.value||''
+  });
+  for(let i=0;i<S.adults;i++)pull(`a${i}`,'Adult');
+  for(let i=0;i<S.seniors;i++)pull(`s${i}`,'Senior');
+  for(let i=0;i<S.children;i++)pull(`c${i}`,'Child');
+
+  const rec=snap.find(r=>r.origId===id);
+  if(!rec)return;
+  rec.band=newBand;
+  S.adults=snap.filter(r=>r.band==='Adult').length;
+  S.seniors=snap.filter(r=>r.band==='Senior').length;
+  S.children=snap.filter(r=>r.band==='Child').length;
+
+  renderTravBlocks();
+
+  const restore=(pfx,r,ti)=>{
+    const nameEl=document.getElementById(`name-${pfx}`); if(nameEl)nameEl.value=r.name;
+    const countryEl=document.getElementById(`country-${pfx}`); if(countryEl)countryEl.value=r.country;
+    if(r.country!=='MY')onCountryChange(pfx);
+    const nricEl=document.getElementById(`nric-${pfx}`); if(nricEl)nricEl.value=r.nric;
+    if(r.country==='MY'){
+      if(r.dobText&&r.dobText!=='—'){const dobEl=document.getElementById(`dob-${pfx}`);if(dobEl){dobEl.textContent=r.dobText;dobEl.className='af-field filled';}}
+      if(r.genderText&&r.genderText!=='—'){const gEl=document.getElementById(`gender-${pfx}`);if(gEl){gEl.textContent=r.genderText;gEl.className='af-field filled';}}
+    }else{
+      const dobInput=document.getElementById(`dob-input-${pfx}`); if(dobInput){dobInput.value=r.dobInput;dobInput.classList.toggle('filled',!!r.dobInput);}
+      const genderSelect=document.getElementById(`gender-select-${pfx}`); if(genderSelect){genderSelect.value=r.genderSelect;genderSelect.classList.toggle('filled',!!r.genderSelect);}
+      if(r.dobText&&r.dobText!=='—'){const dobEl=document.getElementById(`dob-${pfx}`);if(dobEl)dobEl.textContent=r.dobText;}
+      if(r.genderText&&r.genderText!=='—'){const gEl=document.getElementById(`gender-${pfx}`);if(gEl)gEl.textContent=r.genderText;}
+    }
+    syncTravName(pfx,ti);
+  };
+  const groups={Adult:[],Senior:[],Child:[]};
+  snap.forEach(r=>groups[r.band].push(r));
+  let ti=0,newId='';
+  groups.Adult.forEach((r,i)=>{const pfx=`a${i}`;restore(pfx,r,ti++);if(r.origId===id)newId=pfx;});
+  groups.Senior.forEach((r,i)=>{const pfx=`s${i}`;restore(pfx,r,ti++);if(r.origId===id)newId=pfx;});
+  groups.Child.forEach((r,i)=>{const pfx=`c${i}`;restore(pfx,r,ti++);if(r.origId===id)newId=pfx;});
+
+  syncStepperUI();
+  calcPremium();
+  updateNav();
+  const total=S.adults+S.seniors+S.children;
+  document.getElementById('detailsSubnote').textContent=`Fill in details for ${total} traveller${total>1?'s':''}.`;
+
+  const noteEl=document.getElementById(`age-warn-${newId}`);
+  if(noteEl){
+    noteEl.className='age-note';
+    noteEl.textContent=`✓ Recounted as ${newBand} — total updated to RM ${S.totals[S.plan].toFixed(2)}.`;
+    noteEl.style.display='flex';
+  }
 }
 
 // ═══════════ NRIC / PASSPORT ═══════════
@@ -1782,6 +1924,7 @@ function onCountryChange(id){
   const autofill=document.getElementById(`autofill-${id}`);
   const manual=document.getElementById(`manual-dob-gender-${id}`);
   if(!input)return;
+  clearAgeWarning(id);
   if(country==='MY'){
     input.placeholder='000000-00-0000';
     input.maxLength=14;
@@ -1817,9 +1960,11 @@ function onManualDOB(id){
     const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     if(dobEl){dobEl.textContent=`${d} ${months[parseInt(m)-1]} ${y}`;}
     if(inp)inp.classList.add('filled');
+    checkTravellerAge(id,parseInt(y),parseInt(m),parseInt(d));
   }else{
     if(dobEl){dobEl.textContent='—';}
     if(inp)inp.classList.remove('filled');
+    clearAgeWarning(id);
   }
 }
 
@@ -1855,7 +2000,7 @@ function fmtNRIC(el){
 
 function parseNRIC(el,pfx){
   const raw=el.value.replace(/\D/g,'');
-  if(raw.length<12)return;
+  if(raw.length<12){clearAgeWarning(pfx);return;}
   const yy=raw.slice(0,2),mm=raw.slice(2,4),dd=raw.slice(4,6);
   const yr=(parseInt(yy)<=parseInt(new Date().getFullYear().toString().slice(2))?'20':'19')+yy;
   const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1866,6 +2011,8 @@ function parseNRIC(el,pfx){
   const gEl=document.getElementById('gender-'+pfx);
   if(dobEl){dobEl.textContent=dob;dobEl.className='af-field filled';}
   if(gEl){gEl.textContent=gender;gEl.className='af-field filled';}
+  if(mi>=0&&mi<12)checkTravellerAge(pfx,parseInt(yr),parseInt(mm),parseInt(dd));
+  else clearAgeWarning(pfx);
 }
 
 // ═══════════ NAME SYNC ═══════════
@@ -1977,13 +2124,13 @@ function getTravellerList() {
   for (let i = 0; i < S.adults; i++) {
     const id = `a${i}`;
     const name = document.getElementById(`name-${id}`)?.value?.trim();
-    list.push({ index: idx, id, label: name || (i === 0 ? 'Adult (Main Insured)' : `Adult ${i + 1}`) });
+    list.push({ index: idx, id, label: name || (idx === 0 ? 'Adult (Main Insured)' : `Adult ${i + 1}`) });
     idx++;
   }
   for (let i = 0; i < S.seniors; i++) {
     const id = `s${i}`;
     const name = document.getElementById(`name-${id}`)?.value?.trim();
-    list.push({ index: idx, id, label: name || `Senior ${i + 1}` });
+    list.push({ index: idx, id, label: name || (idx === 0 ? 'Senior (Main Insured)' : `Senior ${i + 1}`) });
     idx++;
   }
   for (let i = 0; i < S.children; i++) {
@@ -2184,10 +2331,14 @@ async function doSubmit(){
   errBanner.style.display='none';
   btn.textContent='Submitting…';btn.disabled=true;
 
-  // Build travellers array
+  // Build travellers array. occupation/address attach to whichever traveller is first
+  // overall (ti===0) — an Individual/Group policy can be a senior travelling alone, so
+  // the main insured isn't always the first Adult.
   const travellers=[];
+  let ti=0;
   for(let i=0;i<S.adults;i++){
     const id=`a${i}`;
+    const isMain=ti++===0;
     travellers.push({
       fullName:document.getElementById(`name-${id}`)?.value||'',
       idNumber:document.getElementById(`nric-${id}`)?.value||'',
@@ -2195,12 +2346,13 @@ async function doSubmit(){
       dateOfBirth:(()=>{const v=document.getElementById(`dob-${id}`)?.textContent||'';return v==='Date of birth'?'':v;})(),
       gender:(()=>{const v=(document.getElementById(`gender-${id}`)?.textContent||'').toLowerCase();return v==='gender'?'':v;})(),
       ageBand:'Adult',
-      occupation:i===0?(document.getElementById('occInput')?.value||''):'',
-      address:i===0?(document.getElementById('addressInput')?.value||''):''
+      occupation:isMain?(document.getElementById('occInput')?.value||''):'',
+      address:isMain?(document.getElementById('addressInput')?.value||''):''
     });
   }
   for(let i=0;i<S.seniors;i++){
     const id=`s${i}`;
+    const isMain=ti++===0;
     travellers.push({
       fullName:document.getElementById(`name-${id}`)?.value||'',
       idNumber:document.getElementById(`nric-${id}`)?.value||'',
@@ -2208,12 +2360,13 @@ async function doSubmit(){
       dateOfBirth:(()=>{const v=document.getElementById(`dob-${id}`)?.textContent||'';return v==='Date of birth'?'':v;})(),
       gender:(()=>{const v=(document.getElementById(`gender-${id}`)?.textContent||'').toLowerCase();return v==='gender'?'':v;})(),
       ageBand:'Senior',
-      occupation:'',
-      address:''
+      occupation:isMain?(document.getElementById('occInput')?.value||''):'',
+      address:isMain?(document.getElementById('addressInput')?.value||''):''
     });
   }
   for(let i=0;i<S.children;i++){
     const id=`c${i}`;
+    const isMain=ti++===0;
     travellers.push({
       fullName:document.getElementById(`name-${id}`)?.value||'',
       idNumber:document.getElementById(`nric-${id}`)?.value||'',
@@ -2221,8 +2374,8 @@ async function doSubmit(){
       dateOfBirth:(()=>{const v=document.getElementById(`dob-${id}`)?.textContent||'';return v==='Date of birth'?'':v;})(),
       gender:(()=>{const v=(document.getElementById(`gender-${id}`)?.textContent||'').toLowerCase();return v==='gender'?'':v;})(),
       ageBand:'Child',
-      occupation:'',
-      address:''
+      occupation:isMain?(document.getElementById('occInput')?.value||''):'',
+      address:isMain?(document.getElementById('addressInput')?.value||''):''
     });
   }
 
